@@ -175,6 +175,66 @@ def protected():
     return "<h1>Esta es una vista protegida, solo para usuarios autenticados.</h1>"
 
 
+#-----------------Rutas para listar clientes ---------------------
+
+@app.route('/administration/employeesales')
+def employeesales():
+        
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 2")
+
+    users = cur.fetchall()
+
+    cur.close()
+
+    return render_template('/administration/employeesales.html', users=users)
+
+
+@app.route('/administration/employeestorage')
+def employeestorage():
+        
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 3")
+
+    users = cur.fetchall()
+
+    cur.close()
+
+    return render_template('/administration/employeestorage.html', users=users)
+
+
+@app.route('/administration/employeemanteinance')
+def employeemanteinance():
+        
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 5")
+
+    users = cur.fetchall()
+
+    cur.close()
+
+    return render_template('/administration/employeemanteinance.html', users=users)
+
+
+@app.route('/administration/employeeshippings')
+def employeeshippings():
+        
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 6")
+
+    users = cur.fetchall()
+
+    cur.close()
+
+    return render_template('/administration/employeeshippings.html', users=users)
+
+
+#----------------------Rutas para error 401 y 404--------------------
+
 def status_401(error):
     return redirect(url_for('login'))
 
@@ -189,42 +249,26 @@ if __name__ == '__main__':
     app.register_error_handler(404, status_404)
     app.run()
     
+     
+#--------------------rutas clientes-----------------------
+    
+@app.route('/documentsuser')   
+def documentsuser():
+    return render_template('/clientuser/documentsuser.html')
+    
+@app.route('/information')   
+def information():
+    return render_template('/clientuser/information.html')
+    
+@app.route('/payments')   
+def payments():
+    return render_template('/clientuser/payments.html')
+    
+@app.route('/statusprogress')   
+def statusprogress():
+    return render_template('/clientuser/statusprogress.html')
     
 
     
     
-    #------------------------------------------------rutas clientes
-    
-    @app.route('/documentsuser')   
-    def documentsuser():
-        return render_template('/clientuser/documentsuser.html')
-    
-    @app.route('/information')   
-    def information():
-        return render_template('/clientuser/information.html')
-    
-    @app.route('/payments')   
-    def payments():
-        return render_template('/clientuser/payments.html')
-    
-    @app.route('/statusprogress')   
-    def statusprogress():
-        return render_template('/clientuser/statusprogress.html')
-    
-    #--------------------------------------------- rutas admninistrador
-    
-    @app.route('administration/employeesales')
-    def employeesales():
-        
-        cur = mysql.connection.cursor()
-
-        cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 2")
-
-        users = cur.fetchall()
-
-        cur.close()
-
-        return render_template('administration/employeesales.html', users=users)
-
-
     

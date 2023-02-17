@@ -3,7 +3,7 @@
 {% block title%}Listado de clientes de ventas{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
 
 {% endblock %}
@@ -11,8 +11,10 @@
 
 {% block body %}
 
+<h1>Informacion de los empleados del area de ventas</h1>
 
-<table>
+
+<table class="table table-lg table-dark">
     <tr>
         <th>ID</th>
         <th>Nombre de usuario</th>
@@ -23,8 +25,8 @@
     <tr>
         <td>{{ user[0] }}</td>
         <td>{{ user[1] }}</td>
+        <td>{{ user[2] }}</td>
         <td>{{ user[3] }}</td>
-        <td>{{ user[4] }}</td>
     </tr>
     {% endfor %}
 </table>
