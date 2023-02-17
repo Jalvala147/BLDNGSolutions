@@ -36,6 +36,8 @@ app.config['MYSQL_DATABASE_PASSWORD'] = ''
 app.config['MYSQL_DATABASE_DB'] = 'bdcompleta'
 
 
+
+
 #---------------------------------------------------
 
 
