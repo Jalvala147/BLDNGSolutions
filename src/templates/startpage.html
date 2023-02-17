@@ -1,0 +1,62 @@
+{% extends './base.html' %}
+
+{% block title %}Start{% endblock %}
+
+{% block customCSS %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/startdesign.css')}}">
+
+{% endblock %}
+
+
+<div  class="container py-6">
+{% block body %}
+
+
+<div class="container" align="center">
+  <nav>
+    <img src="static/images/logo.png" class="logo">
+    <ul>
+      <li><a class="nav-link" href="#">Contactenos</a></li>
+      <li><a href="">Acerca</a></li>
+      <li><a href="">Productos</a></li>
+      <li class="nav-item"><a class="nav-link" href="">Login</a>
+        <ul>
+          <li><a href="/login">Soy cliente</a></li>
+          <li><a href="/loginemp">Soy empleado</a></li>
+          <li><a href="loginadm">Soy administrador</a></li>
+        </ul>
+      </li>
+    </ul>
+    <img src="login.png" class="login">
+  </nav>
+
+  <div class="text-box">
+    <h1>BLDNGSolutions</h1>
+    <h3>Construcción</h3>
+  </div>
+
+
+</div>
+
+<h1>PAGINA DE INICIO</h1>
+<div class="container light-grey" style="padding:128px 16px" id="contact">
+  <h3 class="center">CONTACTANOS</h3>
+  <div style="margin-top:48px">
+    <p><i class="fa fa-map-marker fa-fw w3-xxlarge w3-margin-right"></i> Guadalajara MX</p>
+    <p><i class="fa fa-phone fa-fw w3-xxlarge w3-margin-right"></i> Telefono: 3313300921</p>
+    <p><i class="fa fa-envelope fa-fw w3-xxlarge w3-margin-right"> </i> Email: contacto@bldngsolutions.com</p>
+    
+    <!-- Image of location/map -->
+  </div>
+</div>
+<div>
+  ubicacion
+  <img src="static/images/location.png" class="logo">
+</div>
+
+
+{% endblock %}
+
+</div>
+

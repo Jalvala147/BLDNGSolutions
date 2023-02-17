@@ -1,0 +1,74 @@
+{% extends './base.html' %}
+
+{% block title%}Login Empleados{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css')}}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
+
+{% endblock %}
+
+
+{% block body %}
+
+<a href="/startpage">Ir a la página de inicio</a>
+
+<form class= "form-signin" action="/login" method="POST">
+
+    
+    
+    <!--<img class="mb-4" src="{{ url_for('static', filename = 'img/icono.png') }}" width="10" height="10">-->
+    
+    {% with messages = get_flashed_messages() %}
+
+    {% if messages %}
+    <br />
+    {% for message in messages %}
+    <div class="alert alert-primary alert-dismissible" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% endwith %}
+
+
+
+
+<div class="login-card-container" align="center">
+    <div class="login-card">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="login-card-logo">
+            <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo"/></a>
+        </div>
+
+        <div class="login-card-header">
+            <h1>Login Empleados</h1>
+            <div>Por favor inicia sesión</div>
+        </div>
+        <form class="login-card-form">
+            <div class="form-item">
+                <span class="form-item-icon material-symbols-rounded">person</span>
+                <input type="text" placeholder="Usuario" name="username" required="required">
+            </div>
+            <div class="form-item">
+                <span class="form-item-icon material-symbols-rounded">lock</span>
+                <input type="password" placeholder="Contraseña" name="password" required="required">
+            </div>
+            <div class="form-item-other">
+                <a href="#">Olvidé mi contraseña</a>
+            </div>
+            <button type="submit">Entrar</button>
+        </form>
+ 
+    </div>
+    <div class="login-card-social"></div>
+</div>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends './base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+<div>
+    <h1>
+    Pagina de Inicio
+    </h1>
+</div>
+<h2>Bienvenido, {{ current_user.fullname }}</h2>
+<a class="btn btn-secondary" href="{{ url_for('logout') }}">Logout</a>
+
+
+
+{% endblock %}
