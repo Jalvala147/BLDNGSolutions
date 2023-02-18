@@ -1,0 +1,56 @@
+{% extends './base.html' %}
+
+{% block title%}Listado de clientes de ventas{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
+
+{% endblock %}
+
+
+{% block body %}
+
+<h1>Informacion de los empleados del area de mantenimiento</h1>
+
+
+<div class="navigation" align="center">
+    <ul>
+      <li class="list active" align="center">
+        <a href="/administration/employeesales">
+          <span class="icon">
+            <span class="form-item-icon material-symbols-rounded">Description</span>
+          </span>
+          <span class="text">Empleados de ventas</span>
+        </a>
+      </li>
+      <li class="list">
+        <a href="/administration/employeestorage">
+          <span class="icon">
+            <span class="form-item-icon material-symbols-rounded">info</span>
+          </span>
+          <span class="text">Empleados de almacén</span>
+        </a>
+      </li>
+      <li class="list">
+        <a href="/administration/employeemanteinance">
+          <span class="icon">
+            <span class="form-item-icon material-symbols-rounded">Payments</span>
+          </span>
+          <span class="text">Empleados de mantenimiento</span>
+        </a>
+      </li>
+      <li class="list">
+        <a href="/administration/employeeshippings">
+          <span class="icon">
+            <span class="form-item-icon material-symbols-rounded">Payments</span>
+          </span>
+          <span class="text">Empleados de envios</span>
+        </a>
+      </li>
+      
+      <div class="indicator"></div>
+    </ul>
+  </div>
+
+{% endblock %}
