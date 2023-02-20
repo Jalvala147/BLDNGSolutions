@@ -294,8 +294,11 @@ def mantManteinance():
 def mantReports():
     return render_template('/maintenance/mantReports.html')
 
+@app.route('/maintenance/mantHome')   
+def mantHome():
+    return render_template('/maintenance/mantHome.html')
 #--------------------rutas ventas-----------------------
-@app.route('/clientsList')
+@app.route('/sales/clientsList')
 def clientsList():
     return render_template('/sales/clientsList.html')
 
@@ -311,13 +314,13 @@ def prospects():
 def rents():
     return render_template('/sales/rents.html')
 
-@app.route('/sales')   
+@app.route('/sales/sales')   
 def sales():
     return render_template('/sales/sales.html')
 
-@app.route('/salesHome')   
+@app.route('/sales/salesHome')   
 def salesHome():
-    return render_template('/sales/salesHome.html')
+    return render_template('/sales/salesHome')
 
 #--------------------rutas envios-----------------------
 @app.route('/orders')
