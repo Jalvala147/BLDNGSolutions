@@ -1,18 +1,22 @@
 {% extends './base.html' %}
 
-{% block title%}Listado de clientes de ventas{% endblock %}
+{% block title%}Envios Emp{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
+
 
 {% endblock %}
 
 
 {% block body %}
 
-<h1>Informacion de los empleados del area de ventas</h1>
+<h1>Informacion de los empleados del area de envios</h1>
 
+<div>
+    <a href="{{ url_for('maintAddEmp') }}" class="btn btn-primary">Agregar nuevo empleado</a>
+</div>
 
 <table class="table table-lg table-dark">
     <tr>
@@ -20,6 +24,8 @@
         <th>Nombre de usuario</th>
         <th>Nombre completo</th>
         <th>Correo electrónico</th>
+        <th>Editar</th>
+        <th>Eliminar</th>
     </tr>
     {% for user in users %}
     <tr>
@@ -27,9 +33,19 @@
         <td>{{ user[1] }}</td>
         <td>{{ user[2] }}</td>
         <td>{{ user[3] }}</td>
+        <td><a href="{{ url_for('maintUpdateEmp', id=user[0]) }}">
+            <span class="material-symbols-rounded">
+            edit
+            </span></a>
+        </td>
+        <td><a href="{{ url_for('maintDeleteEmp', id=user[0]) }}">
+            <input type="hidden" name="_method" value="DELETE">
+            <span class="material-symbols-rounded">
+            delete
+            </span></a>
+        </td>
     </tr>
     {% endfor %}
 </table>
-
 
 {% endblock %}

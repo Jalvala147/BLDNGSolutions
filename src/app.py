@@ -3,6 +3,7 @@ from flask_mysqldb import MySQL
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 
 
@@ -165,67 +166,242 @@ def home():
 def protected():
     return "<h1>Esta es una vista protegida, solo para usuarios autenticados.</h1>"
 
+#-----------------------------------------------------
+#--------CRUD EMPLEADOS MANTENIMIENTO-----------------
+#-----------------------------------------------------
 
-#-----------------Rutas para listar empleados de ventas ---------------------
-
-@app.route('/administration/employeesales')
-def employeesales():
-        
+# Vista para listar todos los empleados mantenimiento
+@app.route('/administration/maintListEmp')
+def maintListEmp():
     cur = mysql.connection.cursor()
-
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 2")
-
-    users = cur.fetchall()
-
-    cur.close()
-
-    return render_template('/administration/employeesales.html', users=users)
-
-#-----------------Rutas para listar empleados de almacén ---------------------
-
-
-@app.route('/administration/employeestorage')
-def employeestorage():
-        
-    cur = mysql.connection.cursor()
-
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 3")
-
-    users = cur.fetchall()
-
-    cur.close()
-
-    return render_template('/administration/employeestorage.html', users=users)
-
-#-----------------Rutas para listar empleados de mantenimiento ---------------------
-
-@app.route('/administration/employeemanteinance')
-def employeemanteinance():
-        
-    cur = mysql.connection.cursor()
-
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 5")
-
     users = cur.fetchall()
-
     cur.close()
+    return render_template('administration/maintListEmp.html', users=users)
 
-    return render_template('/administration/employeemanteinance.html', users=users)
 
-#-----------------Rutas para listar empleados de envios ---------------------
+# Vista para agregar un empleado
+@csrf.exempt
+@app.route('/administration/maintAddEmp', methods=['GET', 'POST'])
+def maintAddEmp():
+    if request.method == 'POST':
+        username = request.form['username']
+        fullname = request.form['fullname']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO user (username, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s)", (username, fullname, email, 2, 5))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('maintListEmp'))
+    return render_template('administration/maintAddEmp.html')
 
-@app.route('/administration/employeeshippings')
-def employeeshippings():
-        
+
+# Vista para eliminar un empleado
+@app.route('/administration/maintDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+def maintDeleteEmp(id):
     cur = mysql.connection.cursor()
-
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 6")
-
-    users = cur.fetchall()
-
+    cur.execute("DELETE FROM user WHERE id = %s", [id])
+    mysql.connection.commit()
     cur.close()
+    return redirect(url_for('maintListEmp'))
 
-    return render_template('/administration/employeeshippings.html', users=users)
+
+# Vista para actualizar un empleado
+@app.route('/administration/maintUpdateEmp/<int:id>', methods=['GET', 'POST'])
+def maintUpdateEmp(id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM user WHERE id = %s", [id])
+    user = cur.fetchone()
+    cur.close()
+    if request.method == 'POST':
+        username = request.form['username']
+        fullname = request.form['fullname']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE user SET username=%s, fullname=%s, email=%s WHERE id=%s", (username, fullname, email, id))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('maintListEmp'))
+    return render_template('administration/maintUpdateEmp.html', user=user)
+
+#-----------------------------------------------------
+#--------CRUD EMPLEADOS VENTAS------------------------
+#-----------------------------------------------------
+
+# Vista para listar todos los empleados ventas
+@app.route('/administration/salesListEmp')
+def salesListEmp():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 2")
+    users = cur.fetchall()
+    cur.close()
+    return render_template('administration/salesListEmp.html', users=users)
+
+
+# Vista para agregar un empleado
+@csrf.exempt
+@app.route('/administration/salesAddEmp', methods=['GET', 'POST'])
+def salesAddEmp():
+    if request.method == 'POST':
+        username = request.form['username']
+        fullname = request.form['fullname']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO user (username, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s)", (username, fullname, email, 2, 2))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('salesListEmp'))
+    return render_template('administration/salesAddEmp.html')
+
+
+# Vista para eliminar un empleado
+@app.route('/administration/salesDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+def salesDeleteEmp(id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM user WHERE id = %s", [id])
+    mysql.connection.commit()
+    cur.close()
+    return redirect(url_for('salesListEmp'))
+
+
+# Vista para actualizar un empleado
+@app.route('/administration/salesUpdateEmp/<int:id>', methods=['GET', 'POST'])
+def salesUpdateEmp(id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM user WHERE id = %s", [id])
+    user = cur.fetchone()
+    cur.close()
+    if request.method == 'POST':
+        username = request.form['username']
+        fullname = request.form['fullname']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE user SET username=%s, fullname=%s, email=%s WHERE id=%s", (username, fullname, email, id))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('salesListEmp'))
+    return render_template('administration/salesUpdateEmp.html', user=user)
+
+
+#-----------------------------------------------
+#--------CRUD EMPLEADOS Almacén-----------------
+#-----------------------------------------------
+
+
+# Vista para listar todos los empleados almacen
+@app.route('/administration/storListEmp')
+def storListEmp():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 3")
+    users = cur.fetchall()
+    cur.close()
+    return render_template('administration/storListEmp.html', users=users)
+
+
+# Vista para agregar un empleado
+@csrf.exempt
+@app.route('/administration/storAddEmp', methods=['GET', 'POST'])
+def storAddEmp():
+    if request.method == 'POST':
+        username = request.form['username']
+        fullname = request.form['fullname']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO user (username, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s)", (username, fullname, email, 2, 3))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('storListEmp'))
+    return render_template('administration/storAddEmp.html')
+
+
+# Vista para eliminar un empleado
+@app.route('/administration/storDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+def storDeleteEmp(id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM user WHERE id = %s", [id])
+    mysql.connection.commit()
+    cur.close()
+    return redirect(url_for('storListEmp'))
+
+
+# Vista para actualizar un empleado
+@csrf.exempt
+@app.route('/administration/storUpdateEmp/<int:id>', methods=['GET', 'POST'])
+def storUpdateEmp(id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM user WHERE id = %s", [id])
+    user = cur.fetchone()
+    cur.close()
+    if request.method == 'POST':
+        username = request.form['username']
+        fullname = request.form['fullname']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE user SET username=%s, fullname=%s, email=%s WHERE id=%s", (username, fullname, email, id))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('storListEmp'))
+    return render_template('administration/storUpdateEmp.html', user=user)
+
+
+#-----------------------------------------------
+#--------CRUD EMPLEADOS Envios-----------------
+#-----------------------------------------------
+
+
+# Vista para listar todos los empleados envios
+@app.route('/administration/shipListEmp')
+def shipListEmp():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 6")
+    users = cur.fetchall()
+    cur.close()
+    return render_template('administration/shipListEmp.html', users=users)
+
+
+# Vista para agregar un empleado
+@csrf.exempt
+@app.route('/administration/shipAddEmp', methods=['GET', 'POST'])
+def shipAddEmp():
+    if request.method == 'POST':
+        username = request.form['username']
+        fullname = request.form['fullname']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO user (username, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s)", (username, fullname, email, 2, 6))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('shipListEmp'))
+    return render_template('administration/shipAddEmp.html')
+
+
+# Vista para eliminar un empleado
+@app.route('/administration/shipDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+def shipDeleteEmp(id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM user WHERE id = %s", [id])
+    mysql.connection.commit()
+    cur.close()
+    return redirect(url_for('shipListEmp'))
+
+
+# Vista para actualizar un empleado
+@app.route('/administration/shipUpdateEmp/<int:id>', methods=['GET', 'POST'])
+def shipUpdateEmp(id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM user WHERE id = %s", [id])
+    user = cur.fetchone()
+    cur.close()
+    if request.method == 'POST':
+        username = request.form['username']
+        fullname = request.form['fullname']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE user SET username=%s, fullname=%s, email=%s WHERE id=%s", (username, fullname, email, id))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('shipListEmp'))
+    return render_template('administration/shipUpdateEmp.html', user=user)
 
 
 
@@ -339,7 +515,6 @@ def machines():
 @app.route('/maintenance')   
 def prospects():
     return render_template('/storage/maintenance.html')
-
 
 
 

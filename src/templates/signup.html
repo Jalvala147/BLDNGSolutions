@@ -6,66 +6,68 @@
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css')}}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
+<link rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
 {% endblock %}
 
 
 {% block body %}
 
-  <a href="/startpage">Ir a la página de inicio</a>
+<a href="/startpage">Ir a la página de inicio</a>
 
-  <div class="login-card-container" align="center">
-    <div class="login-card">
-      
-      <div class="form">
-        
-        <div class="login-card-logo">
-          <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo"/></a>
+<div class="login-card-container" align="center">
+  <div class="login-card">
+
+    <div class="form">
+
+      <div class="login-card-logo">
+        <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo" /></a>
+      </div>
+
+      <h2 class="text-uppercase text-center mb-5">Crear cuenta</h2>
+
+      <form action="{{ url_for('signup') }}" method="post">
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-item">
+          <span class="form-item-icon material-symbols-rounded">person</span>
+          <input type="text" name="username" placeholder="Nombre de usuario" required>
         </div>
-              
-              <h2 class="text-uppercase text-center mb-5">Crear cuenta</h2>
 
-              <form action="{{ url_for('signup') }}" method="post">
-                
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-item">
+          <span class="form-item-icon material-symbols-rounded">Badge</span>
+          <input type="text" name="fullname" placeholder="Nombre completo" required>
+        </div>
 
-                <div class="form-item">
-                  <span class="form-item-icon material-symbols-rounded">person</span>
-                  <input type="text" name="username" placeholder="Nombre de usuario" required>
-                </div>
+        <div class="form-item">
+          <span class="form-item-icon material-symbols-rounded">Mail</span>
+          <input type="email" name="email" placeholder="Correo electrónico" required>
+          <small id="emailHelp" class="form-text text-muted">Nunca compartiremos tu correo con alguien mas.</small>
+        </div>
 
-                <div class="form-item">
-                  <span class="form-item-icon material-symbols-rounded">Badge</span>
-                  <input type="text" name="fullname" placeholder="Nombre completo" required>
-                </div>
+        <div class="form-item">
+          <span class="form-item-icon material-symbols-rounded">lock</span>
+          <input type="password" name="password" placeholder="Contraseña" required>
+        </div>
 
-                <div class="form-item">
-                  <span class="form-item-icon material-symbols-rounded">Mail</span>
-                  <input type="email" name="email" placeholder="Correo electrónico" required>
-                </div>
-
-                <div class="form-item">
-                  <span class="form-item-icon material-symbols-rounded">lock</span>
-                  <input type="password" name="password" placeholder="Contraseña" required>
-                </div>
-                
-                <div class="form-item">
-                  <span class="form-item-icon material-symbols-rounded">lock</span>
-                  <input type ="password" name = "" placeholder="Confirmar contraseña" required>
-                </div>
-              
+        <div class="form-item">
+          <span class="form-item-icon material-symbols-rounded">lock</span>
+          <input type="password" name="" placeholder="Confirmar contraseña" required>
+        </div>
 
 
-                <button type="submit"> Enviar</button>
 
-                <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="login"
-                    class="fw-bold text-body"><u>Login here</u></a></p>
+        <button type="submit"> Enviar</button>
 
-              </form>
+        <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="login"
+            class="fw-bold text-body"><u>Login here</u></a></p>
 
-            
+      </form>
+
+
     </div>
   </div>
 
 
-{% endblock %}
+  {% endblock %}
