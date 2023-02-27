@@ -1,0 +1,42 @@
+{% extends './base.html' %}
+
+{% block title%}Update Employee{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css')}}">
+{% endblock %}
+
+
+{% block body %}
+
+<h1 align="center">Editar empleado</h1>
+<div class="login-card-container" align="center">
+
+
+    <div class="login-card">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-item">
+                <label for="username">Nombre de usuario:</label>
+                <input type="text" id="username" name="username" value="{{ user[1] }}" required>
+            </div>
+
+            <div class="form-item">
+                <label for="fullname">Nombre completo:</label>
+                <input type="text" id="fullname" name="fullname" value="{{ user[3] }}" required>
+            </div>
+
+            <div class="form-item">
+                <label for="email">Correo electrónico:</label>
+                <input type="email" id="email" name="email" value="{{ user[4] }}" required>
+            </div>
+
+            <button type="submit">Actualizar empleado</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
