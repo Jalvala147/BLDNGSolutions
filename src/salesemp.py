@@ -74,6 +74,7 @@ def files():
     return render_template('clientsList.html', files=files)
 
 
+
 # Definimos la función sales_list para la ruta '/sales'
 @salesemp.route('/sales')
 def sales_list():
