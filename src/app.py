@@ -5,9 +5,11 @@ from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from salesemp import salesemp
 from clients import clients
+from maintemp import maintemp
 app = Flask(__name__)
 app.register_blueprint(salesemp)
 app.register_blueprint(clients)
+app.register_blueprint(maintemp)
 
 from config import config
 
@@ -189,10 +191,11 @@ def maintListEmp():
 def maintAddEmp():
     if request.method == 'POST':
         username = request.form['username']
+        password = request.form['password']
         fullname = request.form['fullname']
         email = request.form['email']
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s)", (username, fullname, email, 2, 5))
+        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username,password, fullname, email, 2, 5))
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('maintListEmp'))
@@ -247,10 +250,11 @@ def salesListEmp():
 def salesAddEmp():
     if request.method == 'POST':
         username = request.form['username']
+        password = request.form['password']
         fullname = request.form['fullname']
         email = request.form['email']
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s)", (username, fullname, email, 2, 2))
+        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username,password, fullname, email, 2, 2))
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('salesListEmp'))
@@ -307,10 +311,11 @@ def storListEmp():
 def storAddEmp():
     if request.method == 'POST':
         username = request.form['username']
+        password = request.form['password']
         fullname = request.form['fullname']
         email = request.form['email']
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s)", (username, fullname, email, 2, 3))
+        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username,password, fullname, email, 2, 3))
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('storListEmp'))
@@ -368,10 +373,11 @@ def shipListEmp():
 def shipAddEmp():
     if request.method == 'POST':
         username = request.form['username']
+        password = request.form['password']
         fullname = request.form['fullname']
         email = request.form['email']
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s)", (username, fullname, email, 2, 6))
+        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username,password, fullname, email, 2, 6))
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('shipListEmp'))
@@ -437,26 +443,7 @@ if __name__ == '__main__':
      
 
 
-#--------------------rutas mantenimiento-----------------------
-@app.route('/mantHistory')
-def mantHistory():
-    return render_template('maintenance/mantHistory.html')
 
-@app.route('/mantMachines')   
-def mantMachines():
-    return render_template('/maintenance/mantMachines.html')
-    
-@app.route('/mantManteinance')   
-def mantManteinance():
-    return render_template('/maintenance/mantManteinance.html')
-    
-@app.route('/mantReports')   
-def mantReports():
-    return render_template('/maintenance/mantReports.html')
-
-@app.route('/maintenance/mantHome')   
-def mantHome():
-    return render_template('/maintenance/mantHome.html')
 #--------------------rutas ventas-----------------------
 
 @app.route('/sales-home')
