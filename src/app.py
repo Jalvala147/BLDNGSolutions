@@ -3,10 +3,11 @@ from flask_mysqldb import MySQL
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
-
-
-
+from salesemp import salesemp
+from clients import clients
+app = Flask(__name__)
+app.register_blueprint(salesemp)
+app.register_blueprint(clients)
 
 from config import config
 
@@ -16,7 +17,7 @@ from models.ModelUser import ModelUser
 # Entities:
 from models.entities.User import User
 
-app = Flask(__name__)
+
 
 
 csrf = CSRFProtect()
@@ -422,7 +423,7 @@ def status_401(error):
 
 
 def status_404(error):
-    return "<h1>Página no encontrada</h1>", 404
+    return "<h1>Página no encontrada error 404</h1><h2>También puede ser un problema con las rutas</h2>", 404
 
 if __name__ == '__main__':
     app.config.from_object(config['development'])
@@ -432,26 +433,7 @@ if __name__ == '__main__':
     app.run()
     
      
-#--------------------rutas clientes-----------------------
-@app.route('/clientsHome')
-def clientsHome():
-    return render_template('/clientuser/clientsHome.html')
 
-@app.route('/documentsuser')   
-def documentsuser():
-    return render_template('/clientuser/documentsuser.html')
-    
-@app.route('/information')   
-def information():
-    return render_template('/clientuser/information.html')
-    
-@app.route('/payments')   
-def payments():
-    return render_template('/clientuser/payments.html')
-    
-@app.route('/statusprogress')   
-def statusprogress():
-    return render_template('/clientuser/statusprogress.html')
 
 #--------------------rutas mantenimiento-----------------------
 @app.route('/mantHistory')
@@ -474,17 +456,22 @@ def mantReports():
 def mantHome():
     return render_template('/maintenance/mantHome.html')
 #--------------------rutas ventas-----------------------
-@app.route('/sales/clientsList')
+
+@app.route('/sales-home')
+def sales_home():
+    return render_template('salesEmpArea/salesHome.html')
+
+@app.route('/salesEmpArea/clientsList')
 def clientsList():
-    return render_template('/sales/clientsList.html')
+    return render_template('salesEmpArea/clientsList.html')
 
 @app.route('/newRequest')   
 def newRequest():
     return render_template('/sales/newRequest.html')
     
-@app.route('/prospects')   
+@app.route('/salesEmpArea/prospects')   
 def prospects():
-    return render_template('/sales/prospects.html')
+    return render_template('templates/sales/prospects.html')
     
 @app.route('/rents')   
 def rents():
