@@ -40,7 +40,7 @@
             edit
             </span></a>
         </td>
-        <td><a href="{{ url_for('maintDeleteEmp', id=user[0]) }}">
+        <td><a href="{{ url_for('salesDeleteEmp', id=user[0]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
             <input type="hidden" name="_method" value="DELETE">
             <span class="material-symbols-rounded">
             delete

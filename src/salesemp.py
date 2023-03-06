@@ -13,7 +13,7 @@ salesemp = Blueprint('salesemp', __name__)
 
 @salesemp.route('/sales/salesHome')   
 def salesHome():
-    return render_template('/salesEmpArea/salesHome.html')
+    return render_template('salesEmpArea/salesHome.html')
 
 
 # Definimos la función clientsList para la ruta '/salesEmpArea/clientsList'
