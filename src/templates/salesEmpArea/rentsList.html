@@ -1,9 +1,9 @@
 {% extends './base.html' %}
 
-{% block title %}Nuevas solicitudes{% endblock %}
+{% block title %}Rentas{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/newRequest.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0" />
 
 {% endblock %}
@@ -13,14 +13,13 @@
 
 <a href="{{ url_for('sales_emp_area') }}" class="btn" >Atras</a>
 
-<h1>Pagina de Nuevas solicitudes</h1>
+<h1>Pagina de Rentas</h1>
 
 <table class="table1">
     <tr>
-        <th>No. de Solicitud</th>
-        <th>Nombre del solicitante</th>
-        <th>Telefono</th>
-        <th>Tipo</th>
+        <th>Maquina</th>
+        <th>No. de orden</th>
+        <th>Estado del pedido</th>
     </tr>
 
     

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required
@@ -6,10 +6,20 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from salesemp import salesemp
 from clients import clients
 from maintemp import maintemp
+from storageemp import storageemp
+
 app = Flask(__name__)
+
+# if __name__ == "__main__":
+#     app.run(debug=True, host="0.0.0.0", port="1234")
+
 app.register_blueprint(salesemp)
 app.register_blueprint(clients)
 app.register_blueprint(maintemp)
+app.register_blueprint(storageemp)
+
+
+login_manager = LoginManager(app)
 
 from config import config
 
@@ -41,6 +51,23 @@ app.config['MYSQL_DATABASE_DB'] = 'bdcompleta'
 
 
 
+@app.route('/logout', methods=['POST', 'GET'])
+def logout():
+    logout_user()
+    session.clear()
+    return redirect(url_for('startpage'))
+
+@app.route('/logoutemp', methods=['POST', 'GET'])
+def logoutemp():
+    logout_user()
+    session.clear()
+    return redirect(url_for('loginemp'))
+
+@app.route('/logoutadm', methods=['POST', 'GET'])
+def logoutadm():
+    logout_user()
+    session.clear()
+    return redirect(url_for('startpage'))
 
 #---------------------------------------------------
 
@@ -82,7 +109,6 @@ def index():
     return redirect(url_for('startpage'))
 
 #----------------------------Login para clientes, tipo de usuario 3-----------------------------------------------
-
 @app.route('/loginclient', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -96,7 +122,8 @@ def login():
 
             if tipoUsuario == 3:
                 login_user(logged_user)
-                return redirect(url_for('clientsHome'))
+                session['user_id'] = logged_user.id  # Guardar el ID del usuario en la sesión
+                return redirect(url_for('clients.clientsHome'))
 
             flash("Invalid user type...")
             return render_template('auth/loginclient.html')
@@ -130,33 +157,74 @@ def loginadm():
 
 
 #---------------------------------Login para empleados, tipo de usuario 2----------------------------------------------
+
+
 @app.route('/loginemp', methods=['GET', 'POST'])
 def loginemp():
     if request.method == 'POST':
-        #print(request.form['username'])
-        #print(request.form['password'])
         user = User(0, request.form['username'], request.form['password'])
         logged_user = ModelUser.login(mysql, user)
-        if logged_user != None:
-            if logged_user.password:
-                login_user(logged_user)
-                return redirect(url_for('home'))
-            else:
-                flash("Invalid password...")
-                return render_template('auth/loginemp.html')
-        else:
-            flash("User not found...")
-            return render_template('auth/loginemp.html')
         
-    else:
+        if logged_user is not None:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT tipousuario FROM user WHERE id=%s", (logged_user.id,))
+            tipoUsuario = cur.fetchone()[0]
+            cur.execute("SELECT areaUsuario FROM user WHERE id=%s", (logged_user.id,))
+            idArea = cur.fetchone()[0]
+            cur.close()
+
+            if tipoUsuario == 2 and idArea == 2:  #redireccion para usuarios de ventas
+                login_user(logged_user)
+                session['user_id'] = logged_user.id  
+                return redirect(url_for('sales_emp_area'))
+            
+            elif tipoUsuario == 2 and idArea == 3: #redireccion para usuarios de almacen
+                login_user(logged_user)
+                session['user_id'] = logged_user.id  
+                return redirect(url_for('storage_home'))
+            
+            elif tipoUsuario == 2 and idArea == 5: #redireccion para usuarios de mantenimieto
+                login_user(logged_user)
+                session['user_id'] = logged_user.id  
+                return redirect(url_for('maintenance_home'))
+            
+            elif tipoUsuario == 2 and idArea == 6: #redireccion para usuarios de envios
+                login_user(logged_user)
+                session['user_id'] = logged_user.id  
+                return redirect(url_for('shipping_home'))
+            
+            else:
+                flash("Invalid user type or area...")
+                return render_template('auth/loginemp.html')
+
+        flash("User not found...")
         return render_template('auth/loginemp.html')
+
+    return render_template('auth/loginemp.html')
+
+@app.route('/sales_emp_area')
+def sales_emp_area():
+    # Código necesario para la página "salesEmpArea/salesHome.html"
+    return render_template('salesEmpArea/salesHome.html')
+
+@app.route('/storage_home')
+def storage_home():
+    # Código necesario para la página "storage/storageHome.html"
+    return render_template('storage/storageHome.html')
+
+@app.route('/maintenance_home')
+def maintenance_home():
+    # Código necesario para la página "maintenance/mantHome.html"
+    return render_template('maintenance/mantHome.html')
+
+@app.route('/shipping_home')
+def shipping_home():
+    # Código necesario para la página "shipping/shipHome.html"
+    return render_template('shipping/shipHome.html')
+
 
 #---------------Rutas para logout, paginas protegidas, pagina de start y home -----------------------------------
     
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('startpage'))
 
 @app.route('/startpage')
 def startpage():
@@ -446,8 +514,8 @@ if __name__ == '__main__':
 
 #--------------------rutas ventas-----------------------
 
-@app.route('/sales-home')
-def sales_home():
+@app.route('/sales_Home')
+def salesHome():
     return render_template('salesEmpArea/salesHome.html')
 
 @app.route('/salesEmpArea/clientsList')
@@ -470,27 +538,17 @@ def rents():
 def sales():
     return render_template('/sales/sales.html')
 
-@app.route('/sales/salesHome')   
-def salesHome():
-    return render_template('/sales/salesHome')
+# @app.route('/sales/salesHome')   
+# def salesHome():
+#     return render_template('/salesEmpArea/salesHome')
 
 #--------------------rutas envios-----------------------
 @app.route('/orders')
 def orders():
     return render_template('/shipping/orders.html')
 
-#--------------------rutas almacén-----------------------
-@app.route('/history')
-def history():
-    return render_template('/storage/history.html')
 
-@app.route('/machines')   
-def machines():
-    return render_template('/storage/machines.html')
-    
-@app.route('/maintenance')   
-def prospects():
-    return render_template('/storage/maintenance.html')
+
 
 
 
