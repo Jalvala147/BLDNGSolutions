@@ -41,7 +41,7 @@ def stoHistory():
     cursor.close()
 
     # Render the template with the data
-    return render_template('/storage/stoHistory.html', machines_data=machines_data)
+    return render_template('/storage/stoHistory.jinja', machines_data=machines_data)
     
 
 @storageemp.route('/storage/machineHistory/<int:machine_id>')
@@ -53,7 +53,7 @@ def machineHistory(machine_id):
     cursor.close()
 
     # Renderizar la plantilla con los datos del historial de la máquina
-    return render_template('/storage/machineHistory.html', machine_id=machine_id, machine_history_data=machine_history_data)
+    return render_template('/storage/machineHistory.jinja', machine_id=machine_id, machine_history_data=machine_history_data)
 
 #---------------Mantenimiento Almacén aviso-------------
 @storageemp.route('/storage/stoMaintenance')
@@ -65,7 +65,7 @@ def stoMaintenance():
     
     cursor.close()
     
-    return render_template('/storage/stoMaintenance.html', machines_data=machines_data)
+    return render_template('/storage/stoMaintenance.jinja', machines_data=machines_data)
 #------------------------Almacén de las maquinas-------------------------------
 @storageemp.route('/storage/stoMachines')
 def stoMachines():
@@ -80,7 +80,7 @@ def stoMachines():
     cursor.close()
 
     # Render the template with the data
-    return render_template('/storage/stoMachines.html', machines_data=machines_data)
+    return render_template('/storage/stoMachines.jinja', machines_data=machines_data)
 
 @csrf.exempt
 @storageemp.route('/storage/update_machine/<int:machine_id>', methods=['GET', 'POST'])
@@ -114,7 +114,7 @@ def update_machine(machine_id):
     cursor.close()
 
     # Render the update form with the machine data
-    return render_template('/storage/update_machine.html', machine_data=machine_data)
+    return render_template('/storage/update_machine.jinja', machine_data=machine_data)
 
 @csrf.exempt
 @storageemp.route('/storage/delete_machine/<int:machine_id>', methods=['POST'])
@@ -150,7 +150,7 @@ def add_machine():
 
         if not user_exists:
             flash("El cliente no existe. Por favor, proporcione un ID de cliente válido.", "danger")
-            return render_template('storage/add_machine.html')
+            return render_template('storage/add_machine.jinja')
 
         # El ID de usuario existe, proceder con agregar la máquina
         query = "INSERT INTO machines (model, brand, type, status, currentUser) VALUES (%s, %s, %s, %s, %s)"
@@ -167,4 +167,4 @@ def add_machine():
         finally:
             cursor.close()
 
-    return render_template('storage/add_machine.html')
+    return render_template('storage/add_machine.jinja')

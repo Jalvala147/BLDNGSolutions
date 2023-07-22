@@ -10,22 +10,22 @@ import os
 maintemp = Blueprint('maintemp', __name__)
 
 #--------------------rutas mantenimiento-----------------------
-@maintemp.route('/mantHistory')
+@maintemp.route('/maintenance/mantHistory')
 def mantHistory():
-    return render_template('maintenance/mantHistory.html')
+    return render_template('maintenance/mantHistory.jinja')
 
-@maintemp.route('/mantMachines')   
+@maintemp.route('/maintenance/mantMachines')   
 def mantMachines():
-    return render_template('/maintenance/mantMachines.html')
+    return render_template('/maintenance/mantMachines.jinja')
     
-@maintemp.route('/mantManteinance')   
-def mantManteinance():
-    return render_template('/maintenance/mantManteinance.html')
-    
-@maintemp.route('/mantReports')   
+@maintemp.route('/maintenance/mantReports')   
 def mantReports():
-    return render_template('/maintenance/mantReports.html')
+    return render_template('/maintenance/mantReports.jinja')
 
 @maintemp.route('/maintenance/mantHome')   
 def mantHome():
-    return render_template('/maintenance/mantHome.html')
+    return render_template('/maintenance/mantHome.jinja')
+
+@maintemp.route('/maintenance/mantMaintenance')
+def mantMaintenance():
+    return render_template('/maintenance/mantMaintenance.jinja')
