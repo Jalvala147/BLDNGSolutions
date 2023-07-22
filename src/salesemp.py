@@ -28,14 +28,14 @@ csrf = CSRFProtect()
 def salesList():
     cur = mysql.connection.cursor()
     
-    return render_template('/salesEmpArea/salesList.html')
+    return render_template('/salesEmpArea/salesList.jinja')
 
 
 @salesemp.route('/salesEmpArea/rentsList')   
 def rentsList():
     cur = mysql.connection.cursor()
     
-    return render_template('/salesEmpArea/rentsList.html')
+    return render_template('/salesEmpArea/rentsList.jinja')
 
 #------------------------------------------------------------------------
 @salesemp.route('/download_file/<filename>')
@@ -76,8 +76,8 @@ def uploaded_documents(user_id):
     documents = cur.fetchall()
     cur.close()
 
-    # Pasar los documentos a la plantilla uploaded_documents.html
-    return render_template('/salesEmpArea/uploadedDocuments.html', user_id=user_id, documents=documents)
+    # Pasar los documentos a la plantilla uploaded_documents.jinja
+    return render_template('/salesEmpArea/uploadedDocuments.jinja', user_id=user_id, documents=documents)
 
 #----------------------------------------------------
 
@@ -96,7 +96,7 @@ def mark_as_completed(file_id, user_id):
     documents = cur.fetchall()
     cur.close()
 
-    return render_template('/salesEmpArea/uploadedDocuments.html', documents=documents, user_id=user_id)
+    return render_template('/salesEmpArea/uploadedDocuments.jinja', documents=documents, user_id=user_id)
 
 
 @salesemp.route('/mark_as_incomplete/<int:file_id>/<int:user_id>')
@@ -113,7 +113,7 @@ def mark_as_incomplete(file_id, user_id):
     documents = cur.fetchall()
     cur.close()
 
-    return render_template('/salesEmpArea/uploadedDocuments.html', documents=documents, user_id=user_id)
+    return render_template('/salesEmpArea/uploadedDocuments.jinja', documents=documents, user_id=user_id)
 
 
 
@@ -122,7 +122,7 @@ def mark_as_incomplete(file_id, user_id):
 
 @salesemp.route('/salesEmpArea/salesHome')   
 def salesHome():
-    return render_template('salesEmpArea/salesHome.html')
+    return render_template('salesEmpArea/salesHome.jinja')
 
 
 # Definimos la función clientsList para la ruta '/salesEmpArea/clientsList'
@@ -132,7 +132,7 @@ def clientsList():
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 3 AND areaUsuario = 4")
     users = cur.fetchall()
     cur.close()
-    return render_template('salesEmpArea/clientsList.html', users=users)
+    return render_template('salesEmpArea/clientsList.jinja', users=users)
 
 #-----------------------------------------------------------
 
@@ -140,7 +140,7 @@ def clientsList():
 def newRequest():
     cur = mysql.connection.cursor()
     
-    return render_template('/salesEmpArea/newRequest.html')
+    return render_template('/salesEmpArea/newRequest.jinja')
 
 
 #-----------------------------------------------------------
@@ -148,7 +148,7 @@ def newRequest():
     
 @salesemp.route('/salesEmpArea/prospects')   
 def prospects():
-    return render_template('salesEmpArea/prospects.html')
+    return render_template('salesEmpArea/prospects.jinja')
     
 
 

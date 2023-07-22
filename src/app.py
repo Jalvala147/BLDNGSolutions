@@ -205,17 +205,17 @@ def loginemp():
 @app.route('/sales_emp_area')
 def sales_emp_area():
     # Código necesario para la página "salesEmpArea/salesHome.html"
-    return render_template('salesEmpArea/salesHome.html')
+    return render_template('salesEmpArea/salesHome.jinja')
 
 @app.route('/storage_home')
 def storage_home():
     # Código necesario para la página "storage/storageHome.html"
-    return render_template('storage/storageHome.html')
+    return render_template('storage/storageHome.jinja')
 
 @app.route('/maintenance_home')
 def maintenance_home():
     # Código necesario para la página "maintenance/mantHome.html"
-    return render_template('maintenance/mantHome.html')
+    return render_template('maintenance/mantHome.jinja')
 
 @app.route('/shipping_home')
 def shipping_home():
