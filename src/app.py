@@ -7,6 +7,7 @@ from salesemp import salesemp
 from clients import clients
 from maintemp import maintemp
 from storageemp import storageemp
+from shipemp import shipemp
 
 app = Flask(__name__)
 
@@ -17,6 +18,7 @@ app.register_blueprint(salesemp)
 app.register_blueprint(clients)
 app.register_blueprint(maintemp)
 app.register_blueprint(storageemp)
+app.register_blueprint(shipemp)
 
 
 login_manager = LoginManager(app)
@@ -220,7 +222,7 @@ def maintenance_home():
 @app.route('/shipping_home')
 def shipping_home():
     # Código necesario para la página "shipping/shipHome.html"
-    return render_template('shipping/shipHome.html')
+    return render_template('shipping/shipHome.jinja')
 
 
 #---------------Rutas para logout, paginas protegidas, pagina de start y home -----------------------------------

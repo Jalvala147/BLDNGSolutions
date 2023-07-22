@@ -1,0 +1,91 @@
+{% extends './base.html' %}
+
+{% block title%}Mantenimiento{% endblock %}
+
+
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shipping/shipHome.css')}}">
+
+{% endblock %}
+
+
+{% block body %}
+
+<div class="logout">
+    <a class="btn btn-secondary" href="{{ url_for('logoutemp') }}">Cerrar sesión</a>
+  </div>
+  
+  <h2>Bienvenido, {{current_user.fullname}}</h2>
+  <h1>Envios
+</h1>
+  
+  <header class="header">
+      <nav>
+          <div class="logo">
+              <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo"/></a>
+          </div>
+  
+      </nav>
+  </header>
+
+<div class = "navigation">
+    <ul>
+        <li class = "list active">
+            <a href="/shipping/orders">
+                <span class="icon">
+                    <ion-icon name="home-outline"></ion-icon>
+                </span>
+                <span class="text">Maquinas</span>
+            </a>
+        </li>
+        {# <li class = "list">
+            <a href="/maintenance/mantHistory">
+                <span class="icon">
+                    <ion-icon name="person-outline"></ion-icon>
+                </span>
+                <span class="text">Historial</span>
+            </a>
+        </li>
+        <li class = "list">
+            <a href="/maintenance/mantMaintenance">
+                <span class="icon">
+                    <ion-icon name="chatbox-outline"></ion-icon>
+                </span>
+                <span class="text">Mantenimiento</span>
+            </a>
+        </li>
+        <li class = "list">
+            <a href="/maintenance/mantReports">
+                <span class="icon">
+                    <ion-icon name="settings-outline"></ion-icon>
+                </span>
+                <span class="text">Reportes</span>
+            </a>
+        </li> #}
+        {# <li class = "list">
+            <a href="#">
+                <span class="icon">
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                </span>
+                <span class="text">Info</span>
+            </a>
+        </li> #}
+        <div class="indicator"></div>
+    </ul>
+</div>
+<script>
+    const list = document.querySelectorAll('.list');
+    function activeLink(){
+        list.forEach((item) =>   
+        item.classList.remove('active'));
+        this.classList.add('active');
+    }
+    list.forEach((item) => 
+    item.addEventListener('click',activeLink));
+</script>
+
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+{% endblock %}

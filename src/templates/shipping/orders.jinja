@@ -1,0 +1,28 @@
+{% extends './base.html' %}
+
+{% block title %}Envios{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shipping/orders.css')}}">
+
+{% endblock %}
+
+
+{% block body %}
+<h1>Pagina de nuevos pedidos</h1>
+
+<a href="{{ url_for('shipping_home') }}" class="btn btn-primary">Atrás</a>
+
+<table class="table1">
+    <tr>
+        <th>No. de pedido</th>
+        <th>id. maquina</th>
+        <th>Tipo de pedido</th>
+        <th>Domicilio de entrega</th>
+        <th>Telefono de contacto</th>
+        
+    </tr>
+</table>
+<a href="{{ url_for('shipemp.routes') }}" class="btn btn-primary">Rutas</a>
+
+{% endblock %}
