@@ -1,0 +1,92 @@
+/* Reset CSS */
+body, h1, h2, h3, h4, h5, h6, p, ul, ol, li {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(to right, #333399, #ff00cc);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+/* Container Styles */
+.container {
+    max-width: 800px;
+    width: 100%;
+    background: rgba(255, 255, 255, .5);
+    padding: 2rem;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Agregamos una sombra al contenedor para que resalte */
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, .15);
+    transform: rotate(-3deg);
+    border-radius: 10px;
+    z-index: -1;
+}
+
+/* Header Styles */
+h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Table Styles */
+.table1 {
+    width: 100%;
+    margin-bottom: 2rem;
+    border-collapse: collapse;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.7); /* Cambiamos el fondo de la tabla para que contraste más */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Agregamos una sombra a la tabla para resaltarla */
+    border-radius: 10px;
+}
+
+.table1 td, .table1 th {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Cambiamos el color del borde inferior de las celdas */
+}
+
+.table1 th {
+    background: rgba(0, 0, 0, 0.1); /* Cambiamos el color de fondo de las celdas de encabezado */
+}
+
+/* Button Styles */
+.btn {
+    display: inline-block;
+    background-color: rgb(171, 37, 212);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: background .5s;
+    margin: 5px;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+}

@@ -1,0 +1,96 @@
+{% extends './base.html' %}
+
+{% block title %}Documentos{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/docs.css') }}">
+{% endblock %}
+
+{% block body %}
+
+<div class="back">
+  <button>
+    <a href="/clientsHome">
+      Atrás
+    </a>
+  </button>
+</div>
+
+
+
+<h1>Subir documento</h1>
+
+<p>Tamaño máximo permitido: {{ max_size_kb }} KB</p>
+<p>Si el archivo sobrepasa el tamaño máximo, favor de comprimirlo o segmentarlo</p>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div id="flash-message" class="alert alert-success">
+  {{ messages[0] }}
+</div>
+{% endif %}
+{% endwith %}
+
+<form method="POST" action="/docs" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="drop-box">
+    <header>Arrastra y suelta un PDF</header>
+    <span>O</span>
+    <br>
+    <div class="file-input-container">
+      <input type="file" id="file-input" class="file-input" name="file" onchange="displaySelectedFile(event)">
+      <label for="file-input" class="file-input-label">Seleccionar archivo</label>
+      <span id="selected-file"></span>
+    </div>
+
+
+  </div>
+  <button type="submit" class="custom-button custom-button-large">Cargar</button>
+
+
+</form>
+
+<script>
+  function displaySelectedFile(event) {
+    const fileInput = event.target;
+    const selectedFile = document.getElementById('selected-file');
+
+    if (fileInput.files.length > 0) {
+      selectedFile.textContent = fileInput.files[0].name;
+    } else {
+      selectedFile.textContent = '';
+    }
+  }
+
+  // Ocultar el mensaje flash después de cierta duración
+  const flashMessage = document.getElementById('flash-message');
+  if (flashMessage) {
+    const duration = 1500; // Duración del mensaje en milisegundos
+
+    setTimeout(() => {
+      flashMessage.style.display = 'none';
+    }, duration);
+  }
+
+  const dropBox = document.querySelector('.drop-box');
+  const fileInput = document.getElementById('file-input');
+
+  dropBox.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    dropBox.classList.add('dragover');
+  });
+
+  dropBox.addEventListener('dragleave', () => {
+    dropBox.classList.remove('dragover');
+  });
+
+  dropBox.addEventListener('drop', (event) => {
+    event.preventDefault();
+    dropBox.classList.remove('dragover');
+    fileInput.files = event.dataTransfer.files;
+    displaySelectedFile(event);
+  });
+</script>
+
+{% endblock %}

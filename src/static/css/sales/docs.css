@@ -1,0 +1,94 @@
+.drop-box {
+  width: 300px;
+  max-width: 100%;
+  height: 200px;
+  border: 2px dashed #d640e4;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  margin-bottom: 20px;
+  text-align: center;
+  
+}
+
+.drop-box:hover {
+  border-color: rgb(171, 37, 212);
+}
+
+
+.drop-box header {
+  font-size: 16px;
+  color: #555;
+}
+
+.drop-box span {
+  font-size: 14px;
+  color: #777;
+}
+
+.custom-input {
+  margin-top: 10px;
+}
+
+.file-input-container {
+  position: relative;
+  display: inline-block;
+}
+
+.file-input {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.file-input-label {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: rgb(171, 37, 212);
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.file-input-label:hover {
+  background-color: #574ed9;
+}
+
+#selected-file {
+  display: block;
+  margin-top: 10px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.custom-button {
+  background: rgb(171, 37, 212);
+  color: white;
+  border-radius: 5px;
+}
+
+.custom-button-large {
+  font-size: 24px;
+  padding: 10px 20px;
+  /*margin: 0 auto;*/
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .drop-box {
+    width: 100%;
+    height: auto;
+    padding: 20px;
+  }
+}

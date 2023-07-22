@@ -1,0 +1,36 @@
+{% extends './base.html' %}
+
+{% block title %}Historial{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/storage/stoHistory.css')}}">
+{% endblock %}
+
+{% block body %}
+<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atras</a>
+
+<h1>Historial de las maquinas</h1>
+
+<table class="table1">
+    <tr>
+        <th>Id de la Maquina</th>
+        <th>Modelo</th>
+        <th>Marca</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+    </tr>
+
+    {% for machine in machines_data %}
+    <tr>
+        <td>{{ machine[0] }}</td>
+        <td>{{ machine[1] }}</td>
+        <td>{{ machine[2] }}</td>
+        <td>{{ machine[3] }}</td>
+        <td>
+            <a href="{{ url_for('storageemp.machineHistory', machine_id=machine[0]) }}" class="btn btn-primary">Historial</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

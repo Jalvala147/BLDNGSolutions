@@ -1,0 +1,68 @@
+{% extends './base.html' %}
+
+{% block title%}Almacén{% endblock %}
+
+
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/areas.css')}}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+{% endblock %}
+
+
+{% block body %}
+<div class="inicio">
+    <img src="#" alt="logo1">
+    <a href="/startpage">Ir a la página de inicio</a>
+</div>
+
+<h1>Pagina de empleados de Almacén</h1>
+
+<div class = "navigation aling-center">
+    <ul>
+        <li class = "list">
+            <a href="/storage/stoMachines">
+                <span class="material-symbols-rounded">
+                    precision_manufacturing
+                </span>
+                
+                <span class="text">Maquinas</span>
+            </a>
+        </li>
+
+        <li class = "list">
+            <a href="/storage/stoHistory">
+                <span class="icon">
+                    <ion-icon name="timer-outline"></ion-icon>
+                </span>
+                <span class="text">Historial</span>
+            </a>
+        </li>
+
+        <li class = "list">
+            <a href="/storage/stoMaintenance">
+                <span class="icon">
+                    <ion-icon name="construct-outline"></ion-icon>
+                </span>
+                <span class="text">Mantenimiento</span>
+            </a>
+        </li>
+        
+        <div class="indicator"></div>
+    </ul>
+</div>
+<script>
+    const list = document.querySelectorAll('.list');
+    function activeLink(){
+        list.forEach((item) =>   
+        item.classList.remove('active'));
+        this.classList.add('active');
+    }
+    list.forEach((item) => 
+    item.addEventListener('click',activeLink));
+</script>
+
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+{% endblock %}

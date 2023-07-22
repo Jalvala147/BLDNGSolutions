@@ -1,17 +1,126 @@
 from flask_mysqldb import MySQL
 from flask import render_template, session, redirect, flash
+from flask_wtf.csrf import CSRFProtect
 from flask import Blueprint
 from flask import request
 from flask import Flask
+from flask import url_for
+from io import BytesIO
+import os
+import io
+from flask import jsonify
+from flask import send_from_directory, make_response
+from flask import send_file
+
+
 app = Flask(__name__)
 mysql = MySQL()
-import os
+
 
 salesemp = Blueprint('salesemp', __name__)
 
+csrf = CSRFProtect()
 
 
-@salesemp.route('/sales/salesHome')   
+#------------------------------------------------------------------------
+
+@salesemp.route('/salesEmpArea/salesList')
+def salesList():
+    cur = mysql.connection.cursor()
+    
+    return render_template('/salesEmpArea/salesList.html')
+
+
+@salesemp.route('/salesEmpArea/rentsList')   
+def rentsList():
+    cur = mysql.connection.cursor()
+    
+    return render_template('/salesEmpArea/rentsList.html')
+
+#------------------------------------------------------------------------
+@salesemp.route('/download_file/<filename>')
+def download_file(filename):
+    # Obtén el archivo blob de la base de datos
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT file_data FROM files WHERE filename = %s", (filename,))
+    file_data = cur.fetchone()[0]
+    cur.close()
+
+    # Crea una respuesta para enviar el archivo al cliente
+    response = make_response(file_data)
+    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+    
+    return response
+    
+    
+@salesemp.route('/view_file/<filename>')
+def view_file(filename):
+    # Obtén el archivo blob de la base de datos
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT file_data FROM files WHERE filename = %s", (filename,))
+    file_data = cur.fetchone()[0]
+    cur.close()
+
+    # Crea una respuesta para enviar el archivo al navegador
+    response = make_response(file_data)
+    response.headers["Content-Type"] = "application/pdf"  # Establece el tipo de contenido según el tipo de archivo
+    
+    return response
+
+
+@salesemp.route('/salesEmpArea/uploadedDocuments/<int:user_id>')
+def uploaded_documents(user_id):
+    # Realizar la consulta para obtener los documentos del usuario con el ID proporcionado
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, filename FROM files WHERE user_id = %s", (user_id,))
+    documents = cur.fetchall()
+    cur.close()
+
+    # Pasar los documentos a la plantilla uploaded_documents.html
+    return render_template('/salesEmpArea/uploadedDocuments.html', user_id=user_id, documents=documents)
+
+#----------------------------------------------------
+
+
+@salesemp.route('/mark_as_completed/<int:file_id>/<int:user_id>')
+def mark_as_completed(file_id, user_id):
+    # Actualiza el estado en la base de datos a completado (1)
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE files SET estado = 1 WHERE id = %s AND user_id = %s", (file_id, user_id))
+    mysql.connection.commit()
+    cur.close()
+
+    # Obtén los documentos actualizados del mismo ID de usuario
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, filename, estado FROM files WHERE user_id = %s", (user_id,))
+    documents = cur.fetchall()
+    cur.close()
+
+    return render_template('/salesEmpArea/uploadedDocuments.html', documents=documents, user_id=user_id)
+
+
+@salesemp.route('/mark_as_incomplete/<int:file_id>/<int:user_id>')
+def mark_as_incomplete(file_id, user_id):
+    # Actualiza el estado en la base de datos a incompleto (0)
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE files SET estado = 0 WHERE id = %s AND user_id = %s", (file_id, user_id))
+    mysql.connection.commit()
+    cur.close()
+
+    # Obtén los documentos actualizados del mismo ID de usuario
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, filename, estado FROM files WHERE user_id = %s", (user_id,))
+    documents = cur.fetchall()
+    cur.close()
+
+    return render_template('/salesEmpArea/uploadedDocuments.html', documents=documents, user_id=user_id)
+
+
+
+
+#----------------------------------------------------
+
+@salesemp.route('/salesEmpArea/salesHome')   
 def salesHome():
     return render_template('salesEmpArea/salesHome.html')
 
@@ -25,74 +134,23 @@ def clientsList():
     cur.close()
     return render_template('salesEmpArea/clientsList.html', users=users)
 
+#-----------------------------------------------------------
 
-
-# Configura la carpeta donde se almacenarán los documentos cargados
-app.config['UPLOAD_FOLDER'] = 'uploads'
-
-# Asegúrate de que los documentos subidos tengan una extensión válida
-ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-# Define la ruta para procesar la solicitud de carga de documentos
-@salesemp.route('/upload_document', methods=['POST'])
-def upload_document():
-    if 'document' not in request.files:
-        return redirect(request.url)
-    file = request.files['document']
-    if file.filename == '':
-        return redirect(request.url)
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        # Inserta la información del archivo en la base de datos
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO documents (user_id, filename) VALUES (%s, %s)", (session['user_id'], filename))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('documentsUser'))
-    else:
-        return "Archivo no válido"
-
-@salesemp.route('/salesEmpArea/viewDocument/<int:document_id>')
-def viewDocument(document_id):
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT filename, filedata FROM documents WHERE id = %s", (document_id,))
-    result = cur.fetchone()
-    cur.close()
-    return send_file(BytesIO(result['filedata']), attachment_filename=result['filename'])
-
-
-@salesemp.route('/files')
-def files():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, filename FROM files WHERE user_id = %s", (session['user_id'],))
-    files = cur.fetchall()
-    cur.close()
-    return render_template('clientsList.html', files=files)
-
-
-
-# Definimos la función sales_list para la ruta '/sales'
-@salesemp.route('/sales')
-def sales_list():
-    return 'Página de ventas'
-
-@salesemp.route('/newRequest')   
+@salesemp.route('/salesEmpArea/newRequest')   
 def newRequest():
-    return render_template('/sales/newRequest.html')
+    cur = mysql.connection.cursor()
+    
+    return render_template('/salesEmpArea/newRequest.html')
+
+
+#-----------------------------------------------------------
+
     
 @salesemp.route('/salesEmpArea/prospects')   
 def prospects():
-    return render_template('templates/sales/prospects.html')
+    return render_template('salesEmpArea/prospects.html')
     
-@salesemp.route('/rents')   
-def rents():
-    return render_template('/sales/rents.html')
 
-@salesemp.route('/sales/sales')   
-def sales():
-    return render_template('/sales/sales.html')
+
+
 
