@@ -3,18 +3,12 @@
 {% block title %}Documentos{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/docs.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/clientuser/docs.css') }}">
 {% endblock %}
 
 {% block body %}
 
-<div class="back">
-  <button>
-    <a href="/clientsHome">
-      Atrás
-    </a>
-  </button>
-</div>
+<a href="{{ url_for('clients.clientsHome') }}" class="btn btn-primary">Atrás</a>
 
 
 
@@ -35,8 +29,8 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
   <div class="drop-box">
-    <header>Arrastra y suelta un PDF</header>
-    <span>O</span>
+    {# <header>Arrastra y suelta un PDF</header>
+    <span>O</span> #}
     <br>
     <div class="file-input-container">
       <input type="file" id="file-input" class="file-input" name="file" onchange="displaySelectedFile(event)">

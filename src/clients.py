@@ -20,8 +20,6 @@ clients = Blueprint('clients', __name__)
 csrf = CSRFProtect()
 
 
-
-
 @app.route('/logout')
 def logout():
     logout_user()
@@ -31,7 +29,7 @@ def logout():
 @clients.route('/clientsHome')
 @login_required
 def clientsHome():
-    return render_template('/clientuser/clientsHome.html')
+    return render_template('/clientuser/clientsHome.jinja')
 
 @csrf.exempt
 @clients.route('/docs', methods=['GET', 'POST'])
@@ -69,19 +67,19 @@ def docs():
             flash('Archivo cargado correctamente ✔️')
             return redirect(url_for('clients.docs'))
 
-    return render_template('/clientuser/docs.html', max_size_kb=max_size_kb)
+    return render_template('/clientuser/docs.jinja', max_size_kb=max_size_kb)
     
 @clients.route('/information')   
 def information():
-    return render_template('/clientuser/information.html')
+    return render_template('/clientuser/information.jinja')
     
 @clients.route('/payments')   
 def payments():
-    return render_template('/clientuser/payments.html')
+    return render_template('/clientuser/payments.jinja')
     
-@clients.route('/statusprogress')   
+@clients.route('/clientuser/statusprogress')   
 def statusprogress():
-    return render_template('/clientuser/statusprogress.html')
+    return render_template('/clientuser/statusprogress.jinja')
 
 @clients.route('/logout')
 @login_required  # Asegura que el usuario esté autenticado para acceder a la ruta

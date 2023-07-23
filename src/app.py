@@ -101,7 +101,7 @@ def signup():
 
         return "Usuario registrado con éxito."
 
-    return render_template('signup.html')
+    return render_template('signup.jinja')
 
 
 #---------------Ruta por defecto /-------------------------
@@ -128,12 +128,12 @@ def login():
                 return redirect(url_for('clients.clientsHome'))
 
             flash("Invalid user type...")
-            return render_template('auth/loginclient.html')
+            return render_template('auth/loginclient.jinja')
 
         flash("User not found...")
-        return render_template('auth/loginclient.html')
+        return render_template('auth/loginclient.jinja')
 
-    return render_template('auth/loginclient.html')
+    return render_template('auth/loginclient.jinja')
 
 #---------------------------------Login para administradores, tipo de usuario 1------------------------------------------
 @app.route('/loginadm', methods=['GET', 'POST'])
@@ -149,13 +149,13 @@ def loginadm():
                 return redirect(url_for('administrationindex'))
             else:
                 flash("Invalid password...")
-                return render_template('auth/loginadm.html')
+                return render_template('auth/loginadm.jinja')
         else:
             flash("User not found...")
-            return render_template('auth/loginadm.html')
+            return render_template('auth/loginadm.jinja')
         
     else:
-        return render_template('auth/loginadm.html')
+        return render_template('auth/loginadm.jinja')
 
 
 #---------------------------------Login para empleados, tipo de usuario 2----------------------------------------------
@@ -197,31 +197,31 @@ def loginemp():
             
             else:
                 flash("Invalid user type or area...")
-                return render_template('auth/loginemp.html')
+                return render_template('auth/loginemp.jinja')
 
         flash("User not found...")
-        return render_template('auth/loginemp.html')
+        return render_template('auth/loginemp.jinja')
 
-    return render_template('auth/loginemp.html')
+    return render_template('auth/loginemp.jinja')
 
 @app.route('/sales_emp_area')
 def sales_emp_area():
-    # Código necesario para la página "salesEmpArea/salesHome.html"
+    # Código necesario para la página "salesEmpArea/salesHome.jinja"
     return render_template('salesEmpArea/salesHome.jinja')
 
 @app.route('/storage_home')
 def storage_home():
-    # Código necesario para la página "storage/storageHome.html"
+    # Código necesario para la página "storage/storageHome.jinja"
     return render_template('storage/storageHome.jinja')
 
 @app.route('/maintenance_home')
 def maintenance_home():
-    # Código necesario para la página "maintenance/mantHome.html"
+    # Código necesario para la página "maintenance/mantHome.jinja"
     return render_template('maintenance/mantHome.jinja')
 
 @app.route('/shipping_home')
 def shipping_home():
-    # Código necesario para la página "shipping/shipHome.html"
+    # Código necesario para la página "shipping/shipHome.jinja"
     return render_template('shipping/shipHome.jinja')
 
 
@@ -230,11 +230,11 @@ def shipping_home():
 
 @app.route('/startpage')
 def startpage():
-    return render_template('startpage.html')
+    return render_template('startpage.jinja')
 
 @app.route('/home')   
 def home():
-    return render_template('home.html')
+    return render_template('home.jinja')
 
 @app.route('/protected')
 @login_required
@@ -252,7 +252,7 @@ def maintListEmp():
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 5")
     users = cur.fetchall()
     cur.close()
-    return render_template('administration/maintListEmp.html', users=users)
+    return render_template('administration/maintListEmp.jinja', users=users)
 
 
 # Vista para agregar un empleado
@@ -269,7 +269,7 @@ def maintAddEmp():
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('maintListEmp'))
-    return render_template('administration/maintAddEmp.html')
+    return render_template('administration/maintAddEmp.jinja')
 
 
 # Vista para eliminar un empleado
@@ -298,7 +298,7 @@ def maintUpdateEmp(id):
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('maintListEmp'))
-    return render_template('administration/maintUpdateEmp.html', user=user)
+    return render_template('administration/maintUpdateEmp.jinja', user=user)
 
 #-----------------------------------------------------
 #--------CRUD EMPLEADOS VENTAS------------------------
@@ -311,7 +311,7 @@ def salesListEmp():
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 2")
     users = cur.fetchall()
     cur.close()
-    return render_template('administration/salesListEmp.html', users=users)
+    return render_template('administration/salesListEmp.jinja', users=users)
 
 
 # Vista para agregar un empleado
@@ -328,7 +328,7 @@ def salesAddEmp():
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('salesListEmp'))
-    return render_template('administration/salesAddEmp.html')
+    return render_template('administration/salesAddEmp.jinja')
 
 
 # Vista para eliminar un empleado
@@ -357,7 +357,7 @@ def salesUpdateEmp(id):
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('salesListEmp'))
-    return render_template('administration/salesUpdateEmp.html', user=user)
+    return render_template('administration/salesUpdateEmp.jinja', user=user)
 
 
 #-----------------------------------------------
@@ -372,7 +372,7 @@ def storListEmp():
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 3")
     users = cur.fetchall()
     cur.close()
-    return render_template('administration/storListEmp.html', users=users)
+    return render_template('administration/storListEmp.jinja', users=users)
 
 
 # Vista para agregar un empleado
@@ -389,7 +389,7 @@ def storAddEmp():
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('storListEmp'))
-    return render_template('administration/storAddEmp.html')
+    return render_template('administration/storAddEmp.jinja')
 
 
 # Vista para eliminar un empleado
@@ -419,7 +419,7 @@ def storUpdateEmp(id):
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('storListEmp'))
-    return render_template('administration/storUpdateEmp.html', user=user)
+    return render_template('administration/storUpdateEmp.jinja', user=user)
 
 
 #-----------------------------------------------
@@ -434,7 +434,7 @@ def shipListEmp():
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 6")
     users = cur.fetchall()
     cur.close()
-    return render_template('administration/shipListEmp.html', users=users)
+    return render_template('administration/shipListEmp.jinja', users=users)
 
 
 # Vista para agregar un empleado
@@ -451,7 +451,7 @@ def shipAddEmp():
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('shipListEmp'))
-    return render_template('administration/shipAddEmp.html')
+    return render_template('administration/shipAddEmp.jinja')
 
 
 # Vista para eliminar un empleado
@@ -480,18 +480,18 @@ def shipUpdateEmp(id):
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('shipListEmp'))
-    return render_template('administration/shipUpdateEmp.html', user=user)
+    return render_template('administration/shipUpdateEmp.jinja', user=user)
 
 
 
 #-----------------Rutas para paginas de Administradores---------------------------
 @app.route('/administration/administrationindex')   
 def administrationindex():
-    return render_template('/administration/administrationindex.html')
+    return render_template('/administration/administrationindex.jinja')
 
 @app.route('/administration/employeelist')   
 def employeelist():
-    return render_template('/administration/employeelist.html')
+    return render_template('/administration/employeelist.jinja')
 
 
 #----------------------Rutas para error 401 y 404--------------------
@@ -511,51 +511,34 @@ if __name__ == '__main__':
     app.run()
     
      
-
-
-
 #--------------------rutas ventas-----------------------
 
 @app.route('/sales_Home')
 def salesHome():
-    return render_template('salesEmpArea/salesHome.html')
+    return render_template('salesEmpArea/salesHome.jinja')
 
 @app.route('/salesEmpArea/clientsList')
 def clientsList():
-    return render_template('salesEmpArea/clientsList.html')
+    return render_template('salesEmpArea/clientsList.jinja')
 
 @app.route('/newRequest')   
 def newRequest():
-    return render_template('/sales/newRequest.html')
+    return render_template('/sales/newRequest.jinja')
     
 @app.route('/salesEmpArea/prospects')   
 def prospects():
-    return render_template('templates/sales/prospects.html')
+    return render_template('templates/sales/prospects.jinja')
     
 @app.route('/rents')   
 def rents():
-    return render_template('/sales/rents.html')
+    return render_template('/sales/rents.jinja')
 
 @app.route('/sales/sales')   
 def sales():
-    return render_template('/sales/sales.html')
-
-# @app.route('/sales/salesHome')   
-# def salesHome():
-#     return render_template('/salesEmpArea/salesHome')
+    return render_template('/sales/sales.jinja')
 
 #--------------------rutas envios-----------------------
 @app.route('/orders')
 def orders():
-    return render_template('/shipping/orders.html')
+    return render_template('/shipping/orders.jinja')
 
-
-
-
-
-
-    
-
-    
-    
-    
