@@ -1,2 +1,0 @@
-# BLDNGSolutions
-Proyecto BLDNGSolutions
