@@ -8,3 +8,5 @@ pip install virtualenv==20.17.1
 Flask 2.2.2
 
 Werkzeug 2.2.2
+
+falta agregar archivo wsgi para web deployment
