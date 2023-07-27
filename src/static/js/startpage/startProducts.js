@@ -102,14 +102,14 @@ function addProductToCart(title, price, productImg) {
     }
 
     var cartBoxContent = `
-            <img src="${productImg}" alt="" class="cart-img">
-            <div class="detail-box">
-                <div class="cart-product-title">${title}</div>
-                <div class="cart-price">${price}</div>
-                <input type="number" value="1" class="cart-quantity">
-            </div>
-            <!--borrar carrito-->
-            <i class="bx bxs-trash-alt cart-remove"></i>`;
+        <img src="${productImg}" alt="" class="cart-img">
+        <div class="detail-box">
+            <div class="cart-product-title">${title}</div>
+            <div class="cart-price">${price}</div>
+            <input type="number" value="1" class="cart-quantity">
+        </div>
+        <!--borrar carrito-->
+        <i class="bx bxs-trash-alt cart-remove"></i>`;
     cartShopBox.innerHTML = cartBoxContent;
     cartItems.appendChild(cartShopBox);
     cartShopBox.getElementsByClassName("cart-remove")[0].addEventListener("click", removeCartItem);
