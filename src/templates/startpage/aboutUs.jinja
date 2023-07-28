@@ -1,0 +1,76 @@
+{% extends './base.html' %}
+
+{% block title %}About us{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/startpage/productsList.css') }}" />
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<style>
+    /* Estilos para el cuerpo de la página */
+    body {
+        min-height: 100vh; /* Establecer la altura mínima del cuerpo de la página al 100% del viewport */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Estilos para el contenido principal */
+    .container {
+        flex: 1; /* Hace que el contenido principal ocupe el espacio disponible */
+    }
+
+    /* Estilos para el footer */
+    footer {
+        flex-shrink: 0; /* Evita que el footer se reduzca en caso de poco contenido */
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-md bg-dark navbar-dark">
+<div><a href="{{ url_for('startpage') }}" class="btn">Atras</a>
+
+    <div class="container">
+        <a class="navbar-brand" href="#">Nombre de la Empresa</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <h1>Nuestra Empresa</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget justo nec dui gravida
+                iaculis eu
+                at
+                turpis. In hac habitasse platea dictumst. Proin suscipit eget nisl a sagittis.</p>
+            <p>Phasellus auctor leo vel turpis laoreet, eget commodo ipsum volutpat. Ut in leo eu eros
+                tincidunt
+                euismod.
+                Integer non facilisis nisi, nec luctus velit.</p>
+        </div>
+        <div class="col-md-6">
+            <img src="path/to/company-image.jpg" alt="Company Image" class="img-fluid">
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4">
+    <div class="container text-center">
+        <p>&copy; 2023 Nombre de la Empresa. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<!-- Bootstrap JS y dependencias -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock %}

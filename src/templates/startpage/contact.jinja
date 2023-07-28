@@ -1,0 +1,49 @@
+{% extends './base.html' %}
+
+{% block title %}Contact us{% endblock %}
+
+{% block customCSS %}
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<style>
+  /* Estilo para el contenedor del mapa */
+  #map-container {
+    height: 400px;
+  }
+</style>
+{% endblock %}
+
+
+{% block body %}
+
+<div class="container mt-5">
+<div><a href="{{ url_for('startpage') }}" class="btn">Atras</a></div>
+
+  <h1>Contacto</h1>
+  <p>¡Contáctanos para obtener más información!</p>
+  <div id="map-container"></div>
+  <p>Dirección: Montes Urales 2236, Guadalajara, Jalisco, Código Postal 44320</p>
+  <p>Teléfono: (123) 456-7890</p>
+  <p>Email: contacto@empresa.com</p>
+</div>
+
+<script>
+  // Función para inicializar el mapa
+  function initMap() {
+    var coordinates = { lat: 20.7049452, lng: -103.3194802 }; // Coordenadas de Montes Urales 2236
+    var mapOptions = {
+      zoom: 17,
+      center: coordinates
+    };
+    var map = new google.maps.Map(document.getElementById("map-container"), mapOptions);
+
+    // Marcador en Montes Urales 2236
+    var marker = new google.maps.Marker({
+      position: coordinates,
+      map: map,
+      title: "Montes Urales 2236, Guadalajara, Jalisco, Código Postal 44320"
+    });
+  }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJzmmel__k7beEoyd-LhonGRhMrR2mEJE&callback=initMap" async defer></script>
+{% endblock %}

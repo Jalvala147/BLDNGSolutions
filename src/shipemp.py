@@ -4,7 +4,7 @@ from flask import Blueprint
 from flask import request
 from flask import Flask
 from flask import Flask, render_template, jsonify
-import requests
+
 app = Flask(__name__)
 mysql = MySQL()
 import os

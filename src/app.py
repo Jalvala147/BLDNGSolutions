@@ -74,11 +74,19 @@ def logoutadm():
 
 
 
-#--------------------Productos------------------
+#--------------------Pagina de inicio------------------
 
-@app.route('/startProducts')
-def startProducts():
-    return render_template('startpage/startProducts.jinja')
+@app.route('/productsList')
+def productsList():
+    return render_template('startpage/productsList.jinja')
+
+@app.route('/contact')
+def contact():
+    return render_template('startpage/contact.jinja')
+
+@app.route('/aboutUs')
+def aboutUs():
+    return render_template('startpage/aboutUs.jinja')
 
 #---------------------------------------------------
 
