@@ -3,7 +3,7 @@ import time
 from flask_wtf.csrf import CSRFProtect
 from flask_mysqldb import MySQL
 from flask import render_template, session, redirect, flash, g
-from flask_login import LoginManager, login_user, login_required, current_user
+from flask_login import login_user, login_required, current_user
 from flask_login import logout_user
 from flask import Blueprint
 from flask import request
@@ -80,6 +80,10 @@ def payments():
 @clients.route('/clientuser/statusprogress')   
 def statusprogress():
     return render_template('/clientuser/statusprogress.jinja')
+
+@clients.route('/clientuser/products')   
+def products():
+    return render_template('/clientuser/products.jinja')
 
 @clients.route('/logout')
 @login_required  # Asegura que el usuario esté autenticado para acceder a la ruta

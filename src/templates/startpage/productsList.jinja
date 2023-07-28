@@ -1,0 +1,105 @@
+{% extends './base.html' %}
+
+{% block title %}Productos{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/startpage/productsList.css') }}" />
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+{% endblock %}
+
+
+{% block body %}
+<!-- Header -->
+<header>
+    <div class="nav container">
+        <div><a href="{{ url_for('startpage') }}" class="btn">Atras</a></div>
+        <a href="/startpage" class="logo2">BLDNGSolutions</a>
+        <a href="/startpage"><img src="static/images/logo.png" class="small-logo" /></a>
+    </div>
+</header>
+
+
+<section class="shop container">
+    <h2 class="section-title">Productos</h2>
+
+    <div class="shop-content">
+        <!--Box 1-->
+        <div class="product-box">
+            <img src="static/images/products/fiat-hitachi-fd-175.png" alt="" class="product-img">
+            <h2 class="product-title">Fiat-Hitachi FD175</h2>
+            <span class="price">$15000.40 MXN</span>
+        </div>
+        <!--Box 2-->
+        <div class="product-box">
+            <img src="static/images/products/fiat-hitachi-fr-160-2.png" alt="" class="product-img">
+            <h2 class="product-title">Fiat-Hitachi FR160.2</h2>
+            <span class="price">$16000.00 MXN</span>
+        </div>
+        <!--Box 3-->
+        <div class="product-box">
+            <img src="static/images/products/volvo-ec-650.png" alt="" class="product-img">
+            <h2 class="product-title">Volvo EC650</h2>
+            <span class="price">$16000.00 MXN</span>
+        </div>
+        <!--Box 4-->
+        <div class="product-box">
+            <img src="static/images/products/cat4.jpg" alt="" class="product-img">
+            <h2 class="product-title">Volvo L330C</h2>
+            <span class="price">$13000.00 MXN</span>
+        </div>
+        <!--Box 5-->
+        <div class="product-box">
+            <img src="static/images/products/cat5.jpg" alt="" class="product-img">
+            <h2 class="product-title">Volvo L160</h2>
+            <span class="price">$95000.00 MXN</span>
+        </div>
+        <!--Box 6-->
+        <div class="product-box">
+            <img src="static/images/products/cat6.jpg" alt="" class="product-img">
+            <h2 class="product-title">JBC 712</h2>
+            <span class="price">$75000.00 MXN</span>
+        </div>
+        <!--Box 7-->
+        <div class="product-box">
+            <img src="static/images/products/cat7.png" alt="" class="product-img">
+            <h2 class="product-title">CAT 7</h2>
+            <span class="price">$175000.00 MXN</span>
+        </div>
+        <!--Box 8-->
+        <div class="product-box">
+            <img src="static/images/products/cat7.png" alt="" class="product-img">
+            <h2 class="product-title">CAT 8</h2>
+            <span class="price">$55000.00 MXN</span>
+        </div>
+        <!--Box 9-->
+        <div class="product-box">
+            <img src="static/images/products/cat7.png" alt="" class="product-img">
+            <h2 class="product-title">CAT 9</h2>
+            <span class="price">$25000.00 MXN</span>
+        </div>
+        <!--Box 10-->
+        <div class="product-box">
+            <img src="static/images/products/cat7.png" alt="" class="product-img">
+            <h2 class="product-title">CAT 10</h2>
+            <span class="price">$125000.00 MXN</span>
+        </div>
+        <!--Box 11-->
+        <div class="product-box">
+            <img src="static/images/products/cat7.png" alt="" class="product-img">
+            <h2 class="product-title">CAT 11</h2>
+            <span class="price">$35000.00 MXN</span>
+        </div>
+        <!--Box 12-->
+        <div class="product-box">
+            <img src="static/images/products/cat7.png" alt="" class="product-img">
+            <h2 class="product-title">CAT 12</h2>
+            <span class="price">$44000.00 MXN</span>
+        </div>
+</section>
+
+
+<script src="{{ url_for('static', filename='js/startpage/productsList.js') }}"></script>
+
+
+{% endblock %}

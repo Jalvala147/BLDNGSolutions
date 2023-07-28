@@ -84,8 +84,26 @@ function addCartClicked(event) {
     var title = shopProducts.getElementsByClassName("product-title")[0].innerText;
     var price = shopProducts.getElementsByClassName("price")[0].innerText;
     var productImg = shopProducts.getElementsByClassName("product-img")[0].src;
+
+    // Verificar si el producto ya está en el carrito
+    var cartItemsNames = document.getElementsByClassName("cart-product-title");
+    for (var i = 0; i < cartItemsNames.length; i++) {
+        if (cartItemsNames[i].innerText === title) {
+            alert("Ya has agregado esta máquina");
+            return; // Salir de la función si el producto está duplicado
+        }
+    }
+
+    // Si el producto no está duplicado, agregarlo al carrito
     addProductToCart(title, price, productImg);
     updateTotal();
+
+    // Mostrar mensaje flash
+    var flashMessage = document.getElementById("flashMessage");
+    flashMessage.style.display = "block";
+    setTimeout(function() {
+        flashMessage.style.display = "none";
+    }, 1400); // Ocultar el mensaje después de 1.4 segundos
 }
 
 //Función para agregar un producto al carrito

@@ -43,6 +43,7 @@ header{
     background: var(--bg-color);
     box-shadow: 0 1px 4px hsl(0, 4%, 15% / 10%);
     background: linear-gradient(to right, #ffffff, #b98e8e);
+    z-index: 999;
 }
 .nav{
     display: flex;
@@ -76,7 +77,7 @@ header{
     background: var(--bg-color);
     box-shadow: -2px 0 4px hsl(0 4% 15% / 10%);
     transition: 0.3s;
-    z-index: 999;
+    z-index: 998;
 }
 .cart.active{
     right: 0;
@@ -164,9 +165,14 @@ header{
     font-weight: 600;
     text-align: center;
     margin-bottom: 1.5rem;
+    position: sticky;
+    top: 0; /* Mantener el título "Productos" en la parte superior de la pantalla */
+    background: var(--bg-color); /* Asegurarnos de que el fondo no se vea afectado por el scroll */
+    z-index: 997;
 }
 .shop{
-    margin-top: 2rem;
+    
+    margin-top: 3.5rem;
 }
 /*Content*/
 .shop-content{
@@ -176,12 +182,13 @@ header{
 }
 .product-box{
     position: relative;
-    z-index: -1;
+
 }
 .product-box:hover{
     padding: 10px;
     border: 1px solid var(--text-color);
     transition: 0.4s;
+    
 }
 .product-img{
     width: 100%;
@@ -209,8 +216,21 @@ header{
 .add-cart:hover{
     background: hsl(249, 32%, 17%);
 }
+.flash-message {
+    display: none;
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #32a852;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 999;
+}
+
 /*responsive*/
-@media (max-wwidth: 1080px){
+@media (max-width: 1080px){
     .nav{
         padding: 15px;
     }
@@ -225,7 +245,7 @@ header{
         margin-top: 2rem !important;
     }
 }
-@media (max-wwidth: 400px){
+@media (max-width: 400px){
     .nav{
         padding: 11px;
     }
@@ -236,7 +256,7 @@ header{
         width: 320px;
     }
 }
-@media (max-wwidth: 360px){
+@media (max-width: 360px){
     .shop{
         margin-top: 1rem !important;
     }
