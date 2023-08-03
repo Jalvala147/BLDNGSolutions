@@ -45,6 +45,7 @@ function ready() {
         .getElementsByClassName("btn-buy")[0]
         .addEventListener("click", buyButtonClicked);
 }
+
 //boton de pedir
 function buyButtonClicked() {
     var cartContent = document.getElementsByClassName("cart-content")[0];
@@ -58,7 +59,6 @@ function buyButtonClicked() {
         updateTotal();
     }
 }
-
 
 
 //Función para remover un item del carrito
@@ -101,7 +101,7 @@ function addCartClicked(event) {
     // Mostrar mensaje flash
     var flashMessage = document.getElementById("flashMessage");
     flashMessage.style.display = "block";
-    setTimeout(function() {
+    setTimeout(function () {
         flashMessage.style.display = "none";
     }, 1400); // Ocultar el mensaje después de 1.4 segundos
 }
@@ -152,3 +152,4 @@ function updateTotal() {
 
     document.getElementsByClassName("total-price")[0].innerText = "$" + total.toFixed(2);
 }
+
