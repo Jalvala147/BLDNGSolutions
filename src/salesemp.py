@@ -26,9 +26,20 @@ csrf = CSRFProtect()
 
 @salesemp.route('/salesEmpArea/salesList')
 def salesList():
+    # Obtén una conexión a la base de datos
     cur = mysql.connection.cursor()
-    
-    return render_template('/salesEmpArea/salesList.jinja')
+
+    # Realiza la consulta a la base de datos
+    cur.execute("SELECT maquina, num_orden, estado_pedido FROM tabla_pedidos")
+
+    # Obtiene los resultados de la consulta
+    pedidos = cur.fetchall()
+
+    # Cierra el cursor
+    cur.close()
+
+    # Pasa los datos a la plantilla salesList.jinja para mostrarlos en la tabla
+    return render_template('/salesEmpArea/salesList.jinja', pedidos=pedidos)
 
 
 @salesemp.route('/salesEmpArea/rentsList')   
@@ -136,11 +147,42 @@ def clientsList():
 
 #-----------------------------------------------------------
 
-@salesemp.route('/salesEmpArea/newRequest')   
+@salesemp.route('/salesEmpArea/newRequest')
 def newRequest():
     cur = mysql.connection.cursor()
-    
-    return render_template('/salesEmpArea/newRequest.jinja')
+
+    # Ejecuta la consulta para obtener los registros de la tabla machinesorders
+    cur.execute("SELECT id_order, clientUser_id, price, type FROM machinesorders")
+
+    # Obtén todos los resultados de la consulta
+    orders = cur.fetchall()
+
+    # Cierra el cursor
+    cur.close()
+
+    # Pasa los resultados a la plantilla newRequest.jinja y renderízala
+    return render_template('salesEmpArea/newRequest.jinja', orders=orders)
+
+
+
+@salesemp.route('/salesEmpArea/updateType/<int:id_order>', methods=['POST'])
+def update_type(id_order):
+    if request.method == 'POST':
+        cur = mysql.connection.cursor()
+
+        # Obtiene la opción seleccionada del formulario
+        new_type = request.form['type']
+
+        # Actualiza el campo "type" en la base de datos para el registro correspondiente
+        cur.execute("UPDATE machinesorders SET type = %s WHERE id_order = %s", (new_type, id_order))
+        mysql.connection.commit()
+
+        # Cierra el cursor
+        cur.close()
+
+    # Redirecciona nuevamente a la página de solicitudes después de la actualización
+    return redirect(url_for('salesemp.newRequest'))
+
 
 
 #-----------------------------------------------------------
@@ -152,5 +194,31 @@ def prospects():
     
 
 
+@salesemp.route('/guardar_pedido', methods=['POST'])
+def guardar_pedido():
+    try:
+        # Obtener los datos del pedido desde el cuerpo de la solicitud JSON
+        data = request.json
+        client_name = data.get('clientName')
+        order_data = data.get('orderData')
+
+        # Aquí debes implementar el código para guardar los datos del pedido en la base de datos.
+        # Utiliza la información recopilada (client_name y order_data) para crear un nuevo registro en la tabla machinesorders.
+
+        # Por ejemplo:
+        cur = mysql.connection.cursor()
+        for product_info in order_data:
+            product_title = product_info.get('product')
+            quantity = product_info.get('quantity')
+            price = product_info.get('price')
+            # Aquí ejecutar la consulta para guardar los datos en la base de datos
+            cur.execute("INSERT INTO machinesorders (id_machine, clientUser_id, quantity, price) VALUES (%s, %s, %s, %s)",
+                        (product_title, client_name, quantity, price))
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({"message": "Pedido guardado exitosamente"})
+    except Exception as e:
+        return jsonify({"error": "Error al procesar la solicitud"}), 500
 
 

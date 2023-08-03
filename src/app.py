@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
-import MySQLdb.cursors
+from flask_mail import Mail, Message
+import itsdangerous
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -52,8 +53,16 @@ app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = ''
 app.config['MYSQL_DATABASE_DB'] = 'bdcompleta'
 
+#configuracion para el envio de correos
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'bldngsolutions.mail@gmail.com'
+app.config['MAIL_PASSWORD'] = 'drtqzdiweikrtxwu'
+
+mail = Mail(app)
 
 
+#rutas para el proceso de logout de los usuarios
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():
     logout_user()
@@ -88,7 +97,7 @@ def contact():
 def aboutUs():
     return render_template('startpage/aboutUs.jinja')
 
-#---------------------------------------------------
+#-----------------Query para crear un nuevo usuario de tipo cliente----------------
 
 @csrf.exempt
 @app.route('/signup', methods=['GET', 'POST'])
@@ -247,8 +256,18 @@ def shipping_home():
     return render_template('shipping/shipHome.jinja')
 
 
+
+#---------------------------------Ruta para recuperacion de contraseña----------------------------------------------
+@app.route('/forgotpassword', methods=['GET', 'POST'])
+def forgotpassword():
+
+
+
+    return render_template('auth/forgotpassword.jinja')
+
+
 #---------------Rutas para logout, paginas protegidas, pagina de start y home -----------------------------------
-    
+
 
 @app.route('/startpage')
 def startpage():

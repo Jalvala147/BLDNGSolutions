@@ -18,12 +18,28 @@
 <table class="table1">
     <tr>
         <th>No. de Solicitud</th>
-        <th>Nombre del solicitante</th>
-        <th>Telefono</th>
+        <th>Solicitante</th>
+        <th>Maquinas</th>
         <th>Tipo</th>
     </tr>
 
-    
+    {% for order in orders %}
+    <tr>
+        <td>{{ order[0] }}</td>
+        <td>{{ order[1] }}</td>
+        <td>{{ order[2] }}</td>
+        <td>
+            <form method="post" action="{{ url_for('salesemp.update_type', id_order=order[0]) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <select name="type">
+                    <option value="venta" {% if order[3] == 'venta' %}selected{% endif %}>Venta</option>
+                    <option value="renta" {% if order[3] == 'renta' %}selected{% endif %}>Renta</option>
+                </select>
+                <input type="submit" value="Guardar">
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
 </table>
 
 {% endblock %}

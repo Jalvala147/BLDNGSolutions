@@ -73,7 +73,7 @@ def stoMachines():
     cursor = mysql.connection.cursor()
 
     # Fetch data from the 'machines' table
-    cursor.execute("SELECT id_Machine, model, brand, type, status, currentUser FROM machines")
+    cursor.execute("SELECT id_Machine, model, brand, type, status FROM machines")
     machines_data = cursor.fetchall()
 
     # Close the cursor
@@ -93,12 +93,11 @@ def update_machine(machine_id):
         brand = request.form['brand']
         type = request.form['type']
         status = request.form['status']
-        currentUser = request.form['currentUser']
 
         # Update the machine record in the database
         cursor.execute(
             "UPDATE machines SET model=%s, brand=%s, type=%s, status=%s, currentUser=%s WHERE id_Machine=%s",
-            (model, brand, type, status, currentUser, machine_id)
+            (model, brand, type, status, machine_id)
         )
 
         # Commit the changes
@@ -109,7 +108,7 @@ def update_machine(machine_id):
         return redirect(url_for('storageemp.stoMachines'))
 
     # If it's a GET request, fetch the machine data for the form pre-population
-    cursor.execute("SELECT id_Machine, model, brand, type, status, currentUser FROM machines WHERE id_Machine=%s", (machine_id,))
+    cursor.execute("SELECT id_Machine, model, brand, type, status FROM machines WHERE id_Machine=%s", (machine_id,))
     machine_data = cursor.fetchone()
     cursor.close()
 
@@ -141,20 +140,13 @@ def add_machine():
         brand = request.form['brand']
         machine_type = request.form['type']
         status = request.form['status']
-        current_user = request.form['currentUser']
 
-        # Verificar si el ID de usuario proporcionado existe en la tabla 'users'
+
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT id FROM user WHERE id=%s", (current_user,))
-        user_exists = cursor.fetchone()
-
-        if not user_exists:
-            flash("El cliente no existe. Por favor, proporcione un ID de cliente válido.", "danger")
-            return render_template('storage/add_machine.jinja')
 
         # El ID de usuario existe, proceder con agregar la máquina
-        query = "INSERT INTO machines (model, brand, type, status, currentUser) VALUES (%s, %s, %s, %s, %s)"
-        values = (model, brand, machine_type, status, current_user)
+        query = "INSERT INTO machines (model, brand, type, status) VALUES (%s, %s, %s, %s)"
+        values = (model, brand, machine_type, status)
 
         try:
             cursor.execute(query, values)

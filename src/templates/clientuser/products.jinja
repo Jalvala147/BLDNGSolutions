@@ -36,7 +36,13 @@
                 <div class="total-price">$0</div>
             </div>
 
-            <button type="button" class="btn-buy">Pedir</button>
+            <form action="{{ url_for('clients.place_order') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="clientUser_id" value="{{ user_id }}">
+                <input type="hidden" name="machine_price" value="{{ machine_price }}">
+                <button type="submit" class="btn-buy">Pedir</button>
+            </form>
+            
 
             <i class='bx bx-x' id="close-cart"></i>
         </div>
@@ -49,92 +55,68 @@
 
 <section class="shop container">
     <h2 class="section-title">Productos</h2>
+    <h2>Bienvenido, {{current_user.fullname}}</h2>
 
     <div class="shop-content">
         <!--Box 1-->
         <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat1.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 1</h2>
+            <img src="{{ url_for('static', filename='images/products/fiat-hitachi-fd-175.png') }}" alt=""
+                class="product-img">
+            <h2 class="product-title">Fiat-Hitachi FD175</h2>
             <span class="price">$15000.40 MXN</span>
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>
         <!--Box 2-->
         <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat2.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 2</h2>
+            <img src="{{ url_for('static', filename='images/products/fiat-hitachi-fr-160-2.png') }}" alt=""
+                class="product-img">
+            <h2 class="product-title">Fiat-Hitachi FR160.2</h2>
             <span class="price">$16000.00 MXN</span>
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>
         <!--Box 3-->
         <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat3.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 3</h2>
+            <img src="{{ url_for('static', filename='images/products/volvo-ec-650.png') }}" alt="" class="product-img">
+            <h2 class="product-title">Volvo EC650</h2>
             <span class="price">$16000.00 MXN</span>
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>
         <!--Box 4-->
         <div class="product-box">
             <img src="{{ url_for('static', filename='images/products/cat4.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 4</h2>
+            <h2 class="product-title">Volvo L330C</h2>
             <span class="price">$13000.00 MXN</span>
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>
         <!--Box 5-->
         <div class="product-box">
             <img src="{{ url_for('static', filename='images/products/cat5.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 5</h2>
+            <h2 class="product-title">Volvo L160</h2>
             <span class="price">$95000.00 MXN</span>
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>
         <!--Box 6-->
         <div class="product-box">
             <img src="{{ url_for('static', filename='images/products/cat6.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 6</h2>
+            <h2 class="product-title">Maquina 42324</h2>
             <span class="price">$75000.00 MXN</span>
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>
         <!--Box 7-->
         <div class="product-box">
             <img src="{{ url_for('static', filename='images/products/cat7.png') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 7</h2>
+            <h2 class="product-title">Maquina 42221</h2>
             <span class="price">$175000.00 MXN</span>
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>
         <!--Box 8-->
         <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat7.png') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 8</h2>
+            <img src="{{ url_for('static', filename='images/products/cat1.jpg') }}" alt="" class="product-img">
+            <h2 class="product-title">Maquina 423422</h2>
             <span class="price">$55000.00 MXN</span>
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>
-        <!--Box 9-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat7.png') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 9</h2>
-            <span class="price">$25000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 10-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat7.png') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 10</h2>
-            <span class="price">$125000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 11-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat7.png') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 11</h2>
-            <span class="price">$35000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 12-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat7.png') }}" alt="" class="product-img">
-            <h2 class="product-title">CAT 12</h2>
-            <span class="price">$44000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
+
     </div>
 </section>
 
