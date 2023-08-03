@@ -1,5 +1,6 @@
 from flask_wtf.csrf import CSRFProtect
 from flask_mysqldb import MySQL
+from flask_mail import Mail, Message
 from flask import render_template, session, redirect, flash, g
 from flask_login import login_user, login_required, current_user
 from flask_login import logout_user
@@ -11,6 +12,7 @@ import math
 
 app = Flask(__name__)
 mysql = MySQL()
+mail = Mail(app)
 
 
 clients = Blueprint('clients', __name__)
@@ -22,6 +24,7 @@ csrf = CSRFProtect()
 def logout():
     logout_user()
     return redirect(url_for('startpage'))
+
 
 #--------------------rutas clientes-----------------------
 @clients.route('/clientsHome')

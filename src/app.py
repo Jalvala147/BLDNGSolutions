@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
 from flask_mail import Mail, Message
+import smtplib
 import itsdangerous
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from salesemp import salesemp
 from clients import clients
+import re
 from maintemp import maintemp
 from storageemp import storageemp
 from shipemp import shipemp
@@ -54,10 +56,11 @@ app.config['MYSQL_DATABASE_PASSWORD'] = ''
 app.config['MYSQL_DATABASE_DB'] = 'bdcompleta'
 
 #configuracion para el envio de correos
-app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
+app.config['MAIL_SERVER']='smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'bldngsolutions.mail@gmail.com'
-app.config['MAIL_PASSWORD'] = 'drtqzdiweikrtxwu'
+app.config['MAIL_PASSWORD'] = 'mxghnyfszbqlaicr'
 
 mail = Mail(app)
 
@@ -260,12 +263,30 @@ def shipping_home():
 #---------------------------------Ruta para recuperacion de contraseña----------------------------------------------
 @app.route('/forgotpassword', methods=['GET', 'POST'])
 def forgotpassword():
+    if request.method == 'POST':
+        # Obtener el correo electrónico ingresado en el formulario
+        correo_destinatario = request.form.get('correo')
 
+        # Validar el formato del correo electrónico usando una expresión regular
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(pattern, correo_destinatario):
+            flash('Error: Por favor, ingrese un correo electrónico válido.', 'error')
+        else:
+            try:
+                msg = Message('Recuperación de contraseña', sender='bldngsolutions.mail@gmail.com', recipients=[correo_destinatario])
+                msg.body = 'Se ha solicitado un cambio de contraseña para su cuenta de BuildingSolutions. Si usted no ha solicitado este cambio, por favor ignore este correo. Si desea cambiar su contraseña, por favor ingrese al siguiente link: https://'
+                #msg.html = render_template('correo.html', variable='valor')  # Si deseas usar una plantilla HTML para el correo
 
+                mail.send(msg)
+
+                # Mostrar mensaje flash en el mismo formulario
+                flash('Correo enviado correctamente.', 'success')
+            except smtplib.SMTPRecipientsRefused as e:
+                flash(f'Error: La dirección de correo electrónico "{correo_destinatario}" no es válida. Por favor, verifique la dirección e inténtelo nuevamente.', 'error')
+            except Exception as e:
+                flash(f'Error al enviar el correo electrónico: {str(e)}', 'error')
 
     return render_template('auth/forgotpassword.jinja')
-
-
 #---------------Rutas para logout, paginas protegidas, pagina de start y home -----------------------------------
 
 
