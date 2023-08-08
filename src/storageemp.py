@@ -25,8 +25,14 @@ def logout():
 @app.route('/logout')
 def logout():
     logout_user()
+    session.pop('username', None)
     return redirect(url_for('startpage'))
 
+
+@storageemp.route('/storage_home')
+def storage_home():
+    # Código necesario para la página "storage/storageHome.jinja"
+    return render_template('storage/storageHome.jinja')
 
 #--------------------Historial de las Máquinas-----------------------------
 @storageemp.route('/storage/stoHistory')

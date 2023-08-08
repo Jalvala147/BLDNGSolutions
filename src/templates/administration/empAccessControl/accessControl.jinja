@@ -1,0 +1,18 @@
+{% extends './base.html' %}
+
+{% block title%}Control de accesos{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
+
+{% endblock %}
+
+
+{% block body %}
+
+<a href="{{ url_for('admin.adminHome') }}" class="btn" >Atras</a>
+
+<h1>Control de accesos</h1>
+<h2>Empleados</h2>
+
+{% endblock %}

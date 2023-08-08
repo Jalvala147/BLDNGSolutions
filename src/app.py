@@ -12,6 +12,7 @@ import re
 from maintemp import maintemp
 from storageemp import storageemp
 from shipemp import shipemp
+from admin import admin
 
 app = Flask(__name__)
 
@@ -23,7 +24,7 @@ app.register_blueprint(clients)
 app.register_blueprint(maintemp)
 app.register_blueprint(storageemp)
 app.register_blueprint(shipemp)
-
+app.register_blueprint(admin)
 
 login_manager = LoginManager(app)
 
@@ -155,7 +156,7 @@ def login():
 
             if check_password_hash(hashed_password, password):
                 # Contraseña válida, puedes continuar con el inicio de sesión
-                logged_user = User(user_id, username, password)  # Aquí puedes usar hashed_password en lugar de password si quieres
+                logged_user = User(user_id, username, password)
                 if tipoUsuario == 3:
                     login_user(logged_user)
                     session['user_id'] = user_id  # Guardar el ID del usuario en la sesión
@@ -168,6 +169,7 @@ def login():
         return render_template('auth/loginclient.jinja')
 
     return render_template('auth/loginclient.jinja')
+
 
 #---------------------------------Login para administradores, tipo de usuario 1------------------------------------------
 @app.route('/loginadm', methods=['GET', 'POST'])
@@ -269,14 +271,75 @@ def forgotpassword():
 
         # Validar el formato del correo electrónico usando una expresión regular
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
         if not re.match(pattern, correo_destinatario):
             flash('Error: Por favor, ingrese un correo electrónico válido.', 'error')
         else:
             try:
                 msg = Message('Recuperación de contraseña', sender='bldngsolutions.mail@gmail.com', recipients=[correo_destinatario])
-                msg.body = 'Se ha solicitado un cambio de contraseña para su cuenta de BuildingSolutions. Si usted no ha solicitado este cambio, por favor ignore este correo. Si desea cambiar su contraseña, por favor ingrese al siguiente link: https://'
-                #msg.html = render_template('correo.html', variable='valor')  # Si deseas usar una plantilla HTML para el correo
+                #msg.body = 'Se ha solicitado un cambio de contraseña para su cuenta de BuildingSolutions. Si usted no ha solicitado este cambio, por favor ignore este correo. Si desea cambiar su contraseña, por favor ingrese al siguiente link: https://emerging-touched-humpback.ngrok-free.app/changepassword'
+                msg.html = '''
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Recuperación de contraseña</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            background-color: #f2f2f2;
+                        }
 
+                        .container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            background-color: #ffffff;
+                            border-radius: 5px;
+                            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        h1 {
+                            color: #ff0000;
+                        }
+
+                        p {
+                            color: #333333;
+                            line-height: 1.6;
+                        }
+
+                        a {
+                            color: #0000ff;
+                            text-decoration: none;
+                        }
+
+                        a:hover {
+                            text-decoration: underline;
+                        }
+
+                        .btn {
+                            display: inline-block;
+                            padding: 10px 20px;
+                            background-color: #ff0000;
+                            color: #ffffff;
+                            text-decoration: none;
+                            border-radius: 5px;
+                        }
+
+                        .btn:hover {
+                            background-color: #0000ff;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>Recuperación de contraseña</h1>
+                        <p>Se ha solicitado un cambio de contraseña para su cuenta de BuildingSolutions. Si usted no ha solicitado este cambio, por favor ignore este correo. Si desea cambiar su contraseña, por favor ingrese al siguiente <a href="https://emerging-touched-humpback.ngrok-free.app/changepassword">enlace</a>.</p>
+                        <p>¡Gracias!</p>
+                        <a class="btn" href="https://emerging-touched-humpback.ngrok-free.app/changepassword">Cambiar Contraseña</a>
+                    </div>
+                </body>
+                </html>
+                '''               
                 mail.send(msg)
 
                 # Mostrar mensaje flash en el mismo formulario
@@ -287,6 +350,25 @@ def forgotpassword():
                 flash(f'Error al enviar el correo electrónico: {str(e)}', 'error')
 
     return render_template('auth/forgotpassword.jinja')
+
+@app.route('/changepassword', methods=['GET', 'POST'])
+def changepassword():
+    if request.method == 'POST':
+        # Obtener el correo electrónico y la nueva contraseña ingresados en el formulario
+        correo_destinatario = request.form.get('correo')
+        nueva_contrasena = request.form.get('nueva_contrasena')
+        confirmar_contrasena = request.form.get('confirmar_contrasena')
+
+        # Aquí debes implementar la lógica para verificar que las contraseñas coincidan
+        if nueva_contrasena != confirmar_contrasena:
+            flash('Las contraseñas no coinciden.', 'error')
+            return render_template('auth/changepassword.jinja') # Redirige al usuario al formulario de cambio de contraseña
+        
+
+        flash('Contraseña actualizada correctamente.', 'success')
+        return redirect('/login')  # Redirige al usuario a la página de inicio de sesión después de cambiar la contraseña.
+
+    return render_template('auth/changepassword.jinja')
 #---------------Rutas para logout, paginas protegidas, pagina de start y home -----------------------------------
 
 
@@ -303,246 +385,9 @@ def home():
 def protected():
     return "<h1>Esta es una vista protegida, solo para usuarios autenticados.</h1>"
 
-#-----------------------------------------------------
-#--------CRUD EMPLEADOS MANTENIMIENTO-----------------
-#-----------------------------------------------------
-
-# Vista para listar todos los empleados mantenimiento
-@app.route('/administration/maintListEmp')
-def maintListEmp():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 5")
-    users = cur.fetchall()
-    cur.close()
-    return render_template('administration/maintListEmp.jinja', users=users)
 
 
-# Vista para agregar un empleado
-@csrf.exempt
-@app.route('/administration/maintAddEmp', methods=['GET', 'POST'])
-def maintAddEmp():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        fullname = request.form['fullname']
-        email = request.form['email']
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username,password, fullname, email, 2, 5))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('maintListEmp'))
-    return render_template('administration/maintAddEmp.jinja')
 
-
-# Vista para eliminar un empleado
-@app.route('/administration/maintDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
-def maintDeleteEmp(id):
-    cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM user WHERE id = %s", [id])
-    mysql.connection.commit()
-    cur.close()
-    return redirect(url_for('maintListEmp'))
-
-
-# Vista para actualizar un empleado
-@app.route('/administration/maintUpdateEmp/<int:id>', methods=['GET', 'POST'])
-def maintUpdateEmp(id):
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM user WHERE id = %s", [id])
-    user = cur.fetchone()
-    cur.close()
-    if request.method == 'POST':
-        username = request.form['username']
-        fullname = request.form['fullname']
-        email = request.form['email']
-        cur = mysql.connection.cursor()
-        cur.execute("UPDATE user SET username=%s, fullname=%s, email=%s WHERE id=%s", (username, fullname, email, id))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('maintListEmp'))
-    return render_template('administration/maintUpdateEmp.jinja', user=user)
-
-#-----------------------------------------------------
-#--------CRUD EMPLEADOS VENTAS------------------------
-#-----------------------------------------------------
-
-# Vista para listar todos los empleados ventas
-@app.route('/administration/salesListEmp')
-def salesListEmp():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 2")
-    users = cur.fetchall()
-    cur.close()
-    return render_template('administration/salesListEmp.jinja', users=users)
-
-
-# Vista para agregar un empleado
-@csrf.exempt
-@app.route('/administration/salesAddEmp', methods=['GET', 'POST'])
-def salesAddEmp():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        fullname = request.form['fullname']
-        email = request.form['email']
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username,password, fullname, email, 2, 2))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('salesListEmp'))
-    return render_template('administration/salesAddEmp.jinja')
-
-
-# Vista para eliminar un empleado
-@app.route('/administration/salesDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
-def salesDeleteEmp(id):
-    cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM user WHERE id = %s", [id])
-    mysql.connection.commit()
-    cur.close()
-    return redirect(url_for('salesListEmp'))
-
-
-# Vista para actualizar un empleado
-@app.route('/administration/salesUpdateEmp/<int:id>', methods=['GET', 'POST'])
-def salesUpdateEmp(id):
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM user WHERE id = %s", [id])
-    user = cur.fetchone()
-    cur.close()
-    if request.method == 'POST':
-        username = request.form['username']
-        fullname = request.form['fullname']
-        email = request.form['email']
-        cur = mysql.connection.cursor()
-        cur.execute("UPDATE user SET username=%s, fullname=%s, email=%s WHERE id=%s", (username, fullname, email, id))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('salesListEmp'))
-    return render_template('administration/salesUpdateEmp.jinja', user=user)
-
-
-#-----------------------------------------------
-#--------CRUD EMPLEADOS Almacén-----------------
-#-----------------------------------------------
-
-
-# Vista para listar todos los empleados almacen
-@app.route('/administration/storListEmp')
-def storListEmp():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 3")
-    users = cur.fetchall()
-    cur.close()
-    return render_template('administration/storListEmp.jinja', users=users)
-
-
-# Vista para agregar un empleado
-@csrf.exempt
-@app.route('/administration/storAddEmp', methods=['GET', 'POST'])
-def storAddEmp():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        fullname = request.form['fullname']
-        email = request.form['email']
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username,password, fullname, email, 2, 3))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('storListEmp'))
-    return render_template('administration/storAddEmp.jinja')
-
-
-# Vista para eliminar un empleado
-@app.route('/administration/storDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
-def storDeleteEmp(id):
-    cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM user WHERE id = %s", [id])
-    mysql.connection.commit()
-    cur.close()
-    return redirect(url_for('storListEmp'))
-
-
-# Vista para actualizar un empleado
-@csrf.exempt
-@app.route('/administration/storUpdateEmp/<int:id>', methods=['GET', 'POST'])
-def storUpdateEmp(id):
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM user WHERE id = %s", [id])
-    user = cur.fetchone()
-    cur.close()
-    if request.method == 'POST':
-        username = request.form['username']
-        fullname = request.form['fullname']
-        email = request.form['email']
-        cur = mysql.connection.cursor()
-        cur.execute("UPDATE user SET username=%s, fullname=%s, email=%s WHERE id=%s", (username, fullname, email, id))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('storListEmp'))
-    return render_template('administration/storUpdateEmp.jinja', user=user)
-
-
-#-----------------------------------------------
-#--------CRUD EMPLEADOS Envios-----------------
-#-----------------------------------------------
-
-
-# Vista para listar todos los empleados envios
-@app.route('/administration/shipListEmp')
-def shipListEmp():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 6")
-    users = cur.fetchall()
-    cur.close()
-    return render_template('administration/shipListEmp.jinja', users=users)
-
-
-# Vista para agregar un empleado
-@csrf.exempt
-@app.route('/administration/shipAddEmp', methods=['GET', 'POST'])
-def shipAddEmp():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        fullname = request.form['fullname']
-        email = request.form['email']
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username,password, fullname, email, 2, 6))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('shipListEmp'))
-    return render_template('administration/shipAddEmp.jinja')
-
-
-# Vista para eliminar un empleado
-@app.route('/administration/shipDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
-def shipDeleteEmp(id):
-    cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM user WHERE id = %s", [id])
-    mysql.connection.commit()
-    cur.close()
-    return redirect(url_for('shipListEmp'))
-
-
-# Vista para actualizar un empleado
-@app.route('/administration/shipUpdateEmp/<int:id>', methods=['GET', 'POST'])
-def shipUpdateEmp(id):
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM user WHERE id = %s", [id])
-    user = cur.fetchone()
-    cur.close()
-    if request.method == 'POST':
-        username = request.form['username']
-        fullname = request.form['fullname']
-        email = request.form['email']
-        cur = mysql.connection.cursor()
-        cur.execute("UPDATE user SET username=%s, fullname=%s, email=%s WHERE id=%s", (username, fullname, email, id))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('shipListEmp'))
-    return render_template('administration/shipUpdateEmp.jinja', user=user)
 
 
 

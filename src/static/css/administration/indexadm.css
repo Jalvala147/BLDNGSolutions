@@ -54,6 +54,7 @@ body{
     overflow-x: hidden;
     color: var(--color-dark);
     background-color: var(--color-background);
+    
 }
 
 a{
@@ -116,8 +117,8 @@ b{
 .container{
     display: grid;
     width: 96%;
-    margin: 0 auto;
-    gap: 1.8rem;
+    margin: 0 auto; 
+    gap: 1.9rem;
     grid-template-columns: 12rem auto 23rem;
 }
 
@@ -158,6 +159,7 @@ aside .sidebar{
     top: 1.5rem;
     transition: all 0.3s ease;
     
+    
 }
 
 aside .sidebar:hover{
@@ -168,7 +170,7 @@ aside .sidebar a{
     display: flex;
     align-items: center;
     color: var(--color-info-dark);
-    height: 3.7rem;
+    height: 4.7rem;
     gap: 1rem;
     position: relative;
     margin-left: 2rem;
@@ -228,7 +230,7 @@ main{
 main .analyse{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.6rem;
+    gap: 3rem;
 }
 
 main .analyse > div{

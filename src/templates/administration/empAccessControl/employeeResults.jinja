@@ -1,0 +1,16 @@
+{% extends './base.html' %}
+
+{% block title%}Resultados de empleados{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
+
+{% endblock %}
+
+
+{% block body %}
+
+<h1>Resultados</h1>
+<h2>Empleados</h2>
+
+{% endblock %}

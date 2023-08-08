@@ -13,6 +13,8 @@
 
 {% block body %}
 
+<a href="{{ url_for('admin.adminHome') }}" class="btn" >Atras</a>
+
 <h1 align="center">Informacion de los empleados</h1>
 
 <div class="login-card-container" align="center">
@@ -20,7 +22,7 @@
     <div class="navigation" align="center">
       <ul>
         <li class="list active" align="center">
-          <a href="/administration/salesListEmp">
+          <a href="{{ url_for('admin.salesListEmp')}}">
             <span class="material-symbols-rounded">
               point_of_sale
             </span>
@@ -28,7 +30,7 @@
           </a>
         </li>
         <li class="list">
-          <a href="/administration/storListEmp">
+          <a href="{{ url_for('admin.storListEmp')}}">
             <span class="material-symbols-rounded">
               inventory_2
             </span>
@@ -36,7 +38,7 @@
           </a>
         </li>
         <li class="list">
-          <a href="/administration/maintListEmp">
+          <a href="{{ url_for('admin.maintListEmp')}}">
             <span class="material-symbols-rounded">
               construction
             </span>
@@ -44,7 +46,7 @@
           </a>
         </li>
         <li class="list">
-          <a href="/administration/shipListEmp">
+          <a href="{{ url_for('admin.shipListEmp')}}">
             <span class="material-symbols-rounded">
               local_shipping
             </span>

@@ -14,10 +14,11 @@
 
 {% block body %}
 
+<a href="{{ url_for('admin.employeelist') }}" class="btn" >Atras</a>
 <h1>Informacion de los empleados del area de mantenimiento</h1>
 
 <div>
-    <a href="{{ url_for('maintAddEmp') }}" class="btn btn-primary">Agregar nuevo empleado</a>
+    <a href="{{ url_for('admin.maintAddEmp') }}" class="btn btn-primary">Agregar nuevo empleado</a>
 </div>
 
 <table class="table table-lg table-dark">
@@ -35,12 +36,12 @@
         <td>{{ user[1] }}</td>
         <td>{{ user[2] }}</td>
         <td>{{ user[3] }}</td>
-        <td><a href="{{ url_for('maintUpdateEmp', id=user[0]) }}">
+        <td><a href="{{ url_for('admin.maintUpdateEmp', id=user[0]) }}">
             <span class="material-symbols-rounded">
             edit
             </span></a>
         </td>
-        <td><a href="{{ url_for('salesDeleteEmp', id=user[0]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
+        <td><a href="{{ url_for('admin.maintDeleteEmp', id=user[0]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
             <input type="hidden" name="_method" value="DELETE">
             <span class="material-symbols-rounded">
             delete
