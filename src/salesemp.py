@@ -5,6 +5,8 @@ from flask import Blueprint
 from flask import request
 from flask import Flask
 from flask import url_for
+from flask import redirect  
+from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from io import BytesIO
 import os
 import io
@@ -22,6 +24,11 @@ salesemp = Blueprint('salesemp', __name__)
 csrf = CSRFProtect()
 
 
+@salesemp.route('/logout')
+def logout():
+    logout_user()
+    session.pop('username', None)
+    return redirect(url_for('startpage'))
 #------------------------------------------------------------------------
 
 @salesemp.route('/salesEmpArea/salesList')

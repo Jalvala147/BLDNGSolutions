@@ -23,6 +23,7 @@ csrf = CSRFProtect()
 @app.route('/logout')
 def logout():
     logout_user()
+    session.pop('username', None)
     return redirect(url_for('startpage'))
 
 

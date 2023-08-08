@@ -9,6 +9,11 @@ import os
 
 maintemp = Blueprint('maintemp', __name__)
 
+@maintemp.route('/maintenance_home')
+def maintenance_home():
+    # Código necesario para la página "maintenance/mantHome.jinja"
+    return render_template('maintenance/mantHome.jinja')
+
 #--------------------rutas mantenimiento-----------------------
 @maintemp.route('/maintenance/mantHistory')
 def mantHistory():

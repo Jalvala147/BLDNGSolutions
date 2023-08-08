@@ -12,6 +12,7 @@
 {% block body %}
 
 
+
 <div class="container">
   <!-- Sidebar Section -->
   <aside>
@@ -32,50 +33,49 @@
         <span class="material-icons-sharp">
           dashboard
         </span>
-        <h3>Dashboard</h3>
+        <h3>Inicio</h3>
+      </a>
+      <a href="{{ url_for('salesemp.salesHome') }}" target="_blank">
+        <span class="material-icons-sharp">
+          shopping_bag
+        </span>
+        <h3>Ventas</h3>
+      </a>
+      <a href="{{ url_for('storageemp.storage_home')}}" target="_blank">
+        <span class="material-icons-sharp">
+        warehouse
+        </span>
+        <h3>Almacén</h3>
+      </a>
+      <a href="{{ url_for('maintemp.maintenance_home')}}" class="" target="_blank">
+      <span class="material-icons-sharp">
+      engineering
+      </span>
+        <h3>Mantenimiento</h3>
+      </a>
+      <a href="{{ url_for('shipemp.shipping_home')}}" target="_blank">
+        <span class="material-icons-sharp">
+          local_shipping
+        </span>
+        <h3>Envios</h3>
       </a>
       <a href="#">
         <span class="material-icons-sharp">
-          person_outline
+          query_stats
         </span>
-        <h3>Users</h3>
+        <h3>Proyecciones</h3>
       </a>
-      <a href="#">
+      <a href="{{ url_for('admin.accesscontrol')}}">
         <span class="material-icons-sharp">
-          receipt_long
+        supervisor_account
         </span>
-        <h3>History</h3>
+        <h3>Control de accesos</h3>
       </a>
-      <a href="#" class="active">
+      <a href="{{ url_for('admin.employeelist')}}">
         <span class="material-icons-sharp">
-          insights
+        manage_accounts
         </span>
-        <h3>Analytics</h3>
-      </a>
-      <a href="#">
-        <span class="material-icons-sharp">
-          mail_outline
-        </span>
-        <h3>Tickets</h3>
-        <span class="message-count">27</span>
-      </a>
-      <a href="#">
-        <span class="material-icons-sharp">
-          inventory
-        </span>
-        <h3>Sale List</h3>
-      </a>
-      <a href="#">
-        <span class="material-icons-sharp">
-          report_gmailerrorred
-        </span>
-        <h3>Reports</h3>
-      </a>
-      <a href="#">
-        <span class="material-icons-sharp">
-          settings
-        </span>
-        <h3>Settings</h3>
+        <h3>Empleados</h3>
       </a>
       <a href="#">
         <span class="material-icons-sharp">

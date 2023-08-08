@@ -13,6 +13,11 @@ shipemp = Blueprint('shipemp', __name__)
 
 GOOGLE_MAPS_API_KEY = "AIzaSyAJzmmel__k7beEoyd-LhonGRhMrR2mEJE"
 
+@shipemp.route('/shipping_home')
+def shipping_home():
+    # Código necesario para la página "shipping/shipHome.jinja"
+    return render_template('shipping/shipHome.jinja')
+
 #--------------------rutas mantenimiento-----------------------
 @shipemp.route('/shipping/orders')
 def orders():
