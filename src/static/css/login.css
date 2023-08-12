@@ -5,7 +5,7 @@
 body {
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
-    background: linear-gradient(to right, #333399, #ff00cc);
+    background: #444654;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,7 +16,7 @@ body {
 /* Login Card */
 .login-card {
     width: 450px;
-    background: rgba(255, 255, 255, .5);
+    background: rgba(255, 255, 255, 0.5);
     padding: 4rem;
     border-radius: 10px;
     position: relative;
@@ -69,6 +69,7 @@ body {
     font-size: 2rem;
     font-weight: 600;
     margin-bottom: .5rem;
+    color: rgb(222, 229, 235);
 }
 
 .login-card-header h1+div {
@@ -145,8 +146,8 @@ body {
 }
 
 .login-card button {
-    background: rgb(171, 37, 212);
-    color: white;
+    background: rgb(191, 181, 221);
+    color: rgb(0, 0, 0);
     padding: 1rem;
     border-radius: 100px;
     text-align: center;
@@ -157,7 +158,7 @@ body {
 }
 
 .login-card button:hover {
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(163, 139, 163, 0.85);
     cursor: pointer;
 }
 

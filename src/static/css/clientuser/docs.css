@@ -9,7 +9,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, li {
 body {
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
-    background: linear-gradient(to right, #333399, #ff00cc);
+    background: linear-gradient(to right, #3a3a47, #642657);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -70,7 +70,7 @@ h1 {
 /* Button Styles */
 .btn {
     display: inline-block;
-    background-color: rgb(171, 37, 212);
+    background-color: rgb(143, 92, 158);
     color: white;
     padding: 0.8rem 1.5rem;
     border-radius: 100px;
@@ -93,7 +93,7 @@ h1 {
 
 .custom-button {
     display: block;
-    background-color: rgb(46, 106, 236);
+    background-color: rgb(143, 92, 158);
     color: white;
     padding: 0.8rem 1.5rem;
     border-radius: 100px;
@@ -129,7 +129,7 @@ h1 {
 }
 
 .file-input-label {
-    background-color: rgb(46, 106, 236);
+    background-color: rgb(143, 92, 158);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 100px;

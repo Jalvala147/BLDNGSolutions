@@ -3,19 +3,18 @@
 {% block title%}Add Employee{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
-<link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/addEmp.css')}}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
+
 {% endblock %}
 
 
 {% block body %}
 
-<h1>Agregar nuevo empleado</h1>
-
-<div class="login-card-container" align="center">
-    <div class="login-card">
+<div class="add-employee-card-container" align="center">
+    <div class="add-employee-card">
+    <a href="{{ url_for('admin.salesListEmp') }}" class="btn">Atras</a>
+    <h1>Agregar nuevo empleado</h1>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 

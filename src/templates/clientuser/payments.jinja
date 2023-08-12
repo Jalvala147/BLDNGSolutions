@@ -2,15 +2,102 @@
 
 {% block title%}Pagos{% endblock %}
 
-
-
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/clientuser/payments.css')}}">
 {% endblock %}
 
-
 {% block body %}
+<script>
+    function mostrarFormulario(tipoPago) {
+        var formularios = document.getElementsByClassName('formulario');
+        for (var i = 0; i < formularios.length; i++) {
+            formularios[i].style.display = 'none';
+        }
 
+        var formularioSeleccionado = document.getElementById(tipoPago);
+        formularioSeleccionado.style.display = 'block';
+    }
+
+    function generarOrdenPago() {
+        var bancoDestino = document.getElementById('banco_destino').value;
+        var numeroCuenta = document.getElementById('numero_cuenta').value;
+
+        document.getElementById('info_banco').innerText = bancoDestino;
+        document.getElementById('info_cuenta').innerText = numeroCuenta;
+
+        document.getElementById('orden_pago').style.display = 'block';
+    }
+</script>
+<a href="{{ url_for('clients.clientsHome') }}" class="btn">Atras</a>
 <h1>Pagos</h1>
+
+<p>El monto a pagar es: $XXX</p>
+
+<img src="visa_logo.png" alt="Visa Logo" width="100">
+<img src="mastercard_logo.png" alt="Mastercard Logo" width="100">
+<img src="paypal_logo.png" alt="PayPal Logo" width="100">
+
+<label for="tipo_pago">Tipo de pago:</label>
+<select id="tipo_pago" name="tipo_pago" onchange="mostrarFormulario(this.value)">
+    <option value="ninguno" selected>Seleccione una opción</option>
+    <option value="debito">Tarjeta de Débito</option>
+    <option value="credito">Tarjeta de Crédito</option>
+    <option value="transferencia">Transferencia Bancaria</option>
+    <option value="paypal">PayPal</option>
+</select><br><br>
+
+<div id="debito" class="formulario" style="display: none;">
+    <!-- Formulario de Tarjeta de Débito -->
+    <label for="nombre_debito">Nombre en la tarjeta:</label>
+    <input type="text" id="nombre_debito" name="nombre_debito" required><br><br>
+    <label for="numero_tarjeta_debito">Número de tarjeta:</label>
+    <input type="text" id="numero_tarjeta_debito" name="numero_tarjeta_debito" required><br><br>
+    <label for="fecha_vencimiento_debito">Fecha de vencimiento:</label>
+    <input type="text" id="fecha_vencimiento_debito" name="fecha_vencimiento_debito" placeholder="MM/AA"
+        required><br><br>
+    <label for="cvv_debito">CVV:</label>
+    <input type="text" id="cvv_debito" name="cvv_debito" required><br><br>
+</div>
+
+<div id="credito" class="formulario" style="display: none;">
+    <!-- Formulario de Tarjeta de Crédito -->
+    <label for="nombre_credito">Nombre en la tarjeta:</label>
+    <input type="text" id="nombre_credito" name="nombre_credito" required><br><br>
+    <label for="numero_tarjeta_credito">Número de tarjeta:</label>
+    <input type="text" id="numero_tarjeta_credito" name="numero_tarjeta_credito" required><br><br>
+    <label for="fecha_vencimiento_credito">Fecha de vencimiento:</label>
+    <input type="text" id="fecha_vencimiento_credito" name="fecha_vencimiento_credito" placeholder="MM/AA"
+        required><br><br>
+    <label for="cvv_credito">CVV:</label>
+    <input type="text" id="cvv_credito" name="cvv_credito" required><br><br>
+</div>
+
+<div id="transferencia" class="formulario" style="display: none;">
+    <!-- Formulario de Transferencia Bancaria -->
+    <label for="banco_destino">Banco de destino:</label>
+    <input type="text" id="banco_destino" name="banco_destino" required><br><br>
+    <label for="numero_cuenta">Número de cuenta:</label>
+    <input type="text" id="numero_cuenta" name="numero_cuenta" required><br><br>
+    <label for="nombre_titular">Nombre del titular de la cuenta:</label>
+    <input type="text" id="nombre_titular" name="nombre_titular" required><br><br>
+    <label for="rut_titular">RFC del titular de la cuenta:</label>
+    <input type="text" id="rut_titular" name="rut_titular" required><br><br>
+    <button onclick="generarOrdenPago()">Generar Orden de Pago</button>
+</div>
+
+<div id="paypal" class="formulario" style="display: none;">
+    <!-- Formulario de PayPal -->
+    <label for="correo_paypal">Correo electrónico de PayPal:</label>
+    <input type="text" id="correo_paypal" name="correo_paypal" required><br><br>
+    <!-- ... Otros campos específicos de PayPal ... -->
+</div>
+
+<div id="orden_pago" style="display: none;">
+    <!-- Información de la orden de pago generada -->
+    <p>Orden de Pago Generada:</p>
+    <p>Banco de destino: <span id="info_banco"></span></p>
+    <p>Número de cuenta: <span id="info_cuenta"></span></p>
+    <!-- ... Otros detalles de la orden de pago ... -->
+</div>
 
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_mysqldb import MySQL
 from flask_mail import Mail, Message
 import smtplib
@@ -16,8 +16,7 @@ from admin import admin
 
 app = Flask(__name__)
 
-# if __name__ == "__main__":
-#     app.run(debug=True, host="0.0.0.0", port="1234")
+#app.run(host="127.0.0.1", debug=True, port=5000)
 
 app.register_blueprint(salesemp)
 app.register_blueprint(clients)

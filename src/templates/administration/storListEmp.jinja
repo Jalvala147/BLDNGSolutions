@@ -3,7 +3,7 @@
 {% block title%}Listado de clientes de ventas{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css')}}">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
 
 {% endblock %}
@@ -18,7 +18,7 @@
     <a href="{{ url_for('admin.storAddEmp') }}" class="btn btn-primary">Agregar nuevo empleado</a>
 </div>
 
-<table class="table table-lg table-dark">
+<table class="table1">
     <tr>
         <th>ID</th>
         <th>Nombre de usuario</th>
@@ -38,7 +38,7 @@
                 edit
             </span></a>
         </td>
-        <td><a href="{{ url_for('admin.salesDeleteEmp', id=user[0]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
+        <td><a href="{{ url_for('admin.storDeleteEmp', id=user[0]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
             <input type="hidden" name="_method" value="DELETE">
             <span class="material-symbols-rounded">
             delete

@@ -3,20 +3,19 @@
 {% block title%}Update Employee{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/updateEmp.css')}}">
 <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css')}}">
+
 {% endblock %}
 
 
 {% block body %}
 
-<h1 align="center">Editar empleado</h1>
-<div class="login-card-container" align="center">
-
-
-    <div class="login-card">
+<div class="update-employee-container" align="center">
+    <div class="update-employee-card">
+        <a href="{{ url_for('admin.storListEmp') }}" class="btn">Atras</a>
+        <h1>Editar empleado</h1>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -39,4 +38,5 @@
         </form>
     </div>
 </div>
+
 {% endblock %}
