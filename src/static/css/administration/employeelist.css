@@ -5,11 +5,11 @@ body, h2, h3, h4, h5, h6, p, ul, ol, li {
     box-sizing: border-box;
 }
 
-h1{
+h1 {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    color:azure;
+    color: azure;
 }
 
 /* Global Styles */
@@ -25,7 +25,7 @@ body {
 
 /* Container Styles */
 .container {
-    max-width: 1300px;
+    max-width: 1200px;
     width: 100%;
     background: rgba(255, 255, 255, .5);
     padding: 2rem;
@@ -33,6 +33,7 @@ body {
     position: relative;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-top: 50px;
+    height: 350px;
 }
 
 .container::before {
@@ -47,7 +48,7 @@ body {
 
 /* Header Styles */
 h1 {
-    font-size: 2rem;
+    font-size: 2.3rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
     text-align: center;
@@ -90,8 +91,8 @@ h1 {
 }
 
 .btn:hover {
-    background-color: rgba(36, 35, 35, 0.85);
-    color: rgb(212, 205, 205);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
 }
 
 /* Additional Styles */
@@ -133,4 +134,41 @@ button:hover {
 
 .material-symbols-rounded:before {
     content: attr(data-symbol);
+}
+
+.options-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.list {
+    margin: 0 20px;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+
+.list:hover {
+    background-color: rgba(63, 63, 63, 0.3);
+}
+
+
+.text {
+    display: block;
+    margin-top: 5px;
+    font-size: 18px;
+}
+
+a {
+    text-decoration: none; /* Remove underline */
+    color: #333; /* Set your desired text color */
+    transition: color 0.3s; /* Add smooth transition for color change */
+}
+
+a:hover {
+    color: #dddddd; /* Set a slightly different color on hover */
 }
