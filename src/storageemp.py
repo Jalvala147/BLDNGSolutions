@@ -40,7 +40,7 @@ def stoHistory():
     cursor = mysql.connection.cursor()
 
     # Fetch data from the 'machines' table
-    cursor.execute("SELECT id_Machine, model, brand, status FROM machines")
+    cursor.execute("SELECT id, uid, model, datecurrent, status FROM store")
     machines_data = cursor.fetchall()
 
     # Close the cursor
@@ -79,7 +79,7 @@ def stoMachines():
     cursor = mysql.connection.cursor()
 
     # Fetch data from the 'machines' table
-    cursor.execute("SELECT id_Machine, model, brand, type, status FROM machines")
+    cursor.execute("SELECT id_Machine, model, brand, type FROM machines")
     machines_data = cursor.fetchall()
 
     # Close the cursor

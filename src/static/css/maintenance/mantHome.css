@@ -9,8 +9,7 @@
 
 :root
 {
-    --clr: linear-gradient(to right, #33353f, #444654);
-    
+    --clr: #444654;
 }
 
 h2, h3{
@@ -44,7 +43,7 @@ body
     transform: translateX(-50%);
     width: 700px;
     height: 70px;
-    background: linear-gradient(to right, #444654, #33353f);
+    background: #33353f;
     display: block;
     justify-content: right;
     align-items: right;
@@ -158,4 +157,6 @@ body
     transform: translateX(calc(69px * 2));
 }
 
-
+.navigation ul li:nth-child(4).active ~ .indicator {
+    transform: translateX(calc(70px * 3));
+}

@@ -447,9 +447,3 @@ def sales():
 @app.route('/orders')
 def orders():
     return render_template('/shipping/orders.jinja')
-
-
-
-
-
-

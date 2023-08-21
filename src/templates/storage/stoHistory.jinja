@@ -4,20 +4,30 @@
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/storage/stoHistory.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 {% endblock %}
 
 {% block body %}
+
 <a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atras</a>
+
+<a href="" id="reload-button" class="btn btn-primary">
+    <span class="material-symbols-rounded">
+        refresh
+    </span>
+</a>
 
 <h1>Historial de las maquinas</h1>
 
 <table class="table1">
     <tr>
         <th>Id de la Maquina</th>
+        <th>uid</th>
         <th>Modelo</th>
-        <th>Marca</th>
+        <th>fecha</th>
         <th>Estado</th>
-        <th>Acciones</th>
+        <th>Historial</th>
     </tr>
 
     {% for machine in machines_data %}
@@ -27,10 +37,31 @@
         <td>{{ machine[2] }}</td>
         <td>{{ machine[3] }}</td>
         <td>
-            <a href="{{ url_for('storageemp.machineHistory', machine_id=machine[0]) }}" class="btn btn-primary">Historial</a>
+            {% if machine[4] == 1 %}
+            En almacén
+            {% else %}
+            Fuera de almacén
+            {% endif %}
+        </td>
+        <td>
+            <a href="{{ url_for('storageemp.machineHistory', machine_id=machine[0]) }}" class="btn btn-primary">
+                <span class="material-symbols-rounded">
+                    history
+                </span>
+            </a>
         </td>
     </tr>
     {% endfor %}
 </table>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const reloadButton = document.getElementById("reload-button");
+
+        reloadButton.addEventListener("click", function () {
+            location.reload(); // Esta línea recargará la página
+        });
+    });
+</script>
 
 {% endblock %}
