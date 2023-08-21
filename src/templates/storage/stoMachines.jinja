@@ -26,7 +26,6 @@
         <th>Modelo</th>
         <th>Marca</th>
         <th>Tipo de maquina</th>
-        <th>Estado</th>
     </tr>
 
     {% for machine in machines_data %}
@@ -35,7 +34,6 @@
         <td>{{ machine[1] }}</td>
         <td>{{ machine[2] }}</td>
         <td>{{ machine[3] }}</td>
-        <td>{{ machine[4] }}</td>
         <td>
             <!-- Update Button -->
             <a href="{{ url_for('storageemp.update_machine', machine_id=machine[0]) }}" class="btn btn-primary" >Actualizar</a>

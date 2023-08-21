@@ -5,8 +5,8 @@
 
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/areas.css')}}">
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance/mantHome.css')}}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 {% endblock %}
 
 
@@ -14,22 +14,23 @@
 
 <div class="logout">
     <a class="btn btn-secondary" href="{{ url_for('logoutemp') }}">Cerrar sesión</a>
-  </div>
-  
-  <h2>Bienvenido, {{current_user.fullname}}</h2>
-  
-  <header class="header">
-      <nav>
-          <div class="logo">
-              <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo"/></a>
-          </div>
-  
-      </nav>
-  </header>
+</div>
 
-<div class = "navigation">
+<h1>Pagina de Mantenimiento</h1>
+<h2>Bienvenido, {{current_user.fullname}}</h2>
+<h2>{{current_user.id}}</h2>
+<header class="header">
+    <nav>
+        <div class="logo">
+            <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo" /></a>
+        </div>
+
+    </nav>
+</header>
+
+<div class = "navigation" align="center">
     <ul>
-        <li class = "list active">
+        <li class="list active">
             <a href="/maintenance/mantMachines">
                 <span class="icon">
                     <ion-icon name="home-outline"></ion-icon>
@@ -37,7 +38,7 @@
                 <span class="text">Maquinas</span>
             </a>
         </li>
-        <li class = "list">
+        <li class="list">
             <a href="/maintenance/mantHistory">
                 <span class="icon">
                     <ion-icon name="person-outline"></ion-icon>
@@ -45,7 +46,7 @@
                 <span class="text">Historial</span>
             </a>
         </li>
-        <li class = "list">
+        <li class="list">
             <a href="/maintenance/mantMaintenance">
                 <span class="icon">
                     <ion-icon name="chatbox-outline"></ion-icon>
@@ -53,7 +54,7 @@
                 <span class="text">Mantenimiento</span>
             </a>
         </li>
-        <li class = "list">
+        <li class="list">
             <a href="/maintenance/mantReports">
                 <span class="icon">
                     <ion-icon name="settings-outline"></ion-icon>
@@ -61,7 +62,7 @@
                 <span class="text">Reportes</span>
             </a>
         </li>
-        {# <li class = "list">
+        {# <li class="list">
             <a href="#">
                 <span class="icon">
                     <ion-icon name="information-circle-outline"></ion-icon>
@@ -74,13 +75,13 @@
 </div>
 <script>
     const list = document.querySelectorAll('.list');
-    function activeLink(){
-        list.forEach((item) =>   
-        item.classList.remove('active'));
+    function activeLink() {
+        list.forEach((item) =>
+            item.classList.remove('active'));
         this.classList.add('active');
     }
-    list.forEach((item) => 
-    item.addEventListener('click',activeLink));
+    list.forEach((item) =>
+        item.addEventListener('click', activeLink));
 </script>
 
 <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>

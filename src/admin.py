@@ -6,6 +6,7 @@ from flask import url_for
 from flask_wtf.csrf import CSRFProtect
 from flask import request
 from flask import Flask
+from flask_login import login_required
 admin = Flask(__name__)
 mysql = MySQL()
 
@@ -65,15 +66,19 @@ def maintListEmp():
 def maintAddEmp():
     if request.method == 'POST':
         username = request.form['username']
-        plain_password = request.form['password']
-        hashed_password = generate_password_hash(plain_password)  # Hash de la contraseña
+        password = generate_password_hash(request.form['password'], method='sha256')
         fullname = request.form['fullname']
         email = request.form['email']
+        tipoUsuario = 2  # El valor 'tipoUsuario' se establece en 2 para empleados de mantenimiento
+        areaUsuario = 5  # El valor 'areaUsuario' se establece en 5 para empleados de mantenimiento
+        
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, hashed_password, fullname, email, 2, 5))
+        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, fullname, email, tipoUsuario, areaUsuario))
         mysql.connection.commit()
         cur.close()
-        return redirect(url_for('admin.maintListEmp'))
+        
+        return "Empleado de mantenimiento registrado con éxito."
+
     return render_template('administration/maintAddEmp.jinja')
 
 
@@ -125,15 +130,19 @@ def salesListEmp():
 def salesAddEmp():
     if request.method == 'POST':
         username = request.form['username']
-        plain_password = request.form['password']
-        hashed_password = generate_password_hash(plain_password)  # Hash de la contraseña
+        password = generate_password_hash(request.form['password'], method='sha256')
         fullname = request.form['fullname']
         email = request.form['email']
+        tipoUsuario = 2  # El valor 'tipoUsuario' se establece en 2 para empleados de ventas
+        areaUsuario = 2  # El valor 'areaUsuario' se establece en 2 para empleados de ventas
+        
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, hashed_password, fullname, email, 2, 2))
+        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, fullname, email, tipoUsuario, areaUsuario))
         mysql.connection.commit()
         cur.close()
-        return redirect(url_for('admin.salesListEmp'))
+        
+        return "Empleado de ventas registrado con éxito."
+
     return render_template('administration/salesAddEmp.jinja')
 
 
@@ -183,20 +192,26 @@ def storListEmp():
 
 # Vista para agregar un empleado
 @csrf.exempt
+@login_required
 @admin.route('/administration/storAddEmp', methods=['GET', 'POST'])
 def storAddEmp():
     if request.method == 'POST':
         username = request.form['username']
-        plain_password = request.form['password']
-        hashed_password = generate_password_hash(plain_password)  # Hash de la contraseña
+        password = generate_password_hash(request.form['password'], method='sha256')
         fullname = request.form['fullname']
         email = request.form['email']
+        tipoUsuario = 2  # El valor 'tipoUsuario' se establece en 2 para empleados de almacén
+        areaUsuario = 3  # El valor 'areaUsuario' se establece en 3 para empleados de almacén
+        
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, hashed_password, fullname, email, 2, 3))
+        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, fullname, email, tipoUsuario, areaUsuario))
         mysql.connection.commit()
         cur.close()
-        return redirect(url_for('admin.storListEmp'))
+        
+        return "Empleado de almacén registrado con éxito."
+
     return render_template('administration/storAddEmp.jinja')
+
 
 
 # Vista para eliminar un empleado
@@ -250,12 +265,14 @@ def shipListEmp():
 def shipAddEmp():
     if request.method == 'POST':
         username = request.form['username']
-        plain_password = request.form['password']
-        hashed_password = generate_password_hash(plain_password)  # Hash de la contraseña   
+        password = generate_password_hash(request.form['password'], method='sha256')   
         fullname = request.form['fullname']
         email = request.form['email']
+        tipoUsuario = 2  # El valor 'tipoUsuario' se establece en 2 para empleados de envios
+        areaUsuario = 6  # El valor 'areaUsuario' se establece en 6 para empleados de envios
+
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, hashed_password, fullname, email, 2, 6))
+        cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, fullname, email, tipoUsuario, areaUsuario))
         mysql.connection.commit()
         cur.close()
         return redirect(url_for('admin.shipListEmp'))

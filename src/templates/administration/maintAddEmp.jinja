@@ -13,7 +13,7 @@
 
 <div class="add-employee-card-container" align="center">
     <div class="add-employee-card">
-    <a href="{{ url_for('admin.salesListEmp') }}" class="btn">Atras</a>
+    <a href="{{ url_for('admin.maintListEmp') }}" class="btn">Atras</a>
     <h1>Agregar nuevo empleado</h1>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
