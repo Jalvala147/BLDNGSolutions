@@ -107,7 +107,7 @@ function addCartClicked(event) {
 }
 
 //Función para agregar un producto al carrito
-function addProductToCart(title, price, productImg) {
+function addProductToCart(title, price, productImg, machineId) {
     var cartShopBox = document.createElement("div");
     cartShopBox.classList.add("cart-box");
     var cartItems = document.getElementsByClassName("cart-content")[0];
@@ -121,10 +121,13 @@ function addProductToCart(title, price, productImg) {
 
     var cartBoxContent = `
         <img src="${productImg}" alt="" class="cart-img">
+        <!-- Contenido de la caja -->
+        <input type="hidden" class="cart-machine-id" value="${machineId}">
         <div class="detail-box">
             <div class="cart-product-title">${title}</div>
             <div class="cart-price">${price}</div>
-            <input type="number" value="1" class="cart-quantity">
+            <input type="number" value="1" min="1" max="4" class="cart-quantity" >
+            <span>semanas</span>
         </div>
         <!--borrar carrito-->
         <i class="bx bxs-trash-alt cart-remove"></i>`;
@@ -133,6 +136,8 @@ function addProductToCart(title, price, productImg) {
     cartShopBox.getElementsByClassName("cart-remove")[0].addEventListener("click", removeCartItem);
     cartShopBox.getElementsByClassName("cart-quantity")[0].addEventListener("change", quantityChanged);
 }
+
+
 
 //Función para actualizar el total del carrito
 function updateTotal() {

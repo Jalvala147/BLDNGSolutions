@@ -58,68 +58,25 @@
     <h2>Bienvenido, {{current_user.fullname}}</h2>
 
     <div class="shop-content">
-        <!--Box 1-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/fiat-hitachi-fd-175.png') }}" alt=""
-                class="product-img">
-            <h2 class="product-title">Fiat-Hitachi FD175</h2>
-            <span class="price">$15000.40 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 2-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/fiat-hitachi-fr-160-2.png') }}" alt=""
-                class="product-img">
-            <h2 class="product-title">Fiat-Hitachi FR160.2</h2>
-            <span class="price">$16000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 3-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/volvo-ec-650.png') }}" alt="" class="product-img">
-            <h2 class="product-title">Volvo EC650</h2>
-            <span class="price">$16000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 4-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat4.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">Volvo L330C</h2>
-            <span class="price">$13000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 5-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat5.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">Volvo L160</h2>
-            <span class="price">$95000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 6-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat6.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">Maquina 42324</h2>
-            <span class="price">$75000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 7-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat7.png') }}" alt="" class="product-img">
-            <h2 class="product-title">Maquina 42221</h2>
-            <span class="price">$175000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-        <!--Box 8-->
-        <div class="product-box">
-            <img src="{{ url_for('static', filename='images/products/cat1.jpg') }}" alt="" class="product-img">
-            <h2 class="product-title">Maquina 423422</h2>
-            <span class="price">$55000.00 MXN</span>
-            <i class='bx bx-shopping-bag add-cart'></i>
-        </div>
-
+    {% for product in products %}
+    <div class="product-box" data-machine-id="{{ product.id }}">
+        <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="" class="product-img">
+        <h2 class="product-title">{{ product.name }}</h2>
+        <span class="">Desde: </span>
+        <span class="price">${{ product.price }} MXN</span>
+        <i class='bx bx-shopping-bag add-cart'></i>
     </div>
+    {% endfor %}
+    </div>
+
 </section>
 
+    <form method="POST" action="{{ url_for('clients.formulario') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="contador">Contador:</label>
+        <input type="text" name="contador" id="contador" required>
+        <button type="submit">Pedir</button>
+    </form>
 
 
 <script src="{{ url_for('static', filename='js/clientuser/products.js') }}"></script>

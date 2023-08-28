@@ -33,8 +33,8 @@
 
 <p>El monto a pagar es: $XXX</p>
 
-<img src="visa_logo.png" alt="Visa Logo" width="100">
-<img src="mastercard_logo.png" alt="Mastercard Logo" width="100">
+<img src="{{ url_for('static', filename = 'images/logos/visalogo.png') }}" alt="Visa Logo" width="100">
+<img src="{{ url_for('static', filename = 'images/logos/mastercardlogo.png') }}" alt="Mastercard Logo" width="100">
 <img src="paypal_logo.png" alt="PayPal Logo" width="100">
 
 <label for="tipo_pago">Tipo de pago:</label>
@@ -52,7 +52,7 @@
     <input type="text" id="nombre_debito" name="nombre_debito" required><br><br>
     <label for="numero_tarjeta_debito">Número de tarjeta:</label>
     <input type="text" id="numero_tarjeta_debito" name="numero_tarjeta_debito" required><br><br>
-    <label for="fecha_vencimiento_debito">Fecha de vencimiento:</label>
+    <label for="fecha_vencimiento_debito"> Vencimiento:</label>
     <input type="text" id="fecha_vencimiento_debito" name="fecha_vencimiento_debito" placeholder="MM/AA"
         required><br><br>
     <label for="cvv_debito">CVV:</label>
@@ -65,7 +65,7 @@
     <input type="text" id="nombre_credito" name="nombre_credito" required><br><br>
     <label for="numero_tarjeta_credito">Número de tarjeta:</label>
     <input type="text" id="numero_tarjeta_credito" name="numero_tarjeta_credito" required><br><br>
-    <label for="fecha_vencimiento_credito">Fecha de vencimiento:</label>
+    <label for="fecha_vencimiento_credito">Vencimiento:</label>
     <input type="text" id="fecha_vencimiento_credito" name="fecha_vencimiento_credito" placeholder="MM/AA"
         required><br><br>
     <label for="cvv_credito">CVV:</label>
