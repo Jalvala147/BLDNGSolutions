@@ -64,28 +64,32 @@ def machineHistory(machine_id):
 #---------------Mantenimiento Almacén aviso-------------
 @storageemp.route('/storage/stoMaintenance')
 def stoMaintenance():
+    # crear el cursor
     cursor = mysql.connection.cursor()
     
+    # buscar los datos de la tabla 'machines'
     cursor.execute("SELECT id_Machine, model FROM machines")
     machines_data = cursor.fetchall()
     
+    # cerrar el cursor
     cursor.close()
     
+    # renderizar la plantilla con los datos
     return render_template('/storage/stoMaintenance.jinja', machines_data=machines_data)
 #------------------------Almacén de las maquinas-------------------------------
 @storageemp.route('/storage/stoMachines')
 def stoMachines():
-    # Assuming you have already configured your database connection
+    # crear el cursor
     cursor = mysql.connection.cursor()
 
-    # Fetch data from the 'machines' table
+    # buscar los datos de la tabla 'machines'
     cursor.execute("SELECT id_Machine, model, brand, type FROM machines")
     machines_data = cursor.fetchall()
 
-    # Close the cursor
+    # cerrar el cursor
     cursor.close()
 
-    # Render the template with the data
+    # renderizar la plantilla con los datos
     return render_template('/storage/stoMachines.jinja', machines_data=machines_data)
 
 @csrf.exempt
@@ -120,6 +124,8 @@ def update_machine(machine_id):
 
     # Render the update form with the machine data
     return render_template('/storage/update_machine.jinja', machine_data=machine_data)
+
+
 
 @csrf.exempt
 @storageemp.route('/storage/delete_machine/<int:machine_id>', methods=['POST'])

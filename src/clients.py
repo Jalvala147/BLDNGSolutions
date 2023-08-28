@@ -91,10 +91,31 @@ def logout():
     logout_user()  # Cierra la sesión del usuario actual
     return redirect(url_for('login'))  # Redirecciona al inicio de sesión o a la página principal
 
+
+
+#------------Listado de los productos(maquinas)---------------------
 @clients.route('/clientuser/products')   
 def products():
     user_id = current_user.id
-    return render_template('/clientuser/products.jinja', user_id=user_id)
+
+    cur = mysql.connection.cursor() 
+    cur.execute("SELECT id, name, image, price FROM products")
+    product_data = cur.fetchall()
+
+    # Crear una lista para almacenar los productos como dicconarios
+    products = [] 
+    for product in product_data: #itera sobre los datos de los productos obtenidos
+        product_dict = { #crear un diccionario para cada producto con id, name, image y price
+            'id': product[0],
+            'name': product[1],
+            'image': product[2],
+            'price': product[3]
+        }
+        products.append(product_dict) #agrega el diccionario del producto a la lista de productos
+
+    cur.close()
+    
+    return render_template('/clientuser/products.jinja', user_id=user_id, products=products)
 
 
 
@@ -117,4 +138,22 @@ def place_order():
         return redirect(url_for('clients.products'))
 
     return redirect(url_for('clients.products'))
+
+
+#pedidos de maquinas desde clients
+
+@clients.route('/formulario', methods=['GET', 'POST'])
+def formulario():
+    if request.method == 'POST':
+        contador = request.form['contador']
+        
+        # Guardar en la base de datos
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO prueba (contador) VALUES (%s)", (contador,))
+        mysql.connection.commit()
+        cur.close()
+        
+        return redirect(url_for('clients.products'))  # Cambia 'pagina_de_exito' a la ruta de tu página de éxito
+        
+    return render_template('clients.products')     
 

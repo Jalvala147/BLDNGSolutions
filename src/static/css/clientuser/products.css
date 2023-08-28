@@ -11,8 +11,8 @@
 }
 :root{
     --main-color: #cf13b0;
-    --text-color: #171427;
-    --bg-color: #fff;
+    --text-color: #eceaf7;
+    --bg-color: #33353f;
 }
 .small-logo {
     height: 30px; /* Ajustar la altura deseada para la imagen */
@@ -24,7 +24,7 @@ img{
 }
 body{
     color: var(--text-color);
-    background: linear-gradient(to right, #ffffff, #faf5f5);
+    background: linear-gradient(to right, #33353f, #2b2d35);
 }
 .container{
     max-width: 1068px;
@@ -42,7 +42,7 @@ header{
     width: 100%;
     background: var(--bg-color);
     box-shadow: 0 1px 4px hsl(0, 4%, 15% / 10%);
-    background: linear-gradient(to right, #ffffff, #b98e8e);
+    background: linear-gradient(to right, #5b5f70, #2e344e);
     z-index: 999;
 }
 .nav{
