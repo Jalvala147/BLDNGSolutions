@@ -1,0 +1,26 @@
+{% extends './base.html' %}
+
+{% block title %}Rentas{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+{% endblock %}
+
+{% block body %}
+<a href="{{ url_for('salesemp.rentsList') }}" class="btn">Atras</a>
+
+<h1>Detalles del pedido</h1>
+
+<table class="table1">
+    <tr>
+        <th>Cliente</th>
+        <th>Maquinas</th>
+        <th>Fecha del pedido</th>
+    </tr>
+    <tr>
+        <td>{{ order_details[3] }} (ID: {{ order_details[0] }})</td>
+        <td>{{ order_details[1]|upper|replace(',', ', ') }}</td>
+        <td>{{ order_details[2] }}</td>
+    </tr>
+</table>
+{% endblock %}

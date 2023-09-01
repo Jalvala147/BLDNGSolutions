@@ -36,13 +36,24 @@
                 <div class="total-price">$0</div>
             </div>
 
+
             <form action="{{ url_for('clients.place_order') }}" method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="clientUser_id" value="{{ user_id }}">
-                <input type="hidden" name="machine_price" value="{{ machine_price }}">
+                <input type="hidden" id="cart-machine-ids" name="cart_machine_ids" value="">
+
+                <div class="purchase-options">
+                    <input type="radio" id="option-compra" name="purchase_option" value="compra">
+                    <label for="option-compra">Compra</label>
+
+                    <input type="radio" id="option-renta" name="purchase_option" value="renta" checked>
+                    <label for="option-renta">Renta</label>
+                </div>
+
                 <button type="submit" class="btn-buy">Pedir</button>
             </form>
-            
+
+
 
             <i class='bx bx-x' id="close-cart"></i>
         </div>
@@ -58,25 +69,23 @@
     <h2>Bienvenido, {{current_user.fullname}}</h2>
 
     <div class="shop-content">
-    {% for product in products %}
-    <div class="product-box" data-machine-id="{{ product.id }}">
-        <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="" class="product-img">
-        <h2 class="product-title">{{ product.name }}</h2>
-        <span class="">Desde: </span>
-        <span class="price">${{ product.price }} MXN</span>
-        <i class='bx bx-shopping-bag add-cart'></i>
-    </div>
-    {% endfor %}
+        {% for product in products %}
+        <div class="product-box" data-machine-id="{{ product.id }}">
+            <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="" class="product-img">
+            <h4 class="machine-id" style="display: none;">{{ product.id_Machine }}</h4>
+
+            <h2 class="product-title">{{ product.name }}</h2>
+            <span class="">Rentas <br> desde: </span>
+            <span class="price">${{ product.price }} MXN</span>
+            <i class='bx bx-shopping-bag add-cart'></i>
+        </div>
+
+        {% endfor %}
     </div>
 
 </section>
 
-    <form method="POST" action="{{ url_for('clients.formulario') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <label for="contador">Contador:</label>
-        <input type="text" name="contador" id="contador" required>
-        <button type="submit">Pedir</button>
-    </form>
+
 
 
 <script src="{{ url_for('static', filename='js/clientuser/products.js') }}"></script>

@@ -99,7 +99,7 @@ def products():
     user_id = current_user.id
 
     cur = mysql.connection.cursor() 
-    cur.execute("SELECT id, name, image, price FROM products")
+    cur.execute("SELECT id, name, image, price, id_Machine FROM products")
     product_data = cur.fetchall()
 
     # Crear una lista para almacenar los productos como dicconarios
@@ -109,7 +109,8 @@ def products():
             'id': product[0],
             'name': product[1],
             'image': product[2],
-            'price': product[3]
+            'price': product[3],
+            'id_Machine' : product[4]
         }
         products.append(product_dict) #agrega el diccionario del producto a la lista de productos
 
@@ -120,40 +121,61 @@ def products():
 
 
 
+# @clients.route('/clientuser/place_order', methods=['POST'])
+# @login_required
+# def place_order():
+#     if request.method == 'POST':
+#         machine_ids = request.form.getlist('cart_machine_ids')
+#         client_user_id = request.form['clientUser_id']
+#         #purchase_option = request.form['purchase_option']
+
+#         print("Machine id:", machine_ids)
+#         print("user id:", client_user_id)
+
+#         for machine_id in machine_ids:
+#             # Insertar cada pedido en la tabla "pedidos"
+#             cur = mysql.connection.cursor()
+#             cur.execute("INSERT INTO machinesorders (machine_id, clientUser_id) VALUES (%s, %s)",
+#                         (machine_id, client_user_id ))
+#             mysql.connection.commit()
+#             cur.close()
+
+#         flash('Pedidos realizados con éxito')
+#         return redirect(url_for('clients.products'))
+
+#     return redirect(url_for('clients.products'))
+
+
 @clients.route('/clientuser/place_order', methods=['POST'])
 @login_required
 def place_order():
     if request.method == 'POST':
         client_user_id = request.form['clientUser_id']
-        machine_price = request.form['machine_price']
 
-        # Insert the order into the "machinesorders" table
+        # Insertar el pedido en la tabla "orders"
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO machinesorders (clientUser_id, price) VALUES ( %s, %s)",
-                    (client_user_id, machine_price))
+        cur.execute("INSERT INTO orders (clientUser_id) VALUES (%s)", (client_user_id,))
         mysql.connection.commit()
+
+        # Obtener el ID del pedido recién insertado
+        order_id = cur.lastrowid
+
+        # Obtener la lista de IDs de las máquinas y convertirla en una lista
+        cart_machine_ids_str = request.form['cart_machine_ids']
+        cart_machine_ids = cart_machine_ids_str.split(',')  # Dividir la cadena en una lista de IDs
+
+        # Insertar las máquinas relacionadas en la tabla "machineorders"
+        for machine_id in cart_machine_ids:
+            cur.execute("INSERT INTO machineorders (order_id, machine_id) VALUES (%s, %s)",
+                        (order_id, machine_id))
+            mysql.connection.commit()
+
         cur.close()
 
-        flash('Pedido realizado con éxito')
         return redirect(url_for('clients.products'))
 
     return redirect(url_for('clients.products'))
 
 
-#pedidos de maquinas desde clients
-
-@clients.route('/formulario', methods=['GET', 'POST'])
-def formulario():
-    if request.method == 'POST':
-        contador = request.form['contador']
-        
-        # Guardar en la base de datos
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO prueba (contador) VALUES (%s)", (contador,))
-        mysql.connection.commit()
-        cur.close()
-        
-        return redirect(url_for('clients.products'))  # Cambia 'pagina_de_exito' a la ruta de tu página de éxito
-        
-    return render_template('clients.products')     
+ 
 

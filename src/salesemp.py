@@ -48,12 +48,35 @@ def salesList():
     # Pasa los datos a la plantilla salesList.jinja para mostrarlos en la tabla
     return render_template('/salesEmpArea/salesList.jinja', pedidos=pedidos)
 
-
+#Listado de rentas
 @salesemp.route('/salesEmpArea/rentsList')   
 def rentsList():
     cur = mysql.connection.cursor()
+    cur.execute("SELECT id FROM orders")
+    orders_ids = cur.fetchall()
+    cur.close
+    return render_template('/salesEmpArea/rentsList.jinja', order_ids=orders_ids)
+
+#detalles de la renta por id
+@salesemp.route('/salesEmpArea/rentsDetails/<int:order_id>')
+def orderDetails(order_id):
+    cur = mysql.connection.cursor()
     
-    return render_template('/salesEmpArea/rentsList.jinja')
+    # Consulta para obtener los detalles del pedido y los machine_ids correspondientes
+    query = """
+    SELECT o.clientUser_id, GROUP_CONCAT(CONCAT(m.brand, ' ', m.model)) AS machines, o.order_date, u.fullname
+    FROM orders o
+    INNER JOIN machineorders mo ON o.id = mo.order_id
+    INNER JOIN machines m ON mo.machine_id = m.id_machine
+    INNER JOIN user u ON o.clientUser_id = u.id
+    WHERE o.id = %s
+    GROUP BY o.clientUser_id, o.order_date, u.fullname
+    """
+    cur.execute(query, (order_id,))
+    order_details = cur.fetchone()
+    cur.close()
+
+    return render_template('/salesEmpArea/rentsDetails.jinja', order_id=order_id, order_details=order_details)
 
 #------------------------------------------------------------------------
 @salesemp.route('/download_file/<filename>')
@@ -193,39 +216,4 @@ def update_type(id_order):
 
 
 #-----------------------------------------------------------
-
-    
-@salesemp.route('/salesEmpArea/prospects')   
-def prospects():
-    return render_template('salesEmpArea/prospects.jinja')
-    
-
-
-@salesemp.route('/guardar_pedido', methods=['POST'])
-def guardar_pedido():
-    try:
-        # Obtener los datos del pedido desde el cuerpo de la solicitud JSON
-        data = request.json
-        client_name = data.get('clientName')
-        order_data = data.get('orderData')
-
-        # Aquí debes implementar el código para guardar los datos del pedido en la base de datos.
-        # Utiliza la información recopilada (client_name y order_data) para crear un nuevo registro en la tabla machinesorders.
-
-        # Por ejemplo:
-        cur = mysql.connection.cursor()
-        for product_info in order_data:
-            product_title = product_info.get('product')
-            quantity = product_info.get('quantity')
-            price = product_info.get('price')
-            # Aquí ejecutar la consulta para guardar los datos en la base de datos
-            cur.execute("INSERT INTO machinesorders (id_machine, clientUser_id, quantity, price) VALUES (%s, %s, %s, %s)",
-                        (product_title, client_name, quantity, price))
-        mysql.connection.commit()
-        cur.close()
-
-        return jsonify({"message": "Pedido guardado exitosamente"})
-    except Exception as e:
-        return jsonify({"error": "Error al procesar la solicitud"}), 500
-
 

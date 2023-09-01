@@ -64,9 +64,23 @@ function buyButtonClicked() {
 //Función para remover un item del carrito
 function removeCartItem(event) {
     var buttonClicked = event.target;
-    buttonClicked.parentElement.remove();
+    var cartItem = buttonClicked.parentElement;
+    var machineId = cartItem.getElementsByClassName("cart-machine-id")[0].value; // Obtener el ID de la máquina
+
+    // Eliminar visualmente el elemento del carrito
+    cartItem.remove();
+
+    // Eliminar el ID de la máquina de la lista de IDs en el formulario
+    var cartMachineIdsField = document.getElementById("cart-machine-ids");
+    var cartMachineIds = cartMachineIdsField.value.split(","); // Convertir la cadena en una lista
+    var updatedCartMachineIds = cartMachineIds.filter(id => id !== machineId); // Filtrar los IDs para eliminar el que se borró
+    cartMachineIdsField.value = updatedCartMachineIds.join(","); // Convertir la lista en una cadena separada por comas
+
     updateTotal();
 }
+
+
+
 
 //Función para cambios de cantidad
 function quantityChanged(event) {
@@ -84,6 +98,7 @@ function addCartClicked(event) {
     var title = shopProducts.getElementsByClassName("product-title")[0].innerText;
     var price = shopProducts.getElementsByClassName("price")[0].innerText;
     var productImg = shopProducts.getElementsByClassName("product-img")[0].src;
+    var machineId = shopProducts.getElementsByClassName("machine-id")[0].innerText; // Cambio aquí
 
     // Verificar si el producto ya está en el carrito
     var cartItemsNames = document.getElementsByClassName("cart-product-title");
@@ -95,7 +110,7 @@ function addCartClicked(event) {
     }
 
     // Si el producto no está duplicado, agregarlo al carrito
-    addProductToCart(title, price, productImg);
+    addProductToCart(title, price, productImg, machineId);
     updateTotal();
 
     // Mostrar mensaje flash
@@ -104,7 +119,20 @@ function addCartClicked(event) {
     setTimeout(function () {
         flashMessage.style.display = "none";
     }, 1400); // Ocultar el mensaje después de 1.4 segundos
+
+    // Obtener los IDs de las máquinas en el carrito
+    var cartMachineIds = [];
+    var cartItems = document.getElementsByClassName("cart-box");
+    for (var i = 0; i < cartItems.length; i++) {
+        var cartMachineId = cartItems[i].getElementsByClassName("cart-machine-id")[0].value;
+        cartMachineIds.push(cartMachineId);
+    }
+
+    // Establecer los IDs de las máquinas en el campo oculto del formulario
+    var cartMachineIdsField = document.getElementById("cart-machine-ids");
+    cartMachineIdsField.value = cartMachineIds.join(","); // Convertir la lista en una cadena separada por comas
 }
+
 
 //Función para agregar un producto al carrito
 function addProductToCart(title, price, productImg, machineId) {
@@ -125,6 +153,7 @@ function addProductToCart(title, price, productImg, machineId) {
         <input type="hidden" class="cart-machine-id" value="${machineId}">
         <div class="detail-box">
             <div class="cart-product-title">${title}</div>
+            <div class="cart-product-id">ID: ${machineId}</div> 
             <div class="cart-price">${price}</div>
             <input type="number" value="1" min="1" max="4" class="cart-quantity" >
             <span>semanas</span>
@@ -136,6 +165,7 @@ function addProductToCart(title, price, productImg, machineId) {
     cartShopBox.getElementsByClassName("cart-remove")[0].addEventListener("click", removeCartItem);
     cartShopBox.getElementsByClassName("cart-quantity")[0].addEventListener("change", quantityChanged);
 }
+
 
 
 
@@ -157,4 +187,6 @@ function updateTotal() {
 
     document.getElementsByClassName("total-price")[0].innerText = "$" + total.toFixed(2);
 }
+
+
 
