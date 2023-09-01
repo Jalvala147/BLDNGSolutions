@@ -70,6 +70,7 @@ header{
 .cart{
     position: fixed;
     top: 0;
+    bottom: auto;
     right: -100%;
     width: 360px;
     min-height: 100vh;
@@ -83,6 +84,12 @@ header{
     right: 0;
 
 }
+.cart-content {
+    max-height: 700px; 
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 .cart-title{
     text-align: center;
     font-size: 1.5rem;

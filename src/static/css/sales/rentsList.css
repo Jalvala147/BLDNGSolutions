@@ -9,7 +9,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, li {
 body {
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
-    background: linear-gradient(to right, #333399, #ff00cc);
+    background: linear-gradient(to right, #444654, #282930);
     display: flex;
     justify-content: center;
     align-items: center;
