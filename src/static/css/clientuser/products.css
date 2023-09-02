@@ -120,7 +120,7 @@ header{
 .cart-price{
     font-weight: 500;
 }
-.cart-quantity{
+.cart-weeks{
     border: 1px;
     outline-color: var(--main-color);
     width: 2.4rem;

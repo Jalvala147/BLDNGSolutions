@@ -106,7 +106,7 @@ button {
     background-color: rgb(46, 106, 236);
     color: white;
     padding: 0.5rem 1rem;
-    border-radius: 100px;
+    border-radius: 50px;
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -125,4 +125,12 @@ button:hover {
 
 .material-symbols-rounded:before {
     content: attr(data-symbol);
+}
+.orange-button {
+    background-color: rgb(185, 123, 6); /* Change this to your desired orange color */
+    color: white; /* Text color */
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 50px; /* Rounded corners for the button */
 }

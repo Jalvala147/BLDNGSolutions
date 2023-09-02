@@ -162,6 +162,23 @@ body {
     cursor: pointer;
 }
 
+.inicio {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 12px; 
+    background-color: #293033; 
+    color: #e3f3ff; 
+    border-radius: 10px;
+    
+  }
+  
+  .inicio:hover{
+    text-decoration: none;
+    color: #e3f3ff; 
+  }
+  
+
 /* Responsive */
 @media (max-width: 768px) {
 
