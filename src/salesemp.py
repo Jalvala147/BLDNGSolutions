@@ -78,7 +78,36 @@ def orderDetails(order_id):
 
     return render_template('/salesEmpArea/rentsDetails.jinja', order_id=order_id, order_details=order_details)
 
-#------------------------------------------------------------------------
+@salesemp.route('/salesEmpArea/orderCompleted/<int:order_id>')
+def orderCompleted(order_id):
+    cur = mysql.connection.cursor()
+    
+    try:
+        # borrar los registros hijos
+        delete_machineorders_query = "DELETE FROM machineorders WHERE order_id = %s"
+        cur.execute(delete_machineorders_query, (order_id,))
+        mysql.connection.commit()
+        
+        # despues los padres
+        delete_order_query = "DELETE FROM orders WHERE id = %s"
+        cur.execute(delete_order_query, (order_id,))
+        mysql.connection.commit()
+        
+        cur.close()
+        
+        
+        return redirect(url_for('salesemp.rentsList'))
+    except Exception as e:
+        
+        print(f"Error deleting order: {str(e)}")
+        mysql.connection.rollback()  # Rollback the transaction
+        cur.close()
+        # Redirect or display an error message to the user
+        return redirect(url_for('salesemp.rentsList')) 
+
+
+
+#------------------------------Guardado de archivos------------------------
 @salesemp.route('/download_file/<filename>')
 def download_file(filename):
     # Obtén el archivo blob de la base de datos

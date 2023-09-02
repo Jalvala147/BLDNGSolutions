@@ -29,10 +29,10 @@ function ready() {
         button.addEventListener("click", removeCartItem);
     }
     //Cambios de cantidad
-    var quantityInputs = document.getElementsByClassName("cart-quantity");
-    for (var i = 0; i < quantityInputs.length; i++) {
-        var input = quantityInputs[i];
-        input.addEventListener("change", quantityChanged);
+    var weeksInputs = document.getElementsByClassName("cart-weeks");
+    for (var i = 0; i < weeksInputs.length; i++) {
+        var input = weeksInputs[i];
+        input.addEventListener("change", weeksChanged);
     }
     //Agregar al carrito 
     var addCart = document.getElementsByClassName("add-cart");
@@ -83,7 +83,7 @@ function removeCartItem(event) {
 
 
 //Función para cambios de cantidad
-function quantityChanged(event) {
+function weeksChanged(event) {
     var input = event.target;
     if (isNaN(input.value) || input.value <= 0) {
         input.value = 1;
@@ -147,6 +147,8 @@ function addProductToCart(title, price, productImg, machineId) {
         }
     }
 
+    
+
     var cartBoxContent = `
         <img src="${productImg}" alt="" class="cart-img">
         <!-- Contenido de la caja -->
@@ -155,7 +157,7 @@ function addProductToCart(title, price, productImg, machineId) {
             <div class="cart-product-title">${title}</div>
             <div class="cart-product-id">ID: ${machineId}</div> 
             <div class="cart-price">${price}</div>
-            <input type="number" value="1" min="1" max="4" class="cart-quantity" >
+            <input type="number" value="1" min="1" max="4" class="cart-weeks" >
             <span>semanas</span>
         </div>
         <!--borrar carrito-->
@@ -163,30 +165,46 @@ function addProductToCart(title, price, productImg, machineId) {
     cartShopBox.innerHTML = cartBoxContent;
     cartItems.appendChild(cartShopBox);
     cartShopBox.getElementsByClassName("cart-remove")[0].addEventListener("click", removeCartItem);
-    cartShopBox.getElementsByClassName("cart-quantity")[0].addEventListener("change", quantityChanged);
+    cartShopBox.getElementsByClassName("cart-weeks")[0].addEventListener("change", weeksChanged);
 }
 
 
 
 
-//Función para actualizar el total del carrito
 function updateTotal() {
     var cartContent = document.getElementsByClassName("cart-content")[0];
     var cartBoxes = cartContent.getElementsByClassName("cart-box");
     var total = 0;
+    
     for (var i = 0; i < cartBoxes.length; i++) {
         var cartBox = cartBoxes[i];
         var priceElement = cartBox.getElementsByClassName("cart-price")[0];
-        var quantityElement = cartBox.getElementsByClassName("cart-quantity")[0];
+        var weeksElement = cartBox.getElementsByClassName("cart-weeks")[0];
         var price = parseFloat(priceElement.innerText.replace("$", "").replace("MXN", ""));
-        var quantity = quantityElement.value;
-        total += price * quantity;
+        var weeks = parseInt(weeksElement.value); // Convierte la cantidad de semanas a un número entero
+
+        // Aplica descuentos progresivos basados en la cantidad de semanas seleccionadas
+        if (weeks === 1) {
+            total += price;
+        } else if (weeks === 2) {
+            // Descuento del 4% en relación con el precio de 1 semana
+            total += (price * 2) - ((price * 2) * 0.04);
+        } else if (weeks === 3) {
+            // Descuento del 8% en relación con el precio de 2 semanas
+            total += (price * 3) - ((price * 3) * 0.08);
+        } else if (weeks === 4) {
+            // Descuento del 12% en relación con el precio de 3 semanas
+            total += (price * 4) - ((price * 4) * 0.12);
+        }
     }
     //Si hay centavos en el precio
     total = Math.round(total * 100) / 100;
 
     document.getElementsByClassName("total-price")[0].innerText = "$" + total.toFixed(2);
 }
+
+
+
 
 
 

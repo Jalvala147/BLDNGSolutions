@@ -12,16 +12,13 @@
 
 {% block body %}
 
-<div class="inicio">
-<img src="#" alt="logo1">
-<a href="/startpage">Ir a la página de inicio</a>
-</div>
+<a href="/startpage" class="inicio">
+  <img src="{{ url_for('static', filename='images/logo.png') }}" width="50" height="50" alt="logo1">
+  Ir a la página de inicio
+</a>
+
 
 <form class="form-signin" action="{{ url_for('login') }}" method="POST">
-
-    
-    
-    <!--<img class="mb-4" src="{{ url_for('static', filename = 'img/icono.png') }}" width="10" height="10">-->
     
     {% with messages = get_flashed_messages() %}
 
@@ -45,7 +42,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="login-card-logo">
-            <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo"/></a>
+            <a title="logo" href="/startpage"><img src="{{ url_for('static', filename='images/logo.png') }}" class="logo"/></a>
         </div>
 
         <div class="login-card-header">
