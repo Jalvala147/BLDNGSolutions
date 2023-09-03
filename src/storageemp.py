@@ -76,6 +76,52 @@ def stoMaintenance():
     
     # renderizar la plantilla con los datos
     return render_template('/storage/stoMaintenance.jinja', machines_data=machines_data)
+
+
+@storageemp.route('/storage/preventive/<int:id_machine>', methods=['POST'])
+def preventive(id_machine):
+    if request.method == 'POST':
+        
+        # Crear un nuevo registro en la tabla maintenancehistory
+        cursor = mysql.connection.cursor()
+        cursor.execute("INSERT INTO maintenancehistory (id_Machine) VALUES (%s)", (id_machine,))
+        mysql.connection.commit()
+        
+        # Obtener el id recién creado
+        new_id_maintenance = cursor.lastrowid
+        
+        # Insertar el registro en la tabla preventivemaintenance con el nuevo id_Maintenance
+        cursor.execute("INSERT INTO preventivemaintenance (id_Maintenance, date) VALUES (%s, CURRENT_TIMESTAMP)",
+                       (new_id_maintenance,))
+        mysql.connection.commit()
+        
+        cursor.close()
+        
+        return redirect(url_for('storageemp.stoMaintenance'))  # Redirigir a la página de mantenimiento
+
+
+@storageemp.route('/storage/corrective/<int:id_machine>', methods=['POST'])
+def corrective(id_machine):
+    if request.method == 'POST':
+        
+        # Crear un nuevo registro en la tabla maintenancehistory
+        cursor = mysql.connection.cursor()
+        cursor.execute("INSERT INTO maintenancehistory (id_Machine) VALUES (%s)", (id_machine,))
+        mysql.connection.commit()
+        
+        # Obtener el id recién creado
+        new_id_maintenance = cursor.lastrowid
+        
+        # Insertar el registro en la tabla correctivemaintenance con el nuevo id_Maintenance
+        cursor.execute("INSERT INTO correctivemaintenance (id_Maintenance, date) VALUES (%s, CURRENT_TIMESTAMP)",
+                       (new_id_maintenance,))
+        mysql.connection.commit()
+        
+        cursor.close()
+        
+        return redirect(url_for('storageemp.stoMaintenance'))  # Redirigir a la página de mantenimiento
+
+
 #------------------------Almacén de las maquinas-------------------------------
 @storageemp.route('/storage/stoMachines')
 def stoMachines():

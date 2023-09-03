@@ -87,10 +87,29 @@ def logoutadm():
 
 
 #--------------------Pagina de inicio------------------
-
-@app.route('/productsList')
+#------------Listado de los productos(maquinas)---------------------
+@app.route('/productsList')   
 def productsList():
-    return render_template('startpage/productsList.jinja')
+
+    cur = mysql.connection.cursor() 
+    cur.execute("SELECT id, name, image, price, id_Machine FROM products")
+    product_data = cur.fetchall()
+
+    # Crear una lista para almacenar los productos como dicconarios
+    products = [] 
+    for product in product_data: #itera sobre los datos de los productos obtenidos
+        product_dict = { #crear un diccionario para cada producto con id, name, image y price
+            'id': product[0],
+            'name': product[1],
+            'image': product[2],
+            'price': product[3],
+            'id_Machine' : product[4]
+        }
+        products.append(product_dict) #agrega el diccionario del producto a la lista de productos
+
+    cur.close()
+    
+    return render_template('startpage/productsList.jinja', products=products)
 
 @app.route('/contact')
 def contact():
@@ -447,3 +466,6 @@ def sales():
 @app.route('/orders')
 def orders():
     return render_template('/shipping/orders.jinja')
+
+
+

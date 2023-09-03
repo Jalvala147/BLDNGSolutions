@@ -9,6 +9,7 @@ from flask import request, jsonify
 from flask import Flask, url_for
 from flask import redirect
 import math
+import json
 
 app = Flask(__name__)
 mysql = MySQL()
@@ -146,28 +147,36 @@ def products():
 #     return redirect(url_for('clients.products'))
 
 
+# clients.py
 @clients.route('/clientuser/place_order', methods=['POST'])
 @login_required
 def place_order():
     if request.method == 'POST':
         client_user_id = request.form['clientUser_id']
+        cart_machine_ids_str = request.form['cart_machine_ids']
+        cart_total = request.form['cart-total']  # Agrega esta línea
+        cart_weeks = request.form['cart-weeks']    # Agrega esta línea
+
+        print(f'client_user_id: {client_user_id}')
+        print(f'cart_machine_ids_str: {cart_machine_ids_str}')
+        print(f'cart_total: {cart_total}')
+        print(f'cart_weeks: {cart_weeks}')
 
         # Insertar el pedido en la tabla "orders"
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO orders (clientUser_id) VALUES (%s)", (client_user_id,))
+        cur.execute("INSERT INTO orders (clientUser_id, total) VALUES (%s, %s)", (client_user_id, cart_total))
         mysql.connection.commit()
 
         # Obtener el ID del pedido recién insertado
         order_id = cur.lastrowid
 
         # Obtener la lista de IDs de las máquinas y convertirla en una lista
-        cart_machine_ids_str = request.form['cart_machine_ids']
-        cart_machine_ids = cart_machine_ids_str.split(',')  # Dividir la cadena en una lista de IDs
+        cart_machine_ids = cart_machine_ids_str.split(',')
 
         # Insertar las máquinas relacionadas en la tabla "machineorders"
         for machine_id in cart_machine_ids:
-            cur.execute("INSERT INTO machineorders (order_id, machine_id) VALUES (%s, %s)",
-                        (order_id, machine_id))
+            cur.execute("INSERT INTO machineorders (order_id, machine_id, weeks) VALUES (%s, %s, %s)",
+                        (order_id, machine_id, cart_weeks))
             mysql.connection.commit()
 
         cur.close()
@@ -175,6 +184,7 @@ def place_order():
         return redirect(url_for('clients.products'))
 
     return redirect(url_for('clients.products'))
+
 
 
  
