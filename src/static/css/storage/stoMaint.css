@@ -32,7 +32,7 @@ body {
     position: absolute;
     inset: 0;
     background: rgba(255, 255, 255, .15);
-    transform: rotate(-3deg);
+    transform: rotate(-1deg);
     border-radius: 10px;
     z-index: -1;
 }

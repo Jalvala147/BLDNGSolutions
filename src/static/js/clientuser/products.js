@@ -157,7 +157,7 @@ function addProductToCart(title, price, productImg, machineId) {
             <div class="cart-product-title">${title}</div>
             <div class="cart-product-id">ID: ${machineId}</div> 
             <div class="cart-price">${price}</div>
-            <input type="number" value="1" min="1" max="4" class="cart-weeks" >
+            <input type="number" value="1" min="1" max="4" class="cart-weeks" id="cart-weeks">
             <span>semanas</span>
         </div>
         <!--borrar carrito-->
@@ -175,35 +175,70 @@ function updateTotal() {
     var cartContent = document.getElementsByClassName("cart-content")[0];
     var cartBoxes = cartContent.getElementsByClassName("cart-box");
     var total = 0;
-    
+
+    // Crear un objeto para almacenar las semanas de cada máquina en el carrito
+    var machineWeeks = {};
+
     for (var i = 0; i < cartBoxes.length; i++) {
         var cartBox = cartBoxes[i];
         var priceElement = cartBox.getElementsByClassName("cart-price")[0];
         var weeksElement = cartBox.getElementsByClassName("cart-weeks")[0];
+        var machineIdElement = cartBox.getElementsByClassName("cart-machine-id")[0];
         var price = parseFloat(priceElement.innerText.replace("$", "").replace("MXN", ""));
         var weeks = parseInt(weeksElement.value); // Convierte la cantidad de semanas a un número entero
+        var machineId = machineIdElement.value;
 
         // Aplica descuentos progresivos basados en la cantidad de semanas seleccionadas
         if (weeks === 1) {
             total += price;
         } else if (weeks === 2) {
-            // Descuento del 4% en relación con el precio de 1 semana
             total += (price * 2) - ((price * 2) * 0.04);
         } else if (weeks === 3) {
-            // Descuento del 8% en relación con el precio de 2 semanas
             total += (price * 3) - ((price * 3) * 0.08);
         } else if (weeks === 4) {
-            // Descuento del 12% en relación con el precio de 3 semanas
             total += (price * 4) - ((price * 4) * 0.12);
         }
+
+        // Almacena las semanas en el objeto machineWeeks utilizando el ID de la máquina como clave
+        machineWeeks[machineId] = weeks;
     }
-    //Si hay centavos en el precio
+
+    // Si hay centavos en el precio
     total = Math.round(total * 100) / 100;
 
     document.getElementsByClassName("total-price")[0].innerText = "$" + total.toFixed(2);
+
+    // Mostrar detalles de cada máquina en la consola
+    for (var machineId in machineWeeks) {
+        console.log("Máquina ID:", machineId);
+        console.log("Semanas:", machineWeeks[machineId]);
+    }
+
+    // Actualizar el valor del campo oculto
+    var cartTotalField = document.getElementById("cart_total");
+    var cartWeeksField = document.getElementById("cart_weeks");
+
+    // Convierte el objeto machineWeeks en una cadena JSON para almacenarlo en el campo oculto
+    var machineWeeksJSON = JSON.stringify(machineWeeks);
+
+    cartTotalField.value = total.toFixed(2);
+    cartWeeksField.value = machineWeeksJSON;
+
+    console.log("Total:", cartTotalField.value);
+    console.log("Semanas:", cartWeeksField.value);
 }
 
 
+
+
+function weeksChanged(event) {
+    var input = event.target;
+    if (isNaN(input.value) || input.value <= 0) {
+        input.value = 1;
+    }
+    updateTotal(); // Agrega esta línea para llamar a updateTotal
+    console.log("Valor de semanas:", input.value); // Agrega esta línea para depurar
+}
 
 
 

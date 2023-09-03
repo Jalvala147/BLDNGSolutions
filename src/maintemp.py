@@ -15,14 +15,29 @@ def maintenance_home():
     return render_template('maintenance/mantHome.jinja')
 
 #--------------------rutas mantenimiento-----------------------
-@maintemp.route('/maintenance/mantHistory')
-def mantHistory():
-    return render_template('maintenance/mantHistory.jinja')
 
+#listado de las maquinas con boton para ver historial de mantenimiento
 @maintemp.route('/maintenance/mantMachines')   
 def mantMachines():
-    return render_template('/maintenance/mantMachines.jinja')
+    # crear el cursor
+    cursor = mysql.connection.cursor()
+
+    # buscar los datos de la tabla 'machines'
+    cursor.execute("SELECT id_Machine, model, brand, type FROM machines")
+    machines_data = cursor.fetchall()
+
+    # cerrar el cursor
+    cursor.close()
+    return render_template('/maintenance/mantMachines.jinja', machines_data=machines_data)
+
+#-----------------Historial de las maquinas------------------------
+@maintemp.route('/maintenance/mantHistory/<int:machine_id>', methods=['GET', 'POST'])
+def mantHistory(machine_id):
     
+    return render_template('maintenance/mantHistory.jinja', machine_id=machine_id)
+
+#--------------------------------------------------------------------------
+
 @maintemp.route('/maintenance/mantReports')   
 def mantReports():
     return render_template('/maintenance/mantReports.jinja')
