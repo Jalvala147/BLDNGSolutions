@@ -3,7 +3,7 @@
 {% block title %}Reportes de fallas{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance/mantReports.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/storage/stoMachines.css')}}">
 
 {% endblock %}
 
@@ -15,17 +15,32 @@
 
 <table class="table1">
     <tr>
-        <th>Nombre de quien 
-        realizó el reporte</th>
+        <th>Nombre de quien realizó el reporte</th>
+        <th>Maquina reportada</th>
         <th>Fecha del reporte</th>
-        <th>Descripcion del 
-        problema o falla</th>
+        <th>Descripcion del problema o falla</th>
         <th>Estado del problema o falla</th>
     </tr>
 
-
-
-
+    {% for report in reports_data %}
+    <tr>
+        <td>{{ report[0] }}</td>
+        <td>{{ report[1] | upper }} {{ report[2] | upper }}</td>
+        <td>{{ report[3] }}</td>
+        <td>{{ report[4] }}</td>
+        <td>
+            {% if report[5] == 0 %}
+                Recibido
+            {% elif report[5] == 1 %}
+                Completado
+            {% elif report[5] == 2 %}
+                Pendiente
+            {% else %}
+                Desconocido
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
 </table>
 
 {% endblock %}
