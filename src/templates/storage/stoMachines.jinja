@@ -4,7 +4,7 @@
 
 {% block customCSS %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/storage/stoMachines.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/storage/storage.css')}}">
 <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0" />
 
@@ -20,7 +20,7 @@
 <a href="{{ url_for('storageemp.add_machine') }}" class="btn btn-primary">Agregar Nueva Maquina</a>
 
 <table class="table1">
-    
+
     <tr>
         <th>Id de la Maquina</th>
         <th>Modelo</th>
@@ -36,13 +36,19 @@
         <td>{{ machine[3] }}</td>
         <td>
             <!-- Update Button -->
-            <a href="{{ url_for('storageemp.update_machine', machine_id=machine[0]) }}" class="btn btn-primary" >Actualizar</a>
+            <a href="{{ url_for('storageemp.update_machine', machine_id=machine[0]) }}" class="btn btn-primary"><span
+                    class="material-symbols-rounded">
+                    edit
+                </span></a>
         </td>
         <td>
             <!-- Delete Form -->
             <form method="post" action="{{ url_for('storageemp.delete_machine', machine_id=machine[0]) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-primary" onclick="return confirmDelete();">Eliminar</button>
+                <button type="submit" class="btn btn-primary" onclick="return confirmDelete();"><span
+                        class="material-symbols-rounded">
+                        delete
+                    </span></button>
             </form>
         </td>
     </tr>
@@ -53,7 +59,7 @@
 
 <script>
     function confirmDelete() {
-      return confirm("¿Quieres eliminar este registro?");
+        return confirm("¿Quieres eliminar este registro?");
     }
 </script>
 

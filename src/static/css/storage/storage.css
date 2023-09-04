@@ -9,7 +9,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, li {
 body {
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
-    background: #33353f;
+    background: linear-gradient(to right, #33353f, #444654);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,7 +18,7 @@ body {
 
 /* Container Styles */
 .container {
-    max-width: 1200px;
+    max-width: 1500px;
     width: 100%;
     background: rgba(255, 255, 255, .5);
     padding: 2rem;
@@ -33,7 +33,7 @@ body {
     position: absolute;
     inset: 0;
     background: rgba(255, 255, 255, .15);
-    transform: rotate(-3deg);
+    transform: rotate(-2deg);
     border-radius: 10px;
     z-index: -1;
 }
@@ -70,8 +70,8 @@ h1 {
 /* Button Styles */
 .btn {
     display: inline-block;
-    background-color: #444654;
-    color: azure;
+    background-color: rgb(171, 37, 212);
+    color: white;
     padding: 0.8rem 1.5rem;
     border-radius: 100px;
     text-align: center;
@@ -80,13 +80,10 @@ h1 {
     transition: background .5s;
     margin: 5px;
     text-decoration: none;
-    max-width: 100%;
-    overflow: hidden;
 }
 
-
 .btn:hover {
-    background-color: #242425d9;
+    background-color: rgba(0, 0, 0, 0.85);
 }
 
 /* Add Machine Button Styles */

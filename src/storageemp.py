@@ -148,13 +148,18 @@ def update_machine(machine_id):
         model = request.form['model']
         brand = request.form['brand']
         type = request.form['type']
-        status = request.form['status']
+        #status = request.form['status']
 
         # Update the machine record in the database
         cursor.execute(
-            "UPDATE machines SET model=%s, brand=%s, type=%s, status=%s, currentUser=%s WHERE id_Machine=%s",
-            (model, brand, type, status, machine_id)
+            "UPDATE machines SET model=%s, brand=%s, type=%s, currentUser=%s WHERE id_Machine=%s",
+            (model, brand, type, machine_id)
         )
+
+        # cursor.execute(
+        #     "UPDATE machines SET model=%s, brand=%s, type=%s, status=%s, currentUser=%s WHERE id_Machine=%s",
+        #     (model, brand, type, status, machine_id)
+        # )
 
         # Commit the changes
         mysql.connection.commit()
@@ -163,8 +168,13 @@ def update_machine(machine_id):
         # Redirect back to the machine list page
         return redirect(url_for('storageemp.stoMachines'))
 
+    # # If it's a GET request, fetch the machine data for the form pre-population
+    # cursor.execute("SELECT id_Machine, model, brand, type, status FROM machines WHERE id_Machine=%s", (machine_id,))
+    # machine_data = cursor.fetchone()
+    # cursor.close()
+
     # If it's a GET request, fetch the machine data for the form pre-population
-    cursor.execute("SELECT id_Machine, model, brand, type, status FROM machines WHERE id_Machine=%s", (machine_id,))
+    cursor.execute("SELECT id_Machine, model, brand, type FROM machines WHERE id_Machine=%s", (machine_id,))
     machine_data = cursor.fetchone()
     cursor.close()
 
