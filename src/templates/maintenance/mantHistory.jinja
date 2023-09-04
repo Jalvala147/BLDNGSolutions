@@ -18,14 +18,57 @@
 
 <table class="table1">
     <tr>
-        <td>Fechas de mantenimiento preventivo</td>
-        <td>Fechas de manrenimiento correctivo</td>
+        <th>Tipo de Mantenimiento</th>
+        <th>Número de Veces Realizado</th>
     </tr>
-
+    <tr>
+        <td>Mantenimiento Preventivo</td>
+        <td>{{ preventive_dates|length }}</td>
+    </tr>
+    <tr>
+        <td>Mantenimiento Correctivo</td>
+        <td>{{ corrective_dates|length }}</td>
+    </tr>
 </table>
 
-<h2>Numero de veces de mantenimiento preventivo realizado: </h2>
-<h2>Numero de veces de mantenimiento correctivo realizado: </h2>
+<div class="scrollable-table">
+    <table class="table1">
+        <thead>
+            <tr>
+                <th>Fechas de mantenimiento preventivo</th>
+                <th>Fechas de mantenimiento correctivo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for date in preventive_dates %}
+            <tr>
+                <td>{{ date[0] }}</td>
+                <td></td> <!-- Celda vacía para las fechas de mantenimiento correctivo -->
+            </tr>
+            {% endfor %}
+            {% for date in corrective_dates %}
+            <tr>
+                <td></td> <!-- Celda vacía para las fechas de mantenimiento preventivo -->
+                <td>{{ date[0] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
+<style>
+    .scrollable-table {
+        max-height: 350px; 
+        overflow-y: scroll;  
+        border-radius: 10px;
+    }
+
+    .scrollable-table th {
+        position: sticky;
+        top: 0;
+        background-color: #d3d3d3;
+    }
+</style>
 
 {% endblock %}
+
