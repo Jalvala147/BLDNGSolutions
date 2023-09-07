@@ -10,6 +10,24 @@
 
 
 {% block body %}
+<div id="particles-js"></div>
+<style>
+    body {
+        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background4.png') }}");
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+    #particles-js {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        
+    }
+</style>
+
 <!-- Header -->
 <header>
     <div class="nav container">
@@ -94,5 +112,6 @@
 
 <script src="{{ url_for('static', filename='js/clientuser/products.js') }}"></script>
 
-
+<script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
 {% endblock %}
