@@ -7,22 +7,55 @@
 {% endblock %}
 
 {% block body %}
-<a href="{{ url_for('salesemp.rentsList') }}" class="btn">Atras</a>
+<a href="{{ url_for('salesemp.rentsList') }}" class="btn">Atrás</a>
 
 <h1>Detalles del pedido</h1>
 
 <table class="table1">
     <tr>
         <th>Cliente</th>
-        <th>Maquinas</th>
         <th>Fecha del pedido</th>
-        <th>Costo</th>
+        <th>Total</th>
     </tr>
     <tr>
-        <td>{{ order_details[3] }} (ID: {{ order_details[0] }})</td>
-        <td>{{ order_details[1]|upper|replace(',', ', ') }}</td>
-        <td>{{ order_details[2] }}</td>
-        <td>$</td>
+        <td>
+            <strong>Nombre:</strong> {{ order_details[3] }}<br>
+            <strong>ID:</strong> {{ order_details[0] }}<br>
+        </td>
+        <td>
+            {{ order_details[2] }}<br>
+        </td>
+        <td>
+            ${{ order_details[6] }}<br> {# Aquí mostramos el total del pedido #}
+        </td>
     </tr>
 </table>
+
+<h1>Máquinas alquiladas</h1>
+
+<table class="table1">
+    <tr>
+        <th>Máquina</th>
+        <th>Semanas</th>
+        <th>Precio</th>
+    </tr>
+    {% set machines = order_details[1].split(',') %}
+    {% for i in range(0, machines|length) %}
+    <tr>
+        <td>
+            {{ machines[i] |upper}}<br>
+        </td>
+        <td>
+            {{ weeks[i] }}<br>
+        </td>
+        <td>
+            ${{ prices[i] }}<br>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
 {% endblock %}
+
+
+

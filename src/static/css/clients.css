@@ -54,7 +54,7 @@ body
 .navigation ul
 {
     display: flex;
-    width: 350px;
+    width: 400px;
 }
 .navigation ul li 
 {
@@ -162,8 +162,10 @@ body
 }
 
 .navigation ul li:nth-child(5).active ~ .indicator {
-    transform: translateX(calc(63px * 4));
+    transform: translateX(calc(60px * 4));
 }
 
-
+.navigation ul li:nth-child(6).active ~ .indicator {
+    transform: translateX(calc(60px * 5));
+}
 
