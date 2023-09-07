@@ -52,13 +52,24 @@ function buyButtonClicked() {
     if (cartContent.children.length === 0) {
         alert('No hay elementos en el carrito. Agrega productos antes de pedir.');
     } else {
-        alert('Pedido realizado con éxito');
-        while (cartContent.hasChildNodes()) {
-            cartContent.removeChild(cartContent.firstChild);
-        }
-        updateTotal();
+        // Obtener los detalles de las máquinas en el carrito de la función updateTotal()
+        var total = updateTotal();
+
+        // Obtener la información de las máquinas de la función updateTotal()
+        var cartMachineIdsField = document.getElementById("cart-machine-ids");
+        var cartWeeksField = document.getElementById("cart_weeks");
+
+        // Actualizar los campos ocultos
+        cartMachineIdsField.value = cartMachineIdsField.value;
+        cartWeeksField.value = cartWeeksField.value;
+        cartTotalField.value = total.toFixed(2);
+
+        // Enviar el formulario
+        document.getElementById("purchase-form").submit();
     }
 }
+
+
 
 
 //Función para remover un item del carrito
@@ -176,31 +187,42 @@ function updateTotal() {
     var cartBoxes = cartContent.getElementsByClassName("cart-box");
     var total = 0;
 
-    // Crear un objeto para almacenar las semanas de cada máquina en el carrito
-    var machineWeeks = {};
+    // Crear un objeto para almacenar las semanas y los precios de cada máquina en el carrito
+    var machineInfo = {};
 
     for (var i = 0; i < cartBoxes.length; i++) {
         var cartBox = cartBoxes[i];
         var priceElement = cartBox.getElementsByClassName("cart-price")[0];
         var weeksElement = cartBox.getElementsByClassName("cart-weeks")[0];
         var machineIdElement = cartBox.getElementsByClassName("cart-machine-id")[0];
+        var titleElement = cartBox.getElementsByClassName("cart-product-title")[0];
         var price = parseFloat(priceElement.innerText.replace("$", "").replace("MXN", ""));
         var weeks = parseInt(weeksElement.value); // Convierte la cantidad de semanas a un número entero
         var machineId = machineIdElement.value;
+        var title = titleElement.innerText;
 
-        // Aplica descuentos progresivos basados en la cantidad de semanas seleccionadas
+        // Calcular el precio total para esta máquina y semanas
+        var machinePrice = 0;
+
         if (weeks === 1) {
-            total += price;
+            machinePrice = price;
         } else if (weeks === 2) {
-            total += (price * 2) - ((price * 2) * 0.04);
+            machinePrice = (price * 2) - ((price * 2) * 0.04);
         } else if (weeks === 3) {
-            total += (price * 3) - ((price * 3) * 0.08);
+            machinePrice = (price * 3) - ((price * 3) * 0.08);
         } else if (weeks === 4) {
-            total += (price * 4) - ((price * 4) * 0.12);
+            machinePrice = (price * 4) - ((price * 4) * 0.12);
         }
 
-        // Almacena las semanas en el objeto machineWeeks utilizando el ID de la máquina como clave
-        machineWeeks[machineId] = weeks;
+        // Agregar la información de la máquina al objeto
+        machineInfo[machineId] = {
+            title: title,
+            weeks: weeks,
+            price: machinePrice
+        };
+
+        // Agregar el precio de esta máquina al total
+        total += machinePrice;
     }
 
     // Si hay centavos en el precio
@@ -209,23 +231,26 @@ function updateTotal() {
     document.getElementsByClassName("total-price")[0].innerText = "$" + total.toFixed(2);
 
     // Mostrar detalles de cada máquina en la consola
-    for (var machineId in machineWeeks) {
+    for (var machineId in machineInfo) {
+        var machineData = machineInfo[machineId];
         console.log("Máquina ID:", machineId);
-        console.log("Semanas:", machineWeeks[machineId]);
+        console.log("Producto:", machineData.title);
+        console.log("Semanas:", machineData.weeks);
+        console.log("Precio:", machineData.price);
     }
 
     // Actualizar el valor del campo oculto
     var cartTotalField = document.getElementById("cart_total");
     var cartWeeksField = document.getElementById("cart_weeks");
 
-    // Convierte el objeto machineWeeks en una cadena JSON para almacenarlo en el campo oculto
-    var machineWeeksJSON = JSON.stringify(machineWeeks);
+    // Convierte el objeto machineInfo en una cadena JSON para almacenarlo en el campo oculto
+    var machineInfoJSON = JSON.stringify(machineInfo);
 
     cartTotalField.value = total.toFixed(2);
-    cartWeeksField.value = machineWeeksJSON;
+    cartWeeksField.value = machineInfoJSON;
 
     console.log("Total:", cartTotalField.value);
-    console.log("Semanas:", cartWeeksField.value);
+    console.log("Informacion del pedido:", cartWeeksField.value);
 }
 
 

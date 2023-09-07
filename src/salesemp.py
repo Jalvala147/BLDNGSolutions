@@ -57,14 +57,14 @@ def rentsList():
     cur.close
     return render_template('/salesEmpArea/rentsList.jinja', order_ids=orders_ids)
 
-#detalles de la renta por id
+
 @salesemp.route('/salesEmpArea/rentsDetails/<int:order_id>')
 def orderDetails(order_id):
     cur = mysql.connection.cursor()
     
-    # Consulta para obtener los detalles del pedido y los machine_ids correspondientes
+    # Consulta para obtener los detalles del pedido, las máquinas, semanas, precios y el total correspondiente al order_id en la tabla machineorders
     query = """
-    SELECT o.clientUser_id, GROUP_CONCAT(CONCAT(m.brand, ' ', m.model)) AS machines, o.order_date, u.fullname
+    SELECT o.clientUser_id, GROUP_CONCAT(CONCAT(m.brand, ' ', m.model)) AS machines, o.order_date, u.fullname, GROUP_CONCAT(mo.weeks) AS weeks, GROUP_CONCAT(mo.price) AS prices, SUM(mo.price) AS order_total
     FROM orders o
     INNER JOIN machineorders mo ON o.id = mo.order_id
     INNER JOIN machines m ON mo.machine_id = m.id_machine
@@ -76,7 +76,14 @@ def orderDetails(order_id):
     order_details = cur.fetchone()
     cur.close()
 
-    return render_template('/salesEmpArea/rentsDetails.jinja', order_id=order_id, order_details=order_details)
+    # Separar las semanas y precios en listas
+    weeks = order_details[4].split(',')
+    prices = order_details[5].split(',')
+
+    return render_template('/salesEmpArea/rentsDetails.jinja', order_id=order_id, order_details=order_details, weeks=weeks, prices=prices)
+
+
+
 
 @salesemp.route('/salesEmpArea/orderCompleted/<int:order_id>')
 def orderCompleted(order_id):

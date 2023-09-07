@@ -154,13 +154,11 @@ def place_order():
     if request.method == 'POST':
         client_user_id = request.form['clientUser_id']
         cart_machine_ids_str = request.form['cart_machine_ids']
-        cart_total = request.form['cart-total']  # Agrega esta línea
-        cart_weeks = request.form['cart-weeks']    # Agrega esta línea
+        cart_total = request.form['cart_total']
+        cart_weeks_str = request.form['cart_weeks']
 
-        print(f'client_user_id: {client_user_id}')
-        print(f'cart_machine_ids_str: {cart_machine_ids_str}')
-        print(f'cart_total: {cart_total}')
-        print(f'cart_weeks: {cart_weeks}')
+        # Convertir la cadena JSON en un diccionario
+        cart_weeks = json.loads(cart_weeks_str)
 
         # Insertar el pedido en la tabla "orders"
         cur = mysql.connection.cursor()
@@ -175,8 +173,11 @@ def place_order():
 
         # Insertar las máquinas relacionadas en la tabla "machineorders"
         for machine_id in cart_machine_ids:
-            cur.execute("INSERT INTO machineorders (order_id, machine_id, weeks) VALUES (%s, %s, %s)",
-                        (order_id, machine_id, cart_weeks))
+            machine_data = cart_weeks.get(machine_id)
+            weeks = machine_data['weeks']
+            price = machine_data['price']
+            cur.execute("INSERT INTO machineorders (order_id, machine_id, weeks, price) VALUES (%s, %s, %s, %s)",
+                        (order_id, machine_id, weeks, price))
             mysql.connection.commit()
 
         cur.close()
@@ -187,5 +188,9 @@ def place_order():
 
 
 
+#----Hacer un reporte a maquina--------
+@clients.route('/clientuser/makereport')   
+def makereport():
+    return render_template('/clientuser/makereport.jinja')
  
 
