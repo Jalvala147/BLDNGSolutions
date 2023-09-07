@@ -34,6 +34,8 @@ def logout():
 def clientsHome():
     return render_template('/clientuser/clientsHome.jinja')
 
+
+#------------------------Subida de archivos necesarios--------------------------
 @csrf.exempt
 @clients.route('/docs', methods=['GET', 'POST'])
 @login_required
@@ -72,9 +74,60 @@ def docs():
 
     return render_template('/clientuser/docs.jinja', max_size_kb=max_size_kb)
     
-@clients.route('/information')   
-def information():
-    return render_template('/clientuser/information.jinja')
+@clients.route('/orders')
+def orders():
+    user_id = current_user.id
+
+    # Conecta a la base de datos (asegúrate de configurar previamente MySQL en tu aplicación)
+    cur = mysql.connection.cursor()
+
+    # Ejecuta la consulta SQL para seleccionar los registros necesarios
+    cur.execute("SELECT id, order_date, total FROM orders WHERE clientUser_id = %s", (user_id,))
+
+    # Obtiene los resultados de la consulta
+    orders_data = cur.fetchall()
+
+    # Cierra el cursor
+    cur.close()
+
+    # Renderiza la plantilla con los datos obtenidos
+    return render_template('/clientuser/orders.jinja', orders_data=orders_data)
+
+@clients.route('/orders/info/<int:id_order>')
+def information(id_order):
+    # Conecta a la base de datos
+    cur = mysql.connection.cursor()
+
+    # Ejecuta la consulta SQL para obtener los datos de la tabla machineorders relacionados con el pedido
+    cur.execute("SELECT machine_id, weeks, price FROM machineorders WHERE order_id = %s", (id_order,))
+
+    # Obtiene los resultados de la consulta
+    order_items = cur.fetchall()
+
+    # Consulta para obtener el total del pedido desde la tabla orders
+    cur.execute("SELECT total FROM orders WHERE id = %s", (id_order,))
+    total_result = cur.fetchone()
+    total = total_result[0] if total_result else 0
+
+    # Consulta para obtener los nombres de las máquinas
+    machine_names = []
+    for order_item in order_items:
+        machine_id = order_item[0]
+        cur.execute("SELECT brand, model FROM machines WHERE id_Machine = %s", (machine_id,))
+        machine_data = cur.fetchone()
+        if machine_data:
+            machine_name = f"{machine_data[0]} {machine_data[1]}"
+            machine_names.append(machine_name)
+        else:
+            machine_names.append("N/A")
+
+    # Cierra el cursor
+    cur.close()
+
+    return render_template('/clientuser/information.jinja', id_order=id_order, order_items=order_items, total=total, machine_names=machine_names)
+
+
+
     
 @clients.route('/payments')   
 def payments():
@@ -121,33 +174,7 @@ def products():
 
 
 
-
-# @clients.route('/clientuser/place_order', methods=['POST'])
-# @login_required
-# def place_order():
-#     if request.method == 'POST':
-#         machine_ids = request.form.getlist('cart_machine_ids')
-#         client_user_id = request.form['clientUser_id']
-#         #purchase_option = request.form['purchase_option']
-
-#         print("Machine id:", machine_ids)
-#         print("user id:", client_user_id)
-
-#         for machine_id in machine_ids:
-#             # Insertar cada pedido en la tabla "pedidos"
-#             cur = mysql.connection.cursor()
-#             cur.execute("INSERT INTO machinesorders (machine_id, clientUser_id) VALUES (%s, %s)",
-#                         (machine_id, client_user_id ))
-#             mysql.connection.commit()
-#             cur.close()
-
-#         flash('Pedidos realizados con éxito')
-#         return redirect(url_for('clients.products'))
-
-#     return redirect(url_for('clients.products'))
-
-
-# clients.py
+# -------------Peticion de productos/Place order------------------------
 @clients.route('/clientuser/place_order', methods=['POST'])
 @login_required
 def place_order():
@@ -156,6 +183,12 @@ def place_order():
         cart_machine_ids_str = request.form['cart_machine_ids']
         cart_total = request.form['cart_total']
         cart_weeks_str = request.form['cart_weeks']
+
+        #Bloque de pruebas de recepcion de informacion desde el form input type hidden de products.jinja
+        print(f'client_user_id: {client_user_id}')
+        print(f'cart_machine_ids_str: {cart_machine_ids_str}') 
+        print(f'cart_total: {cart_total}')
+        print(f'cart_weeks: {cart_weeks_str}')
 
         # Convertir la cadena JSON en un diccionario
         cart_weeks = json.loads(cart_weeks_str)
@@ -189,8 +222,36 @@ def place_order():
 
 
 #----Hacer un reporte a maquina--------
-@clients.route('/clientuser/makereport')   
+@clients.route('/clientuser/makereport', methods=['GET', 'POST'])
 def makereport():
-    return render_template('/clientuser/makereport.jinja')
- 
+    if request.method == 'POST':
+        # Obtén el ID de la máquina seleccionada del formulario
+        machine_id = request.form.get('machine_id')
+        # Obtén la descripción de la falla del formulario
+        description = request.form.get('description')
+
+        # Inserta los datos en la tabla 'reports' en la base de datos
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO reports (id_userReporting, id_machine, description) VALUES (%s, %s, %s)",
+                    (current_user.id, machine_id, description))
+        mysql.connection.commit()
+        cur.close()
+
+        # Redirige a la página de inicio o realiza alguna otra acción
+        return redirect(url_for('clients.clientsHome'))  # Ajusta la redirección según tus necesidades
+
+    # Obtén todos los 'order_id' de la tabla 'machineorders' que corresponden a 'clientUser_id' en la tabla 'orders'
+    cur = mysql.connection.cursor()
+    cur.execute("""
+    SELECT mo.order_id
+    FROM machineorders mo
+    INNER JOIN orders o ON mo.order_id = o.id
+    WHERE o.clientUser_id = %s
+    """, (current_user.id,))
+    order_ids = [row[0] for row in cur.fetchall()]
+    cur.close()
+
+    # Ahora 'order_ids' contiene todos los 'order_id' correspondientes al usuario actual
+
+    return render_template('/clientuser/makereport.jinja', order_ids=order_ids)
 

@@ -7,46 +7,77 @@ Inicio
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename = 'css/startdesign.css') }}" />
 <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+
+
+
+
+
 {% endblock %}
 
-<style>
-  .logo {
-    height: 50px;
-    margin-right: 20px;
-  }
-</style>
 
 {% block body %}
-    <nav>
-        <div class="navbar">
-            <i class='bx bx-menu'></i>
-            <div class="logo">
-                <a href="#">
-                    <img src="static/images/logo.png" alt="Logo BLDNGSolutions" class="logo-image">
-                    BLDNGSolutions
-                </a>
-            </div>
-            <div class="nav-links">
-                <div class="sidebar-logo">
-                    <span class="logo-name">BLDNGSolutions</span>
-                    <i class='bx bx-x'></i>
-                </div>
-                <ul class="links">
-                    <li><a href="/aboutUs">Nosotros</a></li>
-                    <li><a href="/contact">Contactenos</a></li>
-                    <li><a href="/productsList">Productos</a></li>
-                    <li><a href="#">Login</a>
-                        <i class='bx bxs-chevron-down htmlcss-arrow arrow  '></i>
-                        <ul class="htmlCss-sub-menu sub-menu">
-                            <li><a href="/loginclient">Soy Cliente</a></li>
-                            <li><a href="/loginemp">Soy Empleado</a></li>
-                            <li><a href="/loginadm">Administrador</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="#"></a></li>
-                </ul>
-            </div>
+<div id="particles-js"></div>
+<style>
+    body {
+        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    .logo {
+        height: 50px;
+        margin-right: 20px;
+    }
+
+    #particles-js {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        
+    }
+</style>
+
+<nav>
+    <div class="navbar">
+        <i class='bx bx-menu'></i>
+        <div class="logo">
+            <a href="#">
+                <img src="static/images/logo.png" alt="Logo BLDNGSolutions" class="logo-image">
+                BLDNGSolutions
+            </a>
         </div>
-    </nav>
-    <script src="{{ url_for('static', filename='js/startpage/startpage.js') }}"></script>
+        <div class="nav-links">
+            <div class="sidebar-logo">
+                <span class="logo-name">BLDNGSolutions</span>
+                <i class='bx bx-x'></i>
+            </div>
+            <ul class="links">
+                <li><a href="/aboutUs">Nosotros</a></li>
+                <li><a href="/contact">Contactenos</a></li>
+                <li><a href="/productsList">Productos</a></li>
+                <li><a href="#">Login</a>
+                    <i class='bx bxs-chevron-down htmlcss-arrow arrow  '></i>
+                    <ul class="htmlCss-sub-menu sub-menu">
+                        <li><a href="/loginclient">Soy Cliente</a></li>
+                        <li><a href="/loginemp">Soy Empleado</a></li>
+                        <li><a href="/loginadm">Administrador</a></li>
+                    </ul>
+                </li>
+                <li><a href="#"></a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="bienvenido-text">
+    ¡Bienvenido a BLDNGSolutions!
+</div>
+
+<script src="{{ url_for('static', filename='js/startpage/startpage.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
 {% endblock %}

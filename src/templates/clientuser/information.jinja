@@ -1,16 +1,38 @@
 {% extends './base.html' %}
 
-{% block title%}Información{% endblock %}
-
-
+{% block title %}Informacion del pedido{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/clientuser/clientuser.css') }}">
 {% endblock %}
-
 
 {% block body %}
 
-<h1>Información del pedido, solo vista, se toma de la base de datos toda la info del pedido en curso</h1>
+<a href="{{ url_for('clients.orders') }}" class="btn btn-primary">Atrás</a>
+
+<h1>Información del pedido #{{ id_order }}</h1>
+
+<table class="table1">
+    <tr>
+        <th>Id de la maquina</th>
+        <th>Semanas</th>
+        <th>Precio</th>
+    </tr>
+    {% for order_item in order_items %}
+    <tr>
+        <td>{{ machine_names[loop.index0] | upper }}</td>
+
+        <td>{{ order_item[1] }}</td>
+        <td>{{ order_item[2] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<h1>Enviar a: </h1>
+<h1>Direccion de envio: </h1>
+<h1>Método de pago</h1>
+<h1>Total del pedido: {{ total }}</h1>
 
 {% endblock %}
+

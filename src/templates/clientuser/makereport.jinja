@@ -1,0 +1,32 @@
+{% extends './base.html' %}
+
+{% block title %}Rentas{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+{% endblock %}
+
+{% block body %}
+<a href="{{ url_for('clients.clientsHome') }}" class="btn">Atrás</a>
+
+<h1>Generar un reporte sobre las máquinas</h1>
+<h1>Usuario: {{current_user.fullname}} {{current_user.id}}</h1>
+
+<form method="POST">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group">
+        <label for="order_id">Selecciona una máquina:</label>
+        <select name="order_id" class="form-control">
+            {% for order_id in order_ids %}
+            <option value="{{ order_id }}">{{ order_id }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="description">Descripción de la falla:</label>
+        <textarea name="description" class="form-control" rows="4"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar Reporte</button>
+</form>
+
+{% endblock %}

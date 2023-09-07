@@ -164,10 +164,10 @@ body {
 
 .inicio {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 15px;
+    left: 15px;
     padding: 12px; 
-    background-color: #293033; 
+    background-color: #353d41; 
     color: #e3f3ff; 
     border-radius: 10px;
     

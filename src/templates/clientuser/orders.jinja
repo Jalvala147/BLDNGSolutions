@@ -1,0 +1,41 @@
+{% extends './base.html' %}
+
+{% block title%}Pedidos{% endblock %}
+
+
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/clientuser/clientuser.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+{% endblock %}
+
+
+{% block body %}
+
+<a href="{{ url_for('clients.clientsHome') }}" class="btn btn-primary">Atrás</a>
+
+<h1>Tus pedidos</h1>
+
+<table class="table1">
+    <tr>
+        <th>Pedido</th>
+        <th>Fecha del pedido</th>
+        <th>Total</th>
+        <th>Información completa</th>
+    </tr>
+    {% for order in orders_data %}
+    <tr>
+        <td>{{ order[0] }}</td>
+        <td>{{ order[1] }}</td>
+        <td>${{ order[2] }}</td>
+        <td><a href="{{ url_for('clients.information', id_order=order[0]) }}" target="_blank"><span
+                    class="material-symbols-rounded">
+                    info
+                </span></a></td>
+
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
