@@ -11,17 +11,14 @@
 {% endblock %}
 
 {% block body %}
-<a href="{{ url_for('sales_emp_area') }}" class="btn">Atras</a>
+<a href="{{ url_for('salesemp.rentsList') }}" class="btn">Atras</a>
 
-<h1>Pagina de Rentas</h1>
-
-<a href="{{ url_for('salesemp.completedOrders') }}" class="btn">Pedidos completados</a>
+<h1>Pedidos completados</h1>
 
 <table class="table1">
     <tr>
         <th>No. de orden</th>
         <th>Detalles</th>
-        <th>Marcar como completada</th>
     </tr>
     {% for order_id in order_ids %}
     <tr>
@@ -32,28 +29,10 @@
                     </span></button>
             </a>
         </td>
-        <td>
-            <a class="mark-as-completed" href="#"
-                data-href="{{ url_for('salesemp.orderCompleted', order_id=order_id[0]) }}">
-                <button class="orange-button"><span class="material-symbols-rounded">how_to_reg</span></button>
-            </a>
-        </td>
-
-
         {% endfor %}
 </table>
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $(".mark-as-completed").click(function () {
-            if (confirm("¿Está seguro de que desea marcar este pedido como completado? Esta acción no se puede deshacer.")) {
-                // User clicked "OK," proceed with marking as completed
-                window.location.href = $(this).attr('data-href');
-            }
-        });
-    });
-</script>
 
 {% endblock %}

@@ -7,6 +7,23 @@ from flask_wtf.csrf import CSRFProtect
 from flask import request
 from flask import Flask
 from flask_login import login_required
+#import pandas as pd
+
+import numpy as np
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
+
+
+from sklearn.linear_model import LinearRegression
+
+import plotly.graph_objs as go
+import plotly.offline as opy
+
+import plotly.express as px
+import pandas as pd
+import numpy as np
+
 admin = Flask(__name__)
 mysql = MySQL()
 
@@ -36,12 +53,61 @@ def accesscontrol():
 
 
 
+#-------------------------------------------------
+
+@admin.route('/administration/projectionsResults')
+def projectionsResults():
+
+    return render_template('administration/stats/projectionsResults.jinja')
 
 
+@admin.route('/administration/profitsProjections')
+def profitsProjections():
+    # Generar datos de ejemplo
+    np.random.seed(0)
+    X = 2 * np.random.rand(100, 1)
+    y = 4 + 3 * X + np.random.rand(100, 1)
+
+    # Crear un modelo de regresión lineal
+    model = LinearRegression()
+    model.fit(X, y)
+
+    # Preparar datos para la gráfica
+    df = pd.DataFrame({'X': X.squeeze(), 'y': y.squeeze()})
+    df['y_pred'] = model.predict(X)
+
+    # Crear una gráfica interactiva con Plotly Express
+    fig = px.scatter(df, x='X', y='y', title='Regresión Lineal')
+    fig.add_scatter(x=df['X'], y=df['y_pred'], mode='lines', name='Regresión Lineal')
+
+    # Convertir la figura de Plotly a HTML
+    graph_html = fig.to_html(full_html=False)
+    # Renderiza la plantilla Jinja2 con la gráfica incrustada
+    return render_template('administration/stats/profitsProjections.jinja', graph_html=graph_html)
 
 
+@admin.route('/administration/profitsResults')
+def profitsResults():
+    return render_template('administration/stats/profitsResults.jinja')
 
 
+@admin.route('/administration/lossResults')
+def lossResults():
+    return render_template('administration/stats/lossResults.jinja')
+
+@admin.route('/administration/lossProjections')
+def lossProjections():
+    return render_template('administration/stats/lossProjections.jinja')
+
+
+@admin.route('/administration/profitabilityProjections')
+def profitabilityProjections():
+    return render_template('administration/stats/profitabilityProjections.jinja')
+
+
+@admin.route('/administration/profitabilityResults')
+def profitabilityResults():
+    return render_template('administration/stats/profitabilityResults.jinja')
 
 
 

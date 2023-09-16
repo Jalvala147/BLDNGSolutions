@@ -9,7 +9,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, li {
 body {
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
-    background: linear-gradient(to right, #444654, #282930);
+    background: linear-gradient(to right, #33353f, #444654);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,7 +18,7 @@ body {
 
 /* Container Styles */
 .container {
-    max-width: 930px;
+    max-width: 1500px;
     width: 100%;
     background: rgba(255, 255, 255, .5);
     padding: 2rem;
@@ -70,7 +70,7 @@ h1 {
 /* Button Styles */
 .btn {
     display: inline-block;
-    background-color: rgb(143, 92, 158);
+    background-color: rgb(171, 37, 212);
     color: white;
     padding: 0.8rem 1.5rem;
     border-radius: 100px;
@@ -83,17 +83,13 @@ h1 {
 }
 
 .btn:hover {
-    background-color: rgba(36, 35, 35, 0.85);
+    background-color: rgba(0, 0, 0, 0.85);
 }
 
-/* Additional Styles */
-.back {
-    margin-bottom: 1.5rem;
-}
-
-.custom-button {
+/* Add Machine Button Styles */
+.add-machine-btn {
     display: block;
-    background-color: rgb(143, 92, 158);
+    background-color: rgb(46, 106, 236);
     color: white;
     padding: 0.8rem 1.5rem;
     border-radius: 100px;
@@ -101,55 +97,9 @@ h1 {
     text-transform: uppercase;
     letter-spacing: 2px;
     text-decoration: none;
-    margin: 0 auto; /* Centrado horizontal */
+    margin-bottom: 1.5rem;
 }
 
-.custom-button:hover {
-    background-color: rgba(53, 52, 52, 0.85);
-}
-
-.drop-box {
-    border: 2px dashed rgba(0, 0, 0, 0.3);
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.drop-box.dragover {
-    border-color: rgba(0, 0, 0, 0.7);
-}
-
-.file-input {
-    display: none;
-}
-
-.file-input-label {
-    background-color: rgb(143, 92, 158);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 100px;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-}
-
-#selected-file {
-    margin-top: 1rem;
-    font-weight: bold;
-}
-
-/* Additional Styling for Flash Messages */
-.alert {
-    background-color: #28a745;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    text-align: center;
-    margin-bottom: 1rem;
+.add-machine-btn:hover {
+    background-color: rgba(0, 0, 0, 0.85);
 }

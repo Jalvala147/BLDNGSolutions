@@ -12,8 +12,31 @@
     --clr: linear-gradient(to right, #444654, #282930);
 }
 
+.user {
+    text-align: center; 
+    position: relative; 
+    height: 100vh; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
+    top: 0px;
+}
+
+.user-content {
+    position: absolute;
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    text-align: center; 
+}
+
+h1 {
+    margin: 20px 0; 
+    color: rgb(200, 161, 245)
+}
+
 h2, h3{
-    color: rgb(255, 255, 255)
+    color: rgb(200, 161, 245)
 }
 .logo{
     margin: 50;

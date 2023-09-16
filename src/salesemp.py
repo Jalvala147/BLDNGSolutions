@@ -48,16 +48,17 @@ def salesList():
     # Pasa los datos a la plantilla salesList.jinja para mostrarlos en la tabla
     return render_template('/salesEmpArea/salesList.jinja', pedidos=pedidos)
 
+
 #Listado de rentas
 @salesemp.route('/salesEmpArea/rentsList')   
 def rentsList():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id FROM orders")
+    cur.execute("SELECT id FROM orders WHERE status = 1")
     orders_ids = cur.fetchall()
     cur.close
     return render_template('/salesEmpArea/rentsList.jinja', order_ids=orders_ids)
 
-
+#---------------Mostrar toda la informacion de las tablas orders y machineorders---------
 @salesemp.route('/salesEmpArea/rentsDetails/<int:order_id>')
 def orderDetails(order_id):
     cur = mysql.connection.cursor()
@@ -74,43 +75,72 @@ def orderDetails(order_id):
     """
     cur.execute(query, (order_id,))
     order_details = cur.fetchone()
+
+    # Consulta para obtener la información de la tabla "orders" relacionada con el order_id
+    order_info_query = """
+    SELECT address, postalCode, rfc, phoneNumber, paymentMethod
+    FROM orders
+    WHERE id = %s
+    """
+    cur.execute(order_info_query, (order_id,))
+    order_info = cur.fetchone()
     cur.close()
 
     # Separar las semanas y precios en listas
     weeks = order_details[4].split(',')
     prices = order_details[5].split(',')
 
-    return render_template('/salesEmpArea/rentsDetails.jinja', order_id=order_id, order_details=order_details, weeks=weeks, prices=prices)
+    return render_template('/salesEmpArea/rentsDetails.jinja', order_id=order_id, order_details=order_details, weeks=weeks, prices=prices, order_info=order_info)
+
+#---------------Detalles editables--------------------
+
+@salesemp.route('/salesEmpArea/actualizarOrden/<int:order_id>', methods=['POST'])
+def actualizarOrden(order_id):
+    if request.method == 'POST':
+        new_address = request.form['address']
+        new_postalCode = request.form['postalCode']
+        new_rfc = request.form['rfc']
+        new_phoneNumber = request.form['phoneNumber']
+        new_paymentMethod = request.form['paymentMethod']
+
+        # Realiza una consulta SQL para actualizar la información en la base de datos
+        cur = mysql.connection.cursor()
+        update_query = """
+        UPDATE orders
+        SET address = %s, postalCode = %s, rfc = %s, phoneNumber = %s, paymentMethod = %s
+        WHERE id = %s
+        """
+        cur.execute(update_query, (new_address, new_postalCode, new_rfc, new_phoneNumber, new_paymentMethod, order_id))
+        mysql.connection.commit()
+        cur.close()
+
+        # Redirecciona a la página de detalles actualizada
+        return redirect(url_for('salesemp.orderDetails', order_id=order_id))
 
 
 
-
+#Cambio de estado cuando se marque como completada una orden
 @salesemp.route('/salesEmpArea/orderCompleted/<int:order_id>')
 def orderCompleted(order_id):
     cur = mysql.connection.cursor()
     
-    try:
-        # borrar los registros hijos
-        delete_machineorders_query = "DELETE FROM machineorders WHERE order_id = %s"
-        cur.execute(delete_machineorders_query, (order_id,))
-        mysql.connection.commit()
-        
-        # despues los padres
-        delete_order_query = "DELETE FROM orders WHERE id = %s"
-        cur.execute(delete_order_query, (order_id,))
-        mysql.connection.commit()
-        
-        cur.close()
-        
-        
-        return redirect(url_for('salesemp.rentsList'))
-    except Exception as e:
-        
-        print(f"Error deleting order: {str(e)}")
-        mysql.connection.rollback()  # Rollback the transaction
-        cur.close()
-        # Redirect or display an error message to the user
-        return redirect(url_for('salesemp.rentsList')) 
+    # Actualizar el estado a 0
+    update_order_query = "UPDATE orders SET status = 0 WHERE id = %s"
+    cur.execute(update_order_query, (order_id,))
+    mysql.connection.commit()
+    
+    cur.close()
+    
+    return redirect(url_for('salesemp.rentsList'))
+
+#Listar los pedidos completados (con el status cambiado)
+@salesemp.route('/salesEmpArea/completedOrders')   
+def completedOrders():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id FROM orders WHERE status = 0")
+    orders_ids = cur.fetchall()
+    cur.close
+    return render_template('/salesEmpArea/completedOrders.jinja', order_ids=orders_ids)
 
 
 
@@ -149,7 +179,7 @@ def view_file(filename):
 def uploaded_documents(user_id):
     # Realizar la consulta para obtener los documentos del usuario con el ID proporcionado
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, filename FROM files WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT id, filename, status FROM files WHERE user_id = %s", (user_id,))
     documents = cur.fetchall()
     cur.close()
 
@@ -163,13 +193,13 @@ def uploaded_documents(user_id):
 def mark_as_completed(file_id, user_id):
     # Actualiza el estado en la base de datos a completado (1)
     cur = mysql.connection.cursor()
-    cur.execute("UPDATE files SET estado = 1 WHERE id = %s AND user_id = %s", (file_id, user_id))
+    cur.execute("UPDATE files SET status = 1 WHERE id = %s AND user_id = %s", (file_id, user_id))
     mysql.connection.commit()
     cur.close()
 
     # Obtén los documentos actualizados del mismo ID de usuario
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, filename, estado FROM files WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT id, filename, status FROM files WHERE user_id = %s", (user_id,))
     documents = cur.fetchall()
     cur.close()
 
@@ -180,13 +210,13 @@ def mark_as_completed(file_id, user_id):
 def mark_as_incomplete(file_id, user_id):
     # Actualiza el estado en la base de datos a incompleto (0)
     cur = mysql.connection.cursor()
-    cur.execute("UPDATE files SET estado = 0 WHERE id = %s AND user_id = %s", (file_id, user_id))
+    cur.execute("UPDATE files SET status = 0 WHERE id = %s AND user_id = %s", (file_id, user_id))
     mysql.connection.commit()
     cur.close()
 
     # Obtén los documentos actualizados del mismo ID de usuario
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, filename, estado FROM files WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT id, filename, status FROM files WHERE user_id = %s", (user_id,))
     documents = cur.fetchall()
     cur.close()
 
@@ -217,17 +247,31 @@ def clientsList():
 def newRequest():
     cur = mysql.connection.cursor()
 
-    # Ejecuta la consulta para obtener los registros de la tabla machinesorders
-    cur.execute("SELECT id_order, clientUser_id, price, type FROM machinesorders")
+    # Joins
+    cur.execute("""
+        SELECT orders.id AS 'NO. DE SOLICITUD',
+               user.fullname AS 'SOLICITANTE',
+               user.email AS 'CORREO',
+               GROUP_CONCAT(CONCAT(machines.brand, ' ', machines.model) ORDER BY machineorders.machine_id) AS 'MAQUINAS'
+        FROM orders
+        INNER JOIN user ON orders.ClientUser_id = user.id
+        INNER JOIN machineorders ON orders.id = machineorders.order_id
+        INNER JOIN machines ON machineorders.machine_id = machines.id_Machine
+        WHERE orders.status = 1
+        GROUP BY orders.id, user.fullname, user.email
+    """)
 
-    # Obtén todos los resultados de la consulta
-    orders = cur.fetchall()
+    # Fetch all the results of the query
+    orders_data = cur.fetchall()
 
-    # Cierra el cursor
+    # Close the cursor
     cur.close()
 
-    # Pasa los resultados a la plantilla newRequest.jinja y renderízala
-    return render_template('salesEmpArea/newRequest.jinja', orders=orders)
+    # Pass the results to the template newRequest.jinja and render it
+    return render_template('salesEmpArea/newRequest.jinja', orders=orders_data)
+
+
+
 
 
 
@@ -253,3 +297,68 @@ def update_type(id_order):
 
 #-----------------------------------------------------------
 
+@salesemp.route('/salesEmpArea/prospects')   
+def prospects():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id_Prospect, fullname, number, email FROM prospects")
+    prospects = cur.fetchall()
+    cur.close()
+
+    return render_template('salesEmpArea/prospects.jinja', prospects=prospects)
+
+@salesemp.route('/salesEmpArea/prospects/add', methods=['GET', 'POST'])
+def add_prospect():
+    if request.method == 'POST':
+        # Get form data
+        fullname = request.form['fullname']
+        number = request.form['number']
+        email = request.form['email']
+
+        # Insert a new prospect into the database
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO prospects (fullname, number, email) VALUES (%s, %s, %s)", (fullname, number, email))
+        mysql.connection.commit()
+        cur.close()
+
+        # Redirect to the prospects page after adding the prospect
+        return redirect(url_for('salesemp.prospects'))
+    else:
+        # Display the form for adding a new prospect
+        return render_template('salesEmpArea/prospects/add_prospect.jinja')
+    
+@salesemp.route('/salesEmpArea/prospects/edit/<int:prospect_id>', methods=['GET', 'POST'])
+def edit_prospect(prospect_id):
+    if request.method == 'POST':
+        # Get form data
+        fullname = request.form['fullname']
+        number = request.form['number']
+        email = request.form['email']
+
+        # Update the prospect in the database
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE prospects SET fullname = %s, number = %s, email = %s WHERE id_Prospect = %s", (fullname, number, email, prospect_id))
+        mysql.connection.commit()
+        cur.close()
+
+        # Redirect to the prospects page after editing the prospect
+        return redirect(url_for('salesemp.prospects'))
+    else:
+        # Fetch the current prospect details from the database
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id_Prospect, fullname, number, email FROM prospects WHERE id_Prospect = %s", (prospect_id,))
+        prospect_details = cur.fetchone()
+        cur.close()
+
+        # Display the edit form with the current prospect details
+        return render_template('salesEmpArea/prospects/edit_prospect.jinja', prospect=prospect_details)
+
+@salesemp.route('/salesEmpArea/prospects/delete/<int:prospect_id>', methods=['POST'])
+def delete_prospect(prospect_id):
+    # Delete the prospect from the database
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM prospects WHERE id_Prospect = %s", (prospect_id,))
+    mysql.connection.commit()
+    cur.close()
+
+    # Redirect to the prospects page after deleting the prospect
+    return redirect(url_for('salesemp.prospects'))

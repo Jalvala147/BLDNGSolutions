@@ -1,0 +1,54 @@
+{% extends './base.html' %}
+
+{% block title %}Rentas{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+{% endblock %}
+
+{% block body %}
+<a href="{{ url_for('administrationindex') }}" class="btn">Atrás</a>
+
+
+<h1>Ganancias</h1>
+
+<a href="{{ url_for('admin.profitsProjections') }}">
+    <button>
+        Proyecciones
+    </button>
+</a>
+
+<a href="{{ url_for('admin.profitsResults') }}">
+    <button>
+        Resultados
+    </button>
+</a>
+
+<h1>Pérdidas</h1>
+<a href="{{ url_for('admin.lossProjections') }}">
+    <button>
+        Proyecciones
+    </button>
+</a>
+
+<a href="{{ url_for('admin.lossResults') }}">
+    <button>
+        Resultados
+    </button>
+</a>
+
+<h1>Rentabilidad</h1>
+<a href="{{ url_for('admin.profitabilityProjections') }}">
+    <button>
+        Proyecciones
+    </button>
+</a>
+
+<a href="{{ url_for('admin.profitabilityResults') }}">
+    <button>
+        Resultados
+    </button>
+</a>
+
+
+{% endblock %}

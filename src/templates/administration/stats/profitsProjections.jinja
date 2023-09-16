@@ -1,0 +1,18 @@
+{% extends './base.html' %}
+
+{% block title %}Rentas{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+
+{% block body %}
+<a href="{{ url_for('admin.projectionsResults') }}" class="btn">Atrás</a>
+
+
+    <h1>Regresión Lineal con Plotly</h1>
+    <div id="plot"></div>
+    {{ graph_html | safe }}
+
+{% endblock %}

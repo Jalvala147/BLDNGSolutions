@@ -408,7 +408,6 @@ def protected():
 
 
 
-
 #-----------------Rutas para paginas de Administradores---------------------------
 @app.route('/administration/administrationindex')   
 def administrationindex():
@@ -450,9 +449,7 @@ def clientsList():
 def newRequest():
     return render_template('/sales/newRequest.jinja')
     
-@app.route('/salesEmpArea/prospects')   
-def prospects():
-    return render_template('templates/sales/prospects.jinja')
+
     
 @app.route('/rents')   
 def rents():
