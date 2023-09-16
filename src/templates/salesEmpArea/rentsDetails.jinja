@@ -9,7 +9,7 @@
 {% block body %}
 <a href="{{ url_for('salesemp.rentsList') }}" class="btn">Atrás</a>
 
-<h1>Detalles del pedido</h1>
+<h1>Detalles del pedido {{ order_id }}</h1>
 
 <table class="table1">
     <tr>
@@ -43,7 +43,7 @@
     {% for i in range(0, machines|length) %}
     <tr>
         <td>
-            {{ machines[i] |upper}}<br>
+            {{ machines[i] | upper }}<br>
         </td>
         <td>
             {{ weeks[i] }}<br>
@@ -55,7 +55,47 @@
     {% endfor %}
 </table>
 
+<form method="POST" action="{{ url_for('salesemp.actualizarOrden', order_id=order_id) }}">
+    <table class="table1">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <thead>
+            <tr>
+                <th>Domicilio</th>
+                <th>Codigo postal</th>
+                <th>RFC</th>
+                <th>Numero de telefono</th>
+                <th>Método de Pago</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="text" name="address" value="{{ order_info[0] }}"></td>
+                <td><input type="text" name="postalCode" value="{{ order_info[1] }}"></td>
+                <td><input type="text" name="rfc" value="{{ order_info[2] }}"></td>
+                <td><input type="text" name="phoneNumber" value="{{ order_info[3] }}"></td>
+                <td><input type="text" name="paymentMethod" value="{{ order_info[4] }}"></td>
+                <td><button type="submit">Actualizar</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <input type="hidden" name="order_id" value="{{ order_id }}">
+</form>
+
+
+<script>
+    function confirmarActualizacion() {
+        var confirmacion = confirm("¿Seguro que deseas actualizar la información?");
+
+        if (confirmacion) {
+            // Si el usuario hace clic en "Aceptar", envía el formulario
+            document.querySelector('form').submit();
+        } else {
+            // Si el usuario hace clic en "Cancelar", no hace nada
+        }
+    }
+</script>
+
+
+
 {% endblock %}
-
-
-

@@ -18,24 +18,24 @@
 <table class="table1">
     <tr>
         <th>Documentos</th>
-        <th>ID</th>
+        <th>Numero de usuario</th>
         <th>Nombre de usuario</th>
         <th>Nombre completo</th>
         <th>Correo electrónico</th>
-        <th>Eliminar</th>
+        {# <th>Eliminar</th> #}
         <th>Avisar a almacén</th>
     </tr>
     {% for user in users %}
     <tr>
-        <td><a href="{{ url_for('salesemp.uploaded_documents', user_id=user[0]) }}"><button>View uploaded files</button></a></td>
+        <td><a href="{{ url_for('salesemp.uploaded_documents', user_id=user[0]) }}"><button>Ver documentos subidos</button></a></td>
         <td>{{ user[0] }}</td>
         <td>{{ user[1] }}</td>
         <td>{{ user[2] }}</td>
         <td>{{ user[3] }}</td>
-        <td><a href="">
+        {# <td><a href="">
             <input type="hidden" name="_method" value="DELETE">
             <span class="material-symbols-rounded" data-symbol="delete"></span></a>
-        </td>
+        </td> #}
         <td><button>Notificar</button></td>
     </tr>
     {% endfor %}

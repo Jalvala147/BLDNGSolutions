@@ -11,6 +11,8 @@ from flask import redirect
 import math
 import json
 
+
+
 app = Flask(__name__)
 mysql = MySQL()
 mail = Mail(app)
@@ -40,15 +42,8 @@ def clientsHome():
 @clients.route('/docs', methods=['GET', 'POST'])
 @login_required
 def docs():
-    # Obtener el tamaño máximo permitido en bytes
-    cur = mysql.connection.cursor()
-    cur.execute("SHOW VARIABLES LIKE 'max_allowed_packet'")
-    result = cur.fetchone()
-    max_size_bytes = int(result[1])
-    cur.close()
-
-    # Calcular el tamaño máximo en KB
-    max_size_kb = math.ceil(max_size_bytes / 1024)
+    # Obtener el ID del usuario actualmente autenticado
+    user_id = current_user.id
 
     if request.method == 'POST':
         file = request.files['file']
@@ -59,21 +54,56 @@ def docs():
             # Obtener el nombre del archivo
             filename = file.filename
 
-            # Obtener el ID del usuario actualmente autenticado
-            user_id = current_user.id
-
             # Guardar el contenido y el nombre del archivo en la base de datos
             cur = mysql.connection.cursor()
-            cur.execute("INSERT INTO files (user_id, filename, file_data) VALUES (%s, %s, %s)",
-                        (user_id, filename, file_data))
+            cur.execute("INSERT INTO files (user_id, filename, file_data, status) VALUES (%s, %s, %s, %s)",
+                        (user_id, filename, file_data, 0))  # Establece el estado como 1 para "Valido"
             mysql.connection.commit()
             cur.close()
 
             flash('Archivo cargado correctamente ✔️')
             return redirect(url_for('clients.docs'))
 
-    return render_template('/clientuser/docs.jinja', max_size_kb=max_size_kb)
-    
+    # Realizar la consulta para obtener los documentos del usuario con el ID proporcionado
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, filename, status FROM files WHERE user_id = %s", (user_id,))
+    documents = cur.fetchall()
+    cur.close()
+
+    # Obtener el tamaño máximo permitido en bytes
+    cur = mysql.connection.cursor()
+    cur.execute("SHOW VARIABLES LIKE 'max_allowed_packet'")
+    result = cur.fetchone()
+    max_size_bytes = int(result[1])
+    cur.close()
+
+    # Calcular el tamaño máximo en KB
+    max_size_kb = math.ceil(max_size_bytes / 1024)
+
+    return render_template('/clientuser/docs.jinja', max_size_kb=max_size_kb, user_id=user_id, documents=documents)   
+
+@clients.route('/delete_document/<int:document_id>', methods=['GET', 'POST'])
+@login_required
+def delete_document(document_id):
+    # Verificar si el documento existe y pertenece al usuario actual
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, filename FROM files WHERE id = %s AND user_id = %s", (document_id, current_user.id))
+    document = cur.fetchone()
+
+    if document:
+        # Eliminar el documento de la base de datos
+        cur.execute("DELETE FROM files WHERE id = %s", (document_id,))
+        mysql.connection.commit()
+        cur.close()
+
+        flash('Documento eliminado correctamente ✔️')
+    else:
+        flash('Documento no encontrado o no tienes permiso para eliminarlo ❌', 'error')
+
+    return redirect(url_for('clients.docs'))
+
+
+
 @clients.route('/orders')
 def orders():
     user_id = current_user.id
@@ -104,10 +134,20 @@ def information(id_order):
     # Obtiene los resultados de la consulta
     order_items = cur.fetchall()
 
-    # Consulta para obtener el total del pedido desde la tabla orders
-    cur.execute("SELECT total FROM orders WHERE id = %s", (id_order,))
-    total_result = cur.fetchone()
-    total = total_result[0] if total_result else 0
+    # Consulta para obtener los detalles del pedido desde la tabla orders, incluyendo la dirección de envío concatenada y el método de pago
+    cur.execute("""
+    SELECT o.total, u.fullname AS client_name, o.rfc, CONCAT(o.address, ', ', o.postalCode) AS delivery_address, o.paymentMethod AS payment_method
+    FROM orders o
+    INNER JOIN user u ON o.clientUser_id = u.id
+    WHERE o.id = %s
+    """, (id_order,))
+    
+    order_info = cur.fetchone()
+    total = order_info[0] if order_info else 0
+    client_name = order_info[1] if order_info else ""
+    rfc = order_info[2] if order_info else ""
+    delivery_address = order_info[3] if order_info else ""
+    payment_method = order_info[4] if order_info else ""
 
     # Consulta para obtener los nombres de las máquinas
     machine_names = []
@@ -124,15 +164,17 @@ def information(id_order):
     # Cierra el cursor
     cur.close()
 
-    return render_template('/clientuser/information.jinja', id_order=id_order, order_items=order_items, total=total, machine_names=machine_names)
+    return render_template('/clientuser/information.jinja', id_order=id_order, order_items=order_items, total=total, client_name=client_name, rfc=rfc, delivery_address=delivery_address, payment_method=payment_method, machine_names=machine_names)
 
 
-
-    
+#-----------------------------------------------------------
 @clients.route('/payments')   
 def payments():
+
     return render_template('/clientuser/payments.jinja')
     
+
+
 @clients.route('/clientuser/statusprogress')   
 def statusprogress():
     return render_template('/clientuser/statusprogress.jinja')

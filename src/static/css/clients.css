@@ -140,7 +140,7 @@ body
     height: 70px;
     background: #ddcfcf;
     border-radius: 50%;
-    border: 6px solid var(--clr);
+    border: 6px solid #33353f;
     transition: 0.5s;
 }
 .indicator::before

@@ -29,10 +29,32 @@
 </table>
 
 
-<h1>Enviar a: </h1>
-<h1>Direccion de envio: </h1>
-<h1>Método de pago</h1>
-<h1>Total del pedido: {{ total }}</h1>
+<table class="table1">
+    <tr>
+        <th>Enviar a:</th>
+        <td>{{ client_name }}</td>
+    </tr>
+    <tr>
+        <th>RFC:</th>
+        <td>{{ rfc }}</td>
+    </tr>
+    <tr>
+    <th>Número de teléfono:</th>
+        <td>{{ phone_number }}</td>
+    </tr>
+    <tr>
+        <th>Dirección de envío:</th>
+        <td>{{ delivery_address }}</td>
+    </tr>
+    <tr>
+        <th>Método de pago:</th>
+        <td>{{ payment_method }}</td>
+    </tr>
+    <tr>
+        <th>Total del pedido:</th>
+        <td>{{ total }}</td>
+    </tr>
+</table>
+
 
 {% endblock %}
-

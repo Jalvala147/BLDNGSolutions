@@ -168,10 +168,6 @@ def update_machine(machine_id):
         # Redirect back to the machine list page
         return redirect(url_for('storageemp.stoMachines'))
 
-    # # If it's a GET request, fetch the machine data for the form pre-population
-    # cursor.execute("SELECT id_Machine, model, brand, type, status FROM machines WHERE id_Machine=%s", (machine_id,))
-    # machine_data = cursor.fetchone()
-    # cursor.close()
 
     # If it's a GET request, fetch the machine data for the form pre-population
     cursor.execute("SELECT id_Machine, model, brand, type FROM machines WHERE id_Machine=%s", (machine_id,))

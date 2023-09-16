@@ -1,0 +1,29 @@
+{% extends './base.html' %}
+
+{% block title %}Actualizar Máquina{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/crud/edit.css')}}">
+{% endblock %}
+
+{% block body %}
+<a href="{{ url_for('salesemp.prospects') }}" class="btn btn-primary">Atras</a>
+
+<div class="container">
+
+    <h1>Editar prospecto</h1>
+
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="fullname">Nombre:</label>
+        <input type="text" id="fullname" name="fullname" value="{{ prospect[1] }}" required>
+        <label for="number">Telefono:</label>
+        <input type="text" id="number" name="number" value="{{ prospect[2] }}" required>
+        <label for="email">Correo Electrónico:</label>
+        <input type="text" id="email" name="email" value="{{ prospect[3] }}" required>
+        <button type="submit">Guardar cambios</button>
+    </form>
+
+</div>
+
+{% endblock %}
