@@ -14,7 +14,8 @@
 <a href="{{ url_for('salesemp.clientsList') }}" class="btn btn-primary">Atrás</a>
 <div class="container">
   <h1>Documentos</h1>
-  <h2>Nota: solo se pueden visualizar documentos pdf en el navegador, si el archivo tiene otra extensión como .docx favor de descargarlo</h2>
+  <h2>Nota: solo se pueden visualizar documentos pdf en el navegador, si el archivo tiene otra extensión como .docx
+    favor de descargarlo</h2>
   <table class="table1">
     <thead>
       <tr>
@@ -72,12 +73,49 @@
     </tbody>
   </table>
 
+  <div id="validation-message"
+    style="display: none; background-color: #4CAF50; color: white; padding: 10px; border-radius: 10px;">
+    Todos los documentos han sido validados, favor de marcar el botón de documentos validados del listado de pedidos.
+  </div>
+
 </div>
+
+
+
 
 <script>
   function confirmDownload() {
     return confirm("¿Quieres descargar este documento?");
   }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // Función para verificar si todas las filas tienen "Valido" en la columna "Estado"
+    function checkValidationStatus() {
+      var rows = document.querySelectorAll(".table1 tbody tr");
+      var allValid = true;
+      for (var i = 0; i < rows.length; i++) {
+        var cell = rows[i].querySelector("td:last-child");
+        if (cell.innerText.trim() !== "Valido") {
+          allValid = false;
+          break;
+        }
+      }
+
+      // Mostrar el mensaje si todas las filas son válidas
+      var validationMessage = document.getElementById("validation-message");
+      if (allValid) {
+        validationMessage.style.display = "block";
+      } else {
+        validationMessage.style.display = "none";
+      }
+    }
+
+    // Llama a la función al cargar la página y cada vez que se realice un cambio en las filas
+    checkValidationStatus();
+    var tableBody = document.querySelector(".table1 tbody");
+    tableBody.addEventListener("change", checkValidationStatus);
+  });
+
 </script>
 
 

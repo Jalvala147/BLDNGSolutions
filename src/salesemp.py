@@ -58,6 +58,38 @@ def rentsList():
     cur.close
     return render_template('/salesEmpArea/rentsList.jinja', order_ids=orders_ids)
 
+
+#Funcion para actualizar el campo verifiedDocs cuando el empleado haya verificado los documentos
+@salesemp.route('/salesEmpArea/updateVerifiedDocs/<int:order_id>')
+def update_verified_docs(order_id):
+    try:
+        cur = mysql.connection.cursor()
+        # Actualiza el campo verifiedDocs a 1 para la orden con el ID especificado
+        cur.execute("UPDATE orders SET verifiedDocs = 1 WHERE id = %s", (order_id,))
+        mysql.connection.commit()
+        cur.close()
+        flash("Documentos verificados con éxito.", "success")  
+        return redirect(url_for('salesemp.rentsList'))  
+    except Exception as e:
+        flash("Error al verificar los documentos.", "error")  
+        return redirect(url_for('salesemp.rentsList'))
+
+#Funcion para actualizar el campo paymentMade a 1 cuando el empleado haya verificado que el pago fue recibido
+@salesemp.route('/salesEmpArea/updatePaymentMade/<int:order_id>')
+def update_payment_made(order_id):
+    try:
+        cur = mysql.connection.cursor()
+        # Actualiza el campo paymentMade a 1 para la orden con el ID especificado
+        cur.execute("UPDATE orders SET paymentMade = 1 WHERE id = %s", (order_id,))
+        mysql.connection.commit()
+        cur.close()
+        flash("Pago registrado con éxito.", "success")  
+        return redirect(url_for('salesemp.rentsList'))  
+    except Exception as e:
+        flash("Error al registrar el pago.", "error")  
+        return redirect(url_for('salesemp.rentsList'))
+
+
 #---------------Mostrar toda la informacion de las tablas orders y machineorders---------
 @salesemp.route('/salesEmpArea/rentsDetails/<int:order_id>')
 def orderDetails(order_id):
@@ -142,9 +174,40 @@ def completedOrders():
     cur.close
     return render_template('/salesEmpArea/completedOrders.jinja', order_ids=orders_ids)
 
+#---------
 
 
-#------------------------------Guardado de archivos------------------------
+@salesemp.route('/salesEmpArea/autoProgress/<int:order_id>')
+def auto_progress(order_id):
+    try:
+        # Consulta la base de datos para obtener el valor de verifiedDocs y paymentMade para la orden actual
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT verifiedDocs, paymentMade FROM orders WHERE id = %s", (order_id,))
+        result = cur.fetchone()
+        cur.close()
+
+        # Verifica los valores de verifiedDocs y paymentMade
+        verified_docs = result[0]
+        payment_made = result[1]
+
+        # Determina el nuevo valor de currentStep en función de los valores en la base de datos
+        currentStep = 1  # Por defecto, el primer círculo está activo
+
+        if verified_docs == 1:
+            currentStep = 2  # Si verifiedDocs es 1, avanza al segundo círculo
+
+        if payment_made == 1:
+            currentStep = 3  # Si paymentMade es 1, avanza al tercer círculo
+
+        # Renderiza la plantilla HTML con el nuevo valor de currentStep
+        return render_template('/clientuser/statusprogress.jinja', currentStep=currentStep)
+
+    except Exception as e:
+        # Maneja cualquier error que pueda ocurrir durante la consulta
+        flash("Error al obtener información de la base de datos.", "error")
+        return redirect(url_for('salesemp.rentsList'))
+
+#------------------------------Guardado de archivos-----------------ppo-------
 @salesemp.route('/download_file/<filename>')
 def download_file(filename):
     # Obtén el archivo blob de la base de datos

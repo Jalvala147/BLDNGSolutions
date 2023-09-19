@@ -14,9 +14,15 @@
 
 <h1>Subir documento</h1>
 
-<p>Archivos permitidos: PDF o docx</p>
+<p>Favor de subir los siguientes documentos: </p>
+<ul>
+    <li>Comprobante de domicilio</li>
+    <li>RFC</li>
+    <li>Comprobante de pago indicando el número de pedido</li>
+</ul>
 <p>Tamaño máximo permitido: {{ max_size_kb }} KB</p>
 <p>Si el archivo sobrepasa el tamaño máximo, favor de comprimirlo o segmentarlo</p>
+
 
 {% with messages = get_flashed_messages() %}
 {% if messages %}
