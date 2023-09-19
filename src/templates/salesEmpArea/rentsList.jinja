@@ -11,27 +11,68 @@
 {% endblock %}
 
 {% block body %}
+
 <a href="{{ url_for('sales_emp_area') }}" class="btn">Atras</a>
 
 <h1>Pagina de Rentas</h1>
 
 <a href="{{ url_for('salesemp.completedOrders') }}" class="btn">Pedidos completados</a>
 
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="alert">
+    {% for message in messages %}
+    <p class="flash-message success">{{ message }}</p>
+    {% endfor %}
+</div>
+<script>
+    // Selecciona todos los elementos con la clase flash-message
+    var flashMessages = document.querySelectorAll('.flash-message');
+
+    // Oculta cada mensaje después de 1500 milisegundos (1.5 segundos)
+    flashMessages.forEach(function (message) {
+        setTimeout(function () {
+            message.style.display = 'none';
+        }, 1500);
+    });
+</script>
+{% endif %}
+{% endwith %}
+
 <table class="table1">
     <tr>
         <th>No. de orden</th>
         <th>Detalles</th>
+        <th>Documentos Validos</th>
+        <th>Pago realizado</th>
         <th>Marcar como completada</th>
     </tr>
     {% for order_id in order_ids %}
     <tr>
         <td>{{ order_id[0] }}</td>
         <td><a href="{{ url_for('salesemp.orderDetails', order_id=order_id[0]) }}"><button><span
-                        class="material-symbols-outlined">
+                        class="material-symbols-rounded">
                         info
                     </span></button>
             </a>
         </td>
+        <td>
+            <a href="{{ url_for('salesemp.update_verified_docs', order_id=order_id[0]) }}"
+                onclick="return confirm('¿Estás seguro de que deseas marcar los documentos como verificados? Esta acción permitirá al cliente ver que sus documentos han sido aceptados.')">
+                <button><span class="material-symbols-rounded">task</span></button>
+            </a>
+        </td>
+
+
+        <td>
+            <a href="{{ url_for('salesemp.update_payment_made', order_id=order_id[0]) }}"
+                onclick="return confirm('¿Estás seguro de registrar el pago?, el cliente podrá ver que el pago ya ha sido recibido y verificado');">
+                <button><span class="material-symbols-rounded">attach_money</span></button>
+            </a>
+        </td>
+
+
+
         <td>
             <a class="mark-as-completed" href="#"
                 data-href="{{ url_for('salesemp.orderCompleted', order_id=order_id[0]) }}">
@@ -49,11 +90,21 @@
     $(document).ready(function () {
         $(".mark-as-completed").click(function () {
             if (confirm("¿Está seguro de que desea marcar este pedido como completado? Esta acción no se puede deshacer.")) {
-                // User clicked "OK," proceed with marking as completed
+                
                 window.location.href = $(this).attr('data-href');
             }
         });
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+    var flashMessages = document.getElementById("flash-messages");
+
+    if (flashMessages) {
+        setTimeout(function () {
+            flashMessages.style.display = "none";
+        }, 1500); // Ocultar después de 1.5 segundos (1500 milisegundos)
+    }
+});
 </script>
 
 {% endblock %}

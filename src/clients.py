@@ -8,9 +8,9 @@ from flask import Blueprint
 from flask import request, jsonify
 from flask import Flask, url_for
 from flask import redirect
+#import stripe
 import math
 import json
-
 
 
 app = Flask(__name__)
@@ -22,6 +22,8 @@ clients = Blueprint('clients', __name__)
 
 csrf = CSRFProtect()
 
+app.config['STRIPE_PUBLIC_KEY'] = 'pk_test_51Ns9uVB0WRECsvw4RKybB3WRFOviaJea7AiDaHYrGoPLt08xWU7fS5Q8Dfyr6clI9SimSIsSNZclseD4Oq5Vsjur00L5NDp3cm'
+app.config['STRIPE_SECRET_KEY'] = 'sk_test_51Ns9uVB0WRECsvw4UN0P1pswEObrLOzD1XrNGDTFol3jUKfwJmctLxLBGvC356AScv0w4J86D0k6inGHFlLhj6nz00653AbSdX'
 
 @app.route('/logout')
 def logout():
@@ -29,12 +31,78 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('startpage'))
 
+#------------------------------------------------------------------------------------
+@clients.route('/logout')
+@login_required  # Asegura que el usuario esté autenticado para acceder a la ruta
+def logout():
+    logout_user()  # Cierra la sesión del usuario actual
+    return redirect(url_for('login'))  # Redirecciona al inicio de sesión o a la página principal
 
 #--------------------rutas clientes-----------------------
 @clients.route('/clientsHome')
 @login_required
 def clientsHome():
     return render_template('/clientuser/clientsHome.jinja')
+
+#--------------------------------------------
+@clients.route('/payments', methods=['GET', 'POST'])
+def payments():
+    user_id = current_user.id
+
+    # Consulta las órdenes pendientes para el usuario actual
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, total FROM orders WHERE clientUser_id = %s AND status = 1", (user_id,))
+    orders = cur.fetchall()
+    cur.close()
+
+    return render_template('clientuser/payments.jinja', user_id=user_id, orders=orders)
+    
+
+#----Hacer un reporte a maquina--------
+@clients.route('/clientuser/makereport', methods=['GET', 'POST'])
+def makereport():
+    if request.method == 'POST':
+        # Obtén el ID de la máquina seleccionada del formulario
+        machine_id = request.form.get('machine_id')
+        # Obtén la descripción de la falla del formulario
+        description = request.form.get('description')
+
+        # Inserta los datos en la tabla 'reports' en la base de datos
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO reports (id_userReporting, id_machine, description) VALUES (%s, %s, %s)",
+                    (current_user.id, machine_id, description))
+        mysql.connection.commit()
+        cur.close()
+
+        flash('El reporte se ha enviado correctamente.', 'success')
+
+        # Redirige a la página de inicio o realiza alguna otra acción
+        return redirect(url_for('clients.makereport'))  
+
+    # Obtener todos los 'order_id' de la tabla 'orders' donde 'clientUser_id' coincide con 'current_user.id'
+    cur = mysql.connection.cursor()
+    cur.execute("""
+    SELECT id
+    FROM orders
+    WHERE clientUser_id = %s
+    """, (current_user.id,))
+    order_ids = [row[0] for row in cur.fetchall()]
+    cur.close()
+
+    # Obtén las máquinas únicas correspondientes a los 'order_id'
+    cur = mysql.connection.cursor()
+    cur.execute("""
+    SELECT DISTINCT m.id_Machine, UPPER(m.model), UPPER(m.brand)
+    FROM machines m
+    JOIN machineorders mo ON m.id_Machine = mo.machine_id
+    WHERE mo.order_id IN %s
+    """, (tuple(order_ids),))
+    machine_info = {row[0]: f"{row[2]} - {row[1]}" for row in cur.fetchall()}
+    cur.close()
+
+    return render_template('/clientuser/makereport.jinja', machine_info=machine_info)
+
+
 
 
 #------------------------Subida de archivos necesarios--------------------------
@@ -106,32 +174,23 @@ def delete_document(document_id):
 
 @clients.route('/orders')
 def orders():
+
     user_id = current_user.id
-
-    # Conecta a la base de datos (asegúrate de configurar previamente MySQL en tu aplicación)
     cur = mysql.connection.cursor()
-
-    # Ejecuta la consulta SQL para seleccionar los registros necesarios
+    #tomamos id la fecha y total de los pedidos del usuario actual
     cur.execute("SELECT id, order_date, total FROM orders WHERE clientUser_id = %s", (user_id,))
-
-    # Obtiene los resultados de la consulta
     orders_data = cur.fetchall()
-
-    # Cierra el cursor
     cur.close()
 
-    # Renderiza la plantilla con los datos obtenidos
+    # Renderizar la plantilla con los datos obtenidos
     return render_template('/clientuser/orders.jinja', orders_data=orders_data)
 
 @clients.route('/orders/info/<int:id_order>')
 def information(id_order):
-    # Conecta a la base de datos
+
     cur = mysql.connection.cursor()
-
-    # Ejecuta la consulta SQL para obtener los datos de la tabla machineorders relacionados con el pedido
+    # Consulta SQL para obtener los datos de la tabla machineorders relacionados con el pedido
     cur.execute("SELECT machine_id, weeks, price FROM machineorders WHERE order_id = %s", (id_order,))
-
-    # Obtiene los resultados de la consulta
     order_items = cur.fetchall()
 
     # Consulta para obtener los detalles del pedido desde la tabla orders, incluyendo la dirección de envío concatenada y el método de pago
@@ -168,26 +227,22 @@ def information(id_order):
 
 
 #-----------------------------------------------------------
-@clients.route('/payments')   
-def payments():
-
-    return render_template('/clientuser/payments.jinja')
-    
 
 
-@clients.route('/clientuser/statusprogress')   
+@clients.route('/clientuser/statusprogress')
 def statusprogress():
-    return render_template('/clientuser/statusprogress.jinja')
+    user_id = current_user.id
 
+    # Consulta SQL para obtener los IDs, verifiedDocs y paymentMade de órdenes relacionadas con el usuario actual
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT id, verifiedDocs, paymentMade FROM orders WHERE clientUser_id = %s AND status = 1", (user_id,))
+    
+    # Recopilamos los resultados de la consulta en una lista de diccionarios
+    orders_data = [{'id': row[0], 'verifiedDocs': row[1], 'paymentMade': row[2]} for row in cursor.fetchall()]
+    
+    cursor.close()
 
-
-@clients.route('/logout')
-@login_required  # Asegura que el usuario esté autenticado para acceder a la ruta
-def logout():
-    logout_user()  # Cierra la sesión del usuario actual
-    return redirect(url_for('login'))  # Redirecciona al inicio de sesión o a la página principal
-
-
+    return render_template('/clientuser/statusprogress.jinja', orders_data=orders_data)
 
 #------------Listado de los productos(maquinas)---------------------
 @clients.route('/clientuser/products')   
@@ -213,7 +268,6 @@ def products():
     cur.close()
     
     return render_template('/clientuser/products.jinja', user_id=user_id, products=products)
-
 
 
 # -------------Peticion de productos/Place order------------------------
@@ -262,38 +316,4 @@ def place_order():
     return redirect(url_for('clients.products'))
 
 
-
-#----Hacer un reporte a maquina--------
-@clients.route('/clientuser/makereport', methods=['GET', 'POST'])
-def makereport():
-    if request.method == 'POST':
-        # Obtén el ID de la máquina seleccionada del formulario
-        machine_id = request.form.get('machine_id')
-        # Obtén la descripción de la falla del formulario
-        description = request.form.get('description')
-
-        # Inserta los datos en la tabla 'reports' en la base de datos
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO reports (id_userReporting, id_machine, description) VALUES (%s, %s, %s)",
-                    (current_user.id, machine_id, description))
-        mysql.connection.commit()
-        cur.close()
-
-        # Redirige a la página de inicio o realiza alguna otra acción
-        return redirect(url_for('clients.clientsHome'))  # Ajusta la redirección según tus necesidades
-
-    # Obtén todos los 'order_id' de la tabla 'machineorders' que corresponden a 'clientUser_id' en la tabla 'orders'
-    cur = mysql.connection.cursor()
-    cur.execute("""
-    SELECT mo.order_id
-    FROM machineorders mo
-    INNER JOIN orders o ON mo.order_id = o.id
-    WHERE o.clientUser_id = %s
-    """, (current_user.id,))
-    order_ids = [row[0] for row in cur.fetchall()]
-    cur.close()
-
-    # Ahora 'order_ids' contiene todos los 'order_id' correspondientes al usuario actual
-
-    return render_template('/clientuser/makereport.jinja', order_ids=order_ids)
 
