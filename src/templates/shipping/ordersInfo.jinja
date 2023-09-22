@@ -1,0 +1,27 @@
+{% extends './base.html' %}
+
+{% block title %}Informacion Envios{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shipping/shipping.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+{% endblock %}
+
+
+{% block body %}
+
+
+<a href="{{ url_for('shipemp.orders') }}" class="btn btn-primary">Atrás</a>
+<h1>Pagina informacion del pedido #{{ order_info[0] }}</h1>
+<div class="container">
+    <h2>Modelo de la maquina: {{ order_info[3] | upper }}</h2>
+    <h2>Marca de la maquina: {{ order_info[4] | upper }}</h2>
+    <h2>Nombre del cliente: {{ order_info[5] }}</h2>
+    <h2>Dirección de entrega: {{ order_info[6] | upper }}</h2>
+    <h2>Código Postal: {{ order_info[7] }}</h2>
+    <h2>Teléfono de contacto: {{ order_info[8] }}</h2>
+</div>
+
+
+{% endblock %}

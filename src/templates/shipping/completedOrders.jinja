@@ -1,0 +1,60 @@
+{% extends './base.html' %}
+
+{% block title %}Envios{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shipping/shipping.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+{% endblock %}
+
+
+{% block body %}
+<h1>Pagina pedidos completados</h1>
+
+<a href="{{ url_for('shipemp.orders') }}" class="btn btn-primary">Atrás</a>
+
+<table class="table1">
+    <tr>
+        <th>No. de pedido</th>
+        <th>Id. maquinas</th>
+        <th>Domicilio de entrega y Código Postal</th>
+        <th>Telefono de contacto</th>
+        <th>Informacion completa del pedido</th>
+        <th>Ver ruta</th>
+        <th>Marcar como no enviado</th>
+    </tr>
+    {% for row in data %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ (row[2] ~ ', ' ~ row[3]) | upper }}</td>
+        <td>{{ row[4] }}</td>
+        <td>
+            <a href="{{ url_for('shipemp.ordersInfo', order_id=row[0]) }}" class="btn btn-primary">
+                <span class="material-symbols-rounded">info</span>
+            </a>
+        </td>
+        <td>
+            <a href="{{ url_for('shipemp.routes', startLocation=row[2]|urlencode, endLocation=row[2] ~ ', ' ~ row[3]) }}"
+                class="btn btn-primary">
+                <span class="material-symbols-rounded">map</span>
+            </a>
+        </td>
+        <td>
+            <form method="POST" action="{{ url_for('shipemp.unmarkShipped', order_id=row[0]) }}"
+                onsubmit="return confirm('¿Seguro que quieres marcar este pedido como no enviado? El cliente podrá ver esta acción');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-success"><span
+                        class="material-symbols-rounded">block</span></button>
+            </form>
+        </td>
+
+
+
+
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

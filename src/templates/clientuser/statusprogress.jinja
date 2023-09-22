@@ -49,9 +49,9 @@
                 Pago verificado
             </div>
         </div>
-            {# {% if order_data.shipmentInProgress == 1 %} active{% endif %} #}
+
         <div>
-            <span class="circle">
+            <span class="circle{% if order_data.shipmentMade == 1 %} active{% endif %}">
                 <span class="material-symbols-rounded">
                     local_shipping
                 </span>

@@ -1,27 +1,28 @@
 {% extends './base.html' %}
 
-{% block title %}Maquinas{% endblock %}
+{% block title %}Rutas{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/storage/stoMachines.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shipping/shipping.css')}}">
 {% endblock %}
 
 {% block body %}
 <a href="{{ url_for('shipemp.orders') }}" class="btn btn-primary">Atrás</a>
 <h1>Google Maps Route</h1>
+<div class="container">
 <form id="locationForm">
     <label for="startLocation">Ubicación inicial:</label>
     <input type="text" id="startLocation" name="startLocation">
     <label for="endLocation">Ubicación final:</label>
-    <input type="text" id="endLocation" name="endLocation">
+    <input type="text" id="endLocation" name="endLocation" value="{{ end_location|default('') }}">
     <input type="submit" value="Buscar Ruta">
 </form>
+</div>
+
 <p id="distanceMessage"></p>
-<div id="map" style="height: 400px; width: 100%;"></div>
+<div id="map" style="height: 400px; width: 100%; border-radius: 10px;"></div>
 
 <script>
-    // Tu código JavaScript para inicializar el mapa y calcular rutas
-
     var map;
     var directionsService;
     var directionsRenderer;
