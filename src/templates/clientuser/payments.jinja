@@ -23,14 +23,13 @@
   </select>
 </form>
 
-
 <h1 id="selected-order-info">Información de la orden seleccionada:</h1>
 
 
 <div class="container">
     <label for="tipo_pago">Tipo de pago:</label>
     <select id="tipo_pago" name="tipo_pago" autocomplete="off" onchange="mostrarFormulario(this.value)">
-        <option value="ninguno" selected>Seleccione una opción</option>
+        <option value="Selecciona" selected>Seleccione una opción</option>
         <option value="debito">Tarjeta de Débito</option>
         <option value="credito">Tarjeta de Crédito</option>
         <option value="transferencia">Transferencia Bancaria</option>

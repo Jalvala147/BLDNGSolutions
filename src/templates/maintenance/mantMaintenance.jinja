@@ -18,8 +18,8 @@
 
 <table class="table1">
     <tr>
+        <th>No.</th>
         <th>Maquina</th>
-        <th>Modelo</th>
         <th>Mantenimiento correctivo finalizado</th>
         <th>Mantenimiento preventivo</th>
         <th>Faltan:</th>
@@ -31,7 +31,7 @@
         <td>{{ machine[1] | upper }} {{ machine[2] | upper }}</td>
         <td>
             <form method="POST" action="/maintenance/corrective/{{ machine[0] }}"
-                onsubmit="return confirmAction('correctivo');">
+                onsubmit="return confirmCorrectiveAction();">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-primary"><span class="material-symbols-outlined">
                         build
@@ -41,20 +41,47 @@
         <td>
             <form method="POST" action="/maintenance/preventive/{{ machine[0] }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" name="days" value="15" class="btn btn-primary">15 días</button>
-                <button type="submit" name="days" value="30" class="btn btn-primary">30 días</button>
+                {% if machine[3] is none or machine[3] <= 0 %} <button type="submit" name="days" value="15"
+                    class="btn btn-primary">
+                    15 días
+                    </button>
+                    <button type="submit" name="days" value="30" class="btn btn-primary">
+                        30 días
+                    </button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" disabled>
+                        15 días
+                    </button>
+                    <button type="button" class="btn btn-primary" disabled>
+                        30 días
+                    </button>
+                    {% endif %}
             </form>
         </td>
 
+        <td>
+            {% if machine[3] is not none %}
+            {% if machine[3] > 0 %}
+            {{ machine[3] }} días
+            {% else %}
+            No programado
+            {% endif %}
+            {% else %}
+            No programado
+            {% endif %}
+        </td>
 
 
     </tr>
     <script>
-        function confirmAction(action) {
-            return confirm(`¡Esta acción marcará a la máquina con mantenimiento ${action} finalizado!`);
+        function confirmCorrectiveAction() {
+            return confirm("¡Esta acción marcará a la máquina con mantenimiento correctivo realizado!");
+        }
+
+        function confirmPreventiveAction(days) {
+            return confirm(`¡Esta acción marcará la máquina para mantenimiento preventivo cada ${days} y no se podrá modificar hasta pasado el tiempo especificado!`);
         }
     </script>
-
     {% endfor %}
 </table>
 

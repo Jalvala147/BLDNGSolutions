@@ -1,0 +1,40 @@
+{% extends './base.html' %}
+
+{% block title %}Reportes Completados{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance/maintenance.css')}}">
+
+{% endblock %}
+
+
+{% block body %}
+<a href="{{ url_for('maintemp.mantReports') }}" class="btn btn-primary">Atrás</a>
+
+<h1>Pagina de Reportes de Fallas Completados</h1>
+
+<table class="table1">
+    <tr>
+        <th>Nombre de quien realizó el reporte</th>
+        <th>Maquina reportada</th>
+        <th>Fecha del reporte</th>
+        <th>Descripcion del problema o falla</th>
+        <th>Estado del problema o falla</th>
+    </tr>
+
+    {% for report in reports_data %}
+    <tr>
+        <td>{{ report[0] }}</td>
+        <td>{{ report[1] | upper }} {{ report[2] | upper }}</td>
+        <td>{{ report[3] }}</td>
+        <td>{{ report[4] }}</td>
+        <td>
+            {% if report[5] == 1 %}
+                Completado
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

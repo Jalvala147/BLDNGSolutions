@@ -54,7 +54,7 @@ def stoHistory():
 def machineHistory(machine_id):
     # Obtener los datos del historial de la máquina con el ID proporcionado
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id_History, id_Machine, entry_date, entry_time, exit_date, exit_time FROM machineHistory WHERE id_Machine=%s", (machine_id,))
+    cursor.execute("SELECT id_History, id_Machine, entry_date, entry_time, exit_date, exit_time FROM machinehistory WHERE id_Machine=%s", (machine_id,))
     machine_history_data = cursor.fetchall()
     cursor.close()
 
