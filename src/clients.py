@@ -235,10 +235,10 @@ def statusprogress():
 
     # Consulta SQL para obtener los IDs, verifiedDocs y paymentMade de órdenes relacionadas con el usuario actual
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id, verifiedDocs, paymentMade FROM orders WHERE clientUser_id = %s AND status = 1", (user_id,))
+    cursor.execute("SELECT id, verifiedDocs, paymentMade, shipmentMade FROM orders WHERE clientUser_id = %s AND status = 1", (user_id,))
     
     # Recopilamos los resultados de la consulta en una lista de diccionarios
-    orders_data = [{'id': row[0], 'verifiedDocs': row[1], 'paymentMade': row[2]} for row in cursor.fetchall()]
+    orders_data = [{'id': row[0], 'verifiedDocs': row[1], 'paymentMade': row[2], 'shipmentMade' : row[3]} for row in cursor.fetchall()]
     
     cursor.close()
 

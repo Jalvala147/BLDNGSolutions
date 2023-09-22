@@ -9,7 +9,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, li {
 body {
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
-    background: linear-gradient(to right, #333399, #ff00cc);
+    background: linear-gradient(to right, #33353f, #444654);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,7 +18,7 @@ body {
 
 /* Container Styles */
 .container {
-    max-width: 1000px;
+    max-width: 850px;
     width: 100%;
     background: rgba(255, 255, 255, .5);
     padding: 2rem;
@@ -26,6 +26,7 @@ body {
     position: relative;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-top: 50px;
+    margin-bottom: 40px;
 }
 
 .container::before {
@@ -44,6 +45,12 @@ h1 {
     font-weight: 600;
     margin-bottom: 1.5rem;
     text-align: center;
+}
+
+h2, h3{
+    font-size: 20px;
+    color: rgb(9, 4, 15)
+    
 }
 
 /* Table Styles */
@@ -84,4 +91,41 @@ h1 {
 
 .btn:hover {
     background-color: rgba(0, 0, 0, 0.85);
+}
+
+
+/* Apply styles to labels */
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* Apply styles to input fields */
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+/* Apply styles to the submit button */
+input[type="submit"] {
+    display: inline-block;
+    background-color: rgb(171, 37, 212);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: background .5s;
+    margin: 5px;
+    text-decoration: none;
+}
+
+/* Change button appearance on hover */
+input[type="submit"]:hover {
+    background-color: #0056b3;
 }
