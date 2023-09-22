@@ -11,8 +11,6 @@
 {
     --clr: linear-gradient(to right, #444654, #282930);
 }
-
-
 .user {
     text-align: center; 
     position: relative; 
@@ -22,7 +20,6 @@
     justify-content: flex-start; 
     top: 0px;
 }
-
 .user-content {
     position: absolute;
     top: 50%; 
@@ -30,16 +27,13 @@
     transform: translate(-50%, -50%); 
     text-align: center; 
 }
-
 h1 {
     margin: 20px 0; 
     color: rgb(200, 161, 245)
 }
-
 h2, h3{
     color: rgb(200, 161, 245)
 }
-
 .logo{
     margin: 50;
     padding: 50;
@@ -79,7 +73,9 @@ body
 .navigation ul
 {
     display: flex;
+    align-items: center;
     width: 400px;
+    padding: 0;
 }
 .navigation ul li 
 {
@@ -88,6 +84,7 @@ body
     width: 70px;
     height: 70px;
     z-index: 1;
+    margin: 0 10px;
 }
 .navigation ul li a
 {
@@ -154,7 +151,6 @@ body
     background: transparent;
     border-top-right-radius: 20px;
     box-shadow: 0px -10px 0 0 var(--clr);
-
 }
 .indicator::after
 {
@@ -171,26 +167,26 @@ body
 }
 
 .navigation ul li:nth-child(1).active ~ .indicator {
-    transform: translateX(calc(60px * 0));
+    transform: translateX(calc(-3px));
 }
 
 .navigation ul li:nth-child(2).active ~ .indicator {
-    transform: translateX(calc(60px * 1));
+    transform: translateX(calc(64px * 1));
 }
 
 .navigation ul li:nth-child(3).active ~ .indicator {
-    transform: translateX(calc(62px * 2));
+    transform: translateX(calc(66px * 2));
 }
 
 .navigation ul li:nth-child(4).active ~ .indicator {
-    transform: translateX(calc(62px * 3));
+    transform: translateX(calc(66px * 3));
 }
 
 .navigation ul li:nth-child(5).active ~ .indicator {
-    transform: translateX(calc(60px * 4));
+    transform: translateX(calc(66px * 4));
 }
 
 .navigation ul li:nth-child(6).active ~ .indicator {
-    transform: translateX(calc(60px * 5));
+    transform: translateX(calc(66px * 5));
 }
 

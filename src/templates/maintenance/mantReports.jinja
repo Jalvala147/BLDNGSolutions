@@ -31,16 +31,11 @@
         <td>
             {% if report[5] == 0 %}
                 Recibido
-            {% elif report[5] == 1 %}
-                Completado
-            {% elif report[5] == 2 %}
-                Pendiente
-            {% else %}
-                Desconocido
             {% endif %}
         </td>
     </tr>
     {% endfor %}
 </table>
 
+<a href="{{ url_for('maintemp.completedReports') }}" class="btn btn-primary">Reportes completados</a>
 {% endblock %}

@@ -34,13 +34,13 @@
     <tr>
         <td>{{ machine[0] }}</td>
         <td>{{ machine[1] }}</td>
-        <td>{{ machine[2] }}</td>
+        <td>{{ machine[2] | upper }}</td>
         <td>{{ machine[3] }}</td>
         <td>
             {% if machine[4] == 1 %}
-            En almacén
+            EN ALMACÉN
             {% else %}
-            Fuera de almacén
+            FUERA DE ALMACÉN
             {% endif %}
         </td>
         <td>

@@ -2,72 +2,92 @@
 
 {% block title%}Almacén{% endblock %}
 
-
-
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/storage/storageHome.css')}}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 {% endblock %}
 
 
 {% block body %}
-<div class="inicio">
-    <img src="#" alt="logo1">
-    <a href="/startpage">Ir a la página de inicio</a>
+<div id="particles-js"></div>
+<style>
+    body {
+        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    #particles-js {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+
+    }
+</style>
+
+<div class="logout" style="position: absolute; top: 15px; right: 10px;">
+    <a class="btn btn-secondary" href="{{ url_for('salesemp.logout') }}">
+        <span class="material-symbols-rounded" style="vertical-align: middle;">logout</span>
+        Cerrar Sesión
+    </a>
 </div>
 
-<h1>Pagina de empleados de Almacén</h1>
-<div class="logout">
-    <a class="btn btn-secondary" href="{{ url_for('storageemp.logout') }}">Cerrar sesión</a>
+<header class="header">
+    <nav>
+        <div class="logo">
+            <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo" /></a>
+        </div>
+
+    </nav>
+</header>
+
+<div class="user">
+    <h1>Bienvenido, {{current_user.fullname}}</h1>
+    <h3>{{current_user.id}}</h3>
+    
+    <h1>Pagina de Almacén</h1>
 </div>
 
-<h2>Bienvenido, {{current_user.fullname}}</h2>
-<h3>{{current_user.id}}</h3>
-
-<div class = "navigation" align="center">
+<div class="navigation" align="center">
     <ul>
-        <li class = "list">
+        <li class="list active" align="center">
             <a href="/storage/stoMachines">
                 <span class="icon">
-                    <ion-icon name="build-outline"></ion-icon>
+                    <span class="material-symbols-rounded">precision_manufacturing</span>
                 </span>
                 <span class="text">Maquinas</span>
             </a>
         </li>
 
-        <li class = "list">
+        <li class="list">
             <a href="/storage/stoHistory">
                 <span class="icon">
-                    <ion-icon name="timer-outline"></ion-icon>
+                    <span class="material-symbols-rounded">history</span>
                 </span>
                 <span class="text">Historial</span>
             </a>
         </li>
 
-        <li class = "list">
+        <li class="list">
             <a href="/storage/stoMaintenance">
                 <span class="icon">
-                    <ion-icon name="construct-outline"></ion-icon>
+                    <span class="material-symbols-rounded">construction</span>
                 </span>
                 <span class="text">Mantenimiento</span>
             </a>
         </li>
-        
         <div class="indicator"></div>
     </ul>
 </div>
-<script>
-    const list = document.querySelectorAll('.list');
-    function activeLink(){
-        list.forEach((item) =>   
-        item.classList.remove('active'));
-        this.classList.add('active');
-    }
-    list.forEach((item) => 
-    item.addEventListener('click',activeLink));
-</script>
 
-<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+{# Script para manejar la selección del menu en la barra inferior #}
+<script src="{{ url_for('static', filename='js/selectionItems.js') }}"></script>
+
+{# Importamos las particulas #}
+<script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
 
 {% endblock %}

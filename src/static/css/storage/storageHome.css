@@ -9,12 +9,31 @@
 
 :root
 {
-    --clr: linear-gradient(to right, #33353f, #444654);
+    --clr: linear-gradient(to right, #444654, #282930);
     
 }
-
+.user {
+    text-align: center; 
+    position: relative; 
+    height: 100vh; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
+    top: 0px;
+}
+.user-content {
+    position: absolute;
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    text-align: center; 
+}
+h1 {
+    margin: 20px 0; 
+    color: rgb(200, 161, 245)
+}
 h2, h3{
-    color: rgb(255, 255, 255)
+    color: rgb(200, 161, 245)
 }
 .logo{
     margin: 50;
@@ -29,7 +48,7 @@ h2, h3{
 
 body
 {
-    background: linear-gradient(to right, #3a3a47, #642657);
+    /* background: linear-gradient(to right, #3a3a47, #642657); */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -42,9 +61,9 @@ body
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 700px;
+    width: 600px;
     height: 70px;
-    background: linear-gradient(to right, #444654, #33353f);
+    background: linear-gradient(to right, #33353f, #444654);
     display: block;
     justify-content: right;
     align-items: right;
@@ -55,7 +74,10 @@ body
 .navigation ul
 {
     display: flex;
-    width: 350px;
+    justify-content: center;
+    align-items: center;
+    width: 400px;
+    padding: 0;
 }
 .navigation ul li 
 {
@@ -64,6 +86,7 @@ body
     width: 70px;
     height: 70px;
     z-index: 1;
+    margin: 0 15px;
 }
 .navigation ul li a
 {
@@ -116,7 +139,7 @@ body
     height: 70px;
     background: #ddcfcf;
     border-radius: 50%;
-    border: 6px solid var(--clr);
+    border: 6px solid #33353f;
     transition: 0.5s;
 }
 .indicator::before
@@ -147,15 +170,15 @@ body
 }
 
 .navigation ul li:nth-child(1).active ~ .indicator {
-    transform: translateX(calc(60px * 0));
+    transform: translateX(calc(-100px));
 }
 
 .navigation ul li:nth-child(2).active ~ .indicator {
-    transform: translateX(calc(68px * 1));
+    transform: translateX(calc(0px * 1));
 }
 
 .navigation ul li:nth-child(3).active ~ .indicator {
-    transform: translateX(calc(69px * 2));
+    transform: translateX(calc(50px * 2));
 }
 
 

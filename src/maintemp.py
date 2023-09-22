@@ -17,6 +17,10 @@ def maintenance_home():
 
 #--------------------rutas mantenimiento-----------------------
 
+@maintemp.route('/maintenance/mantHome')   
+def mantHome():
+    return render_template('/maintenance/mantHome.jinja')
+
 #listado de las maquinas con boton para ver historial de mantenimiento
 @maintemp.route('/maintenance/mantMachines')   
 def mantMachines():
@@ -49,54 +53,86 @@ def mantHistory(machine_id):
                    "(SELECT id FROM maintenancehistory WHERE id_Machine = %s)", (machine_id,))
     corrective_dates = cursor.fetchall()
 
+    # Consulta para obtener la marca y el modelo de la máquina
+    cursor.execute("SELECT brand, model FROM machines WHERE id_Machine = %s", (machine_id,))
+    machine_info = cursor.fetchone()
+    brand, model = machine_info if machine_info else ("Desconocido", "Desconocido")
+
+
     # Cerrar el cursor
     cursor.close()
 
     return render_template('maintenance/mantHistory.jinja',
-                           machine_id=machine_id,
-                           preventive_dates=preventive_dates,
-                           corrective_dates=corrective_dates)
+                       machine_id=machine_id,
+                       preventive_dates=preventive_dates,
+                       corrective_dates=corrective_dates,
+                       brand=brand,
+                       model=model)
 
-
-#--------------------------------------------------------------------------
+#-----------------------Reportes generados por clientes-----------------------
 
 @maintemp.route('/maintenance/mantReports')   
 def mantReports():
     cursor = mysql.connection.cursor()
 
-    # Modify the SQL query to join tables and select the necessary columns
     cursor.execute("""
         SELECT u.fullname, m.brand, m.model, r.date, r.description, r.Failure_status
         FROM reports r
         JOIN user u ON r.id_userReporting = u.id
         JOIN machines m ON r.id_Machine = m.id_machine
+        WHERE r.Failure_status = 0
     """)
-
     reports_data = cursor.fetchall()
-
     cursor.close()
     return render_template('/maintenance/mantReports.jinja', reports_data=reports_data)
 
 
+@maintemp.route('/maintenance/completedMantReports')   
+def completedReports():
+    cursor = mysql.connection.cursor()
 
-@maintemp.route('/maintenance/mantHome')   
-def mantHome():
-    return render_template('/maintenance/mantHome.jinja')
-
+    cursor.execute("""
+        SELECT u.fullname, m.brand, m.model, r.date, r.description, r.Failure_status
+        FROM reports r
+        JOIN user u ON r.id_userReporting = u.id
+        JOIN machines m ON r.id_Machine = m.id_machine
+        WHERE r.Failure_status = 1
+    """)
+    reports_data = cursor.fetchall()
+    cursor.close()
+    return render_template('/maintenance/completedMantReports.jinja', reports_data=reports_data)
 
 #------------------------Marcar que mantenimiento necesitan las maquinas-----------------------
+
+
 @maintemp.route('/maintenance/mantMaintenance')
 def mantMaintenance():
     cursor = mysql.connection.cursor()
 
-    # buscar los datos de la tabla 'machines'
+    # Consulta SQL para obtener los datos de todas las máquinas
     cursor.execute("SELECT id_Machine, brand, model FROM machines")
     machines_data = cursor.fetchall()
 
-    # cerrar el cursor
+    # Consulta SQL para calcular los días restantes solo si hay registros en preventivemaintenance
+    cursor.execute("SELECT mh.id_Machine, DATEDIFF(pm.scheduled_date, CURRENT_DATE()) AS days_remaining "
+                   "FROM maintenancehistory mh "
+                   "LEFT JOIN preventivemaintenance pm ON mh.id = pm.id_Maintenance")
+    maintenance_data = cursor.fetchall()
+
+    # Cerrar el cursor
     cursor.close()
 
-    return render_template('maintenance/mantMaintenance.jinja', machines_data=machines_data)
+    # Crear un diccionario para mapear id_Machine a días restantes
+    machine_to_days = {row[0]: row[1] for row in maintenance_data if row[1] is not None}
+
+    # Combinar los datos de las máquinas y los días restantes
+    combined_data = []
+    for machine in machines_data:
+        id_machine = machine[0]
+        days_remaining = machine_to_days.get(id_machine, None)
+        combined_data.append((machine[0], machine[1], machine[2], days_remaining))
+
+    return render_template('maintenance/mantMaintenance.jinja', machines_data=combined_data)
 
 #---------Mantenimiento correctivo
 @maintemp.route('/maintenance/corrective/<int:id_machine>', methods=['POST'])
@@ -115,31 +151,36 @@ def corrective(id_machine):
         cursor.execute("INSERT INTO correctivemaintenance (id_Maintenance, date) VALUES (%s, CURRENT_TIMESTAMP)",
                        (new_id_maintenance,))
         mysql.connection.commit()
+
+        # Modificar la tabla "reports" estableciendo "Failure_status" en 1
+        cursor.execute("UPDATE reports SET Failure_status = 1 WHERE id_Machine = %s", 
+                       (id_machine,))
+        mysql.connection.commit()
         
         cursor.close()
         
         return redirect(url_for('maintemp.mantMaintenance'))  # Redirigir a la página de mantenimiento
 
-#----------Mantenimiento preventivo-----------------------------------------
+#---------Mantenimiento preventivo
 @maintemp.route('/maintenance/preventive/<int:id_machine>', methods=['POST'])
 def preventive(id_machine):
     if request.method == 'POST':
-        # Conecta con la base de datos
+        days = int(request.form['days'])  # Obtiene el número de días desde el formulario
+        current_date = datetime.now()  # Fecha actual
+        scheduled_date = current_date + timedelta(days=days)  # Fecha programada
+        
+        # Crear un nuevo registro en la tabla maintenancehistory
         cursor = mysql.connection.cursor()
-
-        # Crea un nuevo registro en la tabla maintenancehistory
         cursor.execute("INSERT INTO maintenancehistory (id_Machine) VALUES (%s)", (id_machine,))
         mysql.connection.commit()
         
-        # Obtiene el ID recién creado
+        # Obtener el id recién creado
         new_id_maintenance = cursor.lastrowid
         
-        # Inserta el registro en la tabla preventivemaintenance con el nuevo ID_Maintenance
-        cursor.execute("INSERT INTO preventivemaintenance (id_Maintenance, date) VALUES (%s, CURRENT_TIMESTAMP)",
-                       (new_id_maintenance,))
+        # Insertar el registro en la tabla preventivemaintenance con el nuevo id_Maintenance
+        cursor.execute("INSERT INTO preventivemaintenance (id_Maintenance, date, scheduled_date) VALUES (%s, %s, %s)",
+                       (new_id_maintenance, current_date, scheduled_date))
         mysql.connection.commit()
-        
-        # Cierra la conexión con la base de datos
         cursor.close()
-        
-        return redirect(url_for('maintemp.mantMaintenance'))  # Redirigir a la página de mantenimiento
+
+    return redirect(url_for('maintemp.mantMaintenance'))  # Redirigir a la página de mantenimiento
