@@ -23,11 +23,11 @@
 }
 
 .dark-mode-variables{
-    --color-background: #181a1e;
+    --color-background: #33353f;
     --color-white: #202528;
     --color-dark: #edeffd;
     --color-dark-variant: #a3bdcc;
-    --color-light: rgba(0, 0, 0, 0.4);
+    --color-light: #444654;
     --box-shadow: 0 2rem 3rem var(--color-light);
 }
 
@@ -60,7 +60,9 @@ body{
 a{
     color: var(--color-dark);
 }
-
+a:hover {
+    text-decoration: none; 
+}
 img{
     display: block;
     width: 100%;
@@ -70,6 +72,7 @@ img{
 h1{
     font-weight: 800;
     font-size: 1.8rem;
+    text-align: center;
 }
 
 h2{
@@ -81,6 +84,7 @@ h3{
     font-weight: 500;
     font-size: 0.87rem;
 }
+
 
 small{
     font-size: 0.76rem;
@@ -120,6 +124,7 @@ b{
     margin: 0 auto; 
     gap: 1.9rem;
     grid-template-columns: 12rem auto 23rem;
+    margin-left: 20px;
 }
 
 aside{
@@ -225,12 +230,14 @@ aside .sidebar .message-count{
 
 main{
     margin-top: 1.4rem;
+    margin-right: 200px;
 }
 
 main .analyse{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 3rem;
+    margin: 40px;
 }
 
 main .analyse > div{
@@ -306,89 +313,18 @@ main .analyse .progresss .percentage{
     width: 100%;
 }
 
-main .new-users{
-    margin-top: 1.3rem;
-}
 
-main .new-users .user-list{
-    background-color: var(--color-white);
-    padding: var(--card-padding);
-    border-radius: var(--card-border-radius);
-    margin-top: 1rem;
-    box-shadow: var(--box-shadow);
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 1.4rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-main .new-users .user-list:hover{
-    box-shadow: none;
-}
-
-main .new-users .user-list .user{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-main .new-users .user-list .user img{
-    width: 5rem;
-    height: 5rem;
-    margin-bottom: 0.4rem;
-    border-radius: 50%;
-}
-
-main .recent-orders{
-    margin-top: 1.3rem;
-}
-
-main .recent-orders h2{
-    margin-bottom: 0.8rem;
-}
-
-main .recent-orders table{
-    background-color: var(--color-white);
-    width: 100%;
-    padding: var(--card-padding);
-    text-align: center;
-    box-shadow: var(--box-shadow);
-    border-radius: var(--card-border-radius);
-    transition: all 0.3s ease;
-}
-
-main .recent-orders table:hover{
-    box-shadow: none;
-}
-
-main table tbody td{
-    height: 2.8rem;
-    border-bottom: 1px solid var(--color-light);
-    color: var(--color-dark-variant);
-}
-
-main table tbody tr:last-child td{
-    border: none;
-}
-
-main .recent-orders a{
-    text-align: center;
-    display: block;
-    margin: 1rem auto;
-    color: var(--color-primary);
-}
 
 .right-section{
     margin-top: 1.4rem;
+    margin-right: 20px;
 }
 
 .right-section .nav{
     display: flex;
     justify-content: end;
     gap: 2rem;
+    margin-right: 20px;
 }
 
 .right-section .nav button{
@@ -542,6 +478,7 @@ main .recent-orders a{
     .container{
         width: 95%;
         grid-template-columns: 7rem auto 23rem;
+        
     }
 
     aside .logo h2{

@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_mysqldb import MySQL
 from flask_mail import Mail, Message
-import smtplib
-import itsdangerous
+import secrets
+from flask import render_template_string
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -36,8 +36,6 @@ from models.ModelUser import ModelUser
 from models.entities.User import User
 
 
-
-
 csrf = CSRFProtect()
 
 mysql = MySQL(app)
@@ -48,6 +46,7 @@ login_manager_app = LoginManager(app)
 def load_user(id):
     return ModelUser.get_by_id(mysql, id)
 
+#Checar el archivo config.py tambien
 
 # Configuración de la conexión a la base de datos MySQL
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
@@ -281,8 +280,13 @@ def shipping_home():
 
 
 #---------------------------------Ruta para recuperacion de contraseña----------------------------------------------
+
 @app.route('/forgotpassword', methods=['GET', 'POST'])
 def forgotpassword():
+    cur = mysql.connection.cursor()
+
+    reset_url = None
+
     if request.method == 'POST':
         # Obtener el correo electrónico ingresado en el formulario
         correo_destinatario = request.form.get('correo')
@@ -293,10 +297,24 @@ def forgotpassword():
         if not re.match(pattern, correo_destinatario):
             flash('Error: Por favor, ingrese un correo electrónico válido.', 'error')
         else:
-            try:
-                msg = Message('Recuperación de contraseña', sender='bldngsolutions.mail@gmail.com', recipients=[correo_destinatario])
-                #msg.body = 'Se ha solicitado un cambio de contraseña para su cuenta de BuildingSolutions. Si usted no ha solicitado este cambio, por favor ignore este correo. Si desea cambiar su contraseña, por favor ingrese al siguiente link: https://emerging-touched-humpback.ngrok-free.app/changepassword'
-                msg.html = '''
+            # Buscar el correo en la base de datos
+            cur.execute("SELECT * FROM user WHERE email = %s", (correo_destinatario,))
+            user = cur.fetchone()
+
+
+            if user:
+                # Generar un token único
+                token = secrets.token_hex(16)
+            
+                # Almacenar el token en la base de datos junto con el usuario
+                cur.execute("UPDATE user SET reset_token = %s WHERE id = %s", (token, user[0]))
+                mysql.connection.commit()
+
+                # Generar la URL con el token usando url_for
+                reset_url = url_for('changepassword', token=token, _external=True)
+
+                # Renderizar la plantilla HTML con Jinja2
+                html_content = render_template_string('''
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -306,7 +324,6 @@ def forgotpassword():
                             font-family: Arial, sans-serif;
                             background-color: #f2f2f2;
                         }
-
                         .container {
                             max-width: 600px;
                             margin: 0 auto;
@@ -315,25 +332,20 @@ def forgotpassword():
                             border-radius: 5px;
                             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
                         }
-
                         h1 {
                             color: #ff0000;
                         }
-
                         p {
                             color: #333333;
                             line-height: 1.6;
                         }
-
                         a {
                             color: #0000ff;
                             text-decoration: none;
                         }
-
                         a:hover {
                             text-decoration: underline;
                         }
-
                         .btn {
                             display: inline-block;
                             padding: 10px 20px;
@@ -342,7 +354,6 @@ def forgotpassword():
                             text-decoration: none;
                             border-radius: 5px;
                         }
-
                         .btn:hover {
                             background-color: #0000ff;
                         }
@@ -351,42 +362,59 @@ def forgotpassword():
                 <body>
                     <div class="container">
                         <h1>Recuperación de contraseña</h1>
-                        <p>Se ha solicitado un cambio de contraseña para su cuenta de BuildingSolutions. Si usted no ha solicitado este cambio, por favor ignore este correo. Si desea cambiar su contraseña, por favor ingrese al siguiente <a href="https://emerging-touched-humpback.ngrok-free.app/changepassword">enlace</a>.</p>
+                        <p>Se ha solicitado un cambio de contraseña para su cuenta de BuildingSolutions. Si usted no ha solicitado este cambio, por favor ignore este correo. Si desea cambiar su contraseña, por favor ingrese al siguiente <a href="{{ reset_url }}">enlace</a>.</p>
                         <p>¡Gracias!</p>
-                        <a class="btn" href="https://emerging-touched-humpback.ngrok-free.app/changepassword">Cambiar Contraseña</a>
+                        <a class="btn" href="{{ reset_url }}">Cambiar Contraseña</a>
                     </div>
                 </body>
                 </html>
-                '''               
+                ''', reset_url=reset_url)
+
+                # Enviar el correo con el contenido HTML renderizado
+                msg = Message('Recuperación de contraseña', sender='bldngsolutions.mail@gmail.com', recipients=[correo_destinatario])
+                msg.html = html_content
                 mail.send(msg)
 
                 # Mostrar mensaje flash en el mismo formulario
                 flash('Correo enviado correctamente.', 'success')
-            except smtplib.SMTPRecipientsRefused as e:
-                flash(f'Error: La dirección de correo electrónico "{correo_destinatario}" no es válida. Por favor, verifique la dirección e inténtelo nuevamente.', 'error')
-            except Exception as e:
-                flash(f'Error al enviar el correo electrónico: {str(e)}', 'error')
+            else:
+                flash('Error: El correo electrónico no está registrado.', 'error')
 
-    return render_template('auth/forgotpassword.jinja')
+    return render_template('auth/forgotpassword.jinja', reset_url=reset_url)
 
-@app.route('/changepassword', methods=['GET', 'POST'])
-def changepassword():
+
+
+@app.route('/changepassword/<token>', methods=['GET', 'POST'])
+def changepassword(token):
+    cur = mysql.connection.cursor()
+    
     if request.method == 'POST':
-        # Obtener el correo electrónico y la nueva contraseña ingresados en el formulario
-        correo_destinatario = request.form.get('correo')
         nueva_contrasena = request.form.get('nueva_contrasena')
         confirmar_contrasena = request.form.get('confirmar_contrasena')
 
-        # Aquí debes implementar la lógica para verificar que las contraseñas coincidan
-        if nueva_contrasena != confirmar_contrasena:
-            flash('Las contraseñas no coinciden.', 'error')
-            return render_template('auth/changepassword.jinja') # Redirige al usuario al formulario de cambio de contraseña
-        
+        # Verificar si el token es válido
+        cur.execute("SELECT id, username FROM user WHERE reset_token = %s", (token,))
+        user_data = cur.fetchone()
 
-        flash('Contraseña actualizada correctamente.', 'success')
-        return redirect('/login')  # Redirige al usuario a la página de inicio de sesión después de cambiar la contraseña.
+        if user_data is not None:
+            user_id, username = user_data
 
-    return render_template('auth/changepassword.jinja')
+            if nueva_contrasena == confirmar_contrasena:
+                # Hashear la nueva contraseña
+                hashed_password = generate_password_hash(nueva_contrasena, method='sha256')
+
+                # Actualizar la contraseña hasheada y borrar el token
+                cur.execute("UPDATE user SET password = %s, reset_token = NULL WHERE id = %s", (hashed_password, user_id))
+                mysql.connection.commit()
+
+                flash('Contraseña actualizada correctamente.', 'success')
+                return redirect('/loginclient')
+            else:
+                flash('Error: Las contraseñas no coinciden.', 'error')
+        else:
+            flash('Error: El token no es válido.', 'error')
+
+    return render_template('changepassword.jinja')
 #---------------Rutas para logout, paginas protegidas, pagina de start y home -----------------------------------
 
 
