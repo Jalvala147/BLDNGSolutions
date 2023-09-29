@@ -16,7 +16,7 @@ from admin import admin
 
 app = Flask(__name__)
 
-#app.run(host="127.0.0.1", debug=True, port=5000)
+#app.run(host="0.0.0.0", debug=True, port=8000)
 
 app.register_blueprint(salesemp)
 app.register_blueprint(clients)
@@ -192,67 +192,88 @@ def login():
 @app.route('/loginadm', methods=['GET', 'POST'])
 def loginadm():
     if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
         #print(request.form['username'])
         #print(request.form['password'])
-        user = User(0, request.form['username'], request.form['password'])
-        logged_user = ModelUser.login(mysql, user)
-        if logged_user != None:
-            if logged_user.password:
-                login_user(logged_user)
-                return redirect(url_for('administrationindex'))
-            else:
-                flash("Invalid password...")
-                return render_template('auth/loginadm.jinja')
-        else:
-            flash("User not found...")
-            return render_template('auth/loginadm.jinja')
         
-    else:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id, password, tipousuario FROM user WHERE username=%s", (username,))
+        user_data = cur.fetchone()
+        cur.close()
+
+        if user_data is not None:
+            user_id, hashed_password, tipoUsuario = user_data
+
+            if check_password_hash(hashed_password, password):
+                # Contraseña válida, puedes continuar con el inicio de sesión
+                logged_user = User(user_id, username, password)
+                if tipoUsuario == 1:
+                    login_user(logged_user)
+                    return redirect(url_for('administrationindex'))
+
+                flash("Tipo de usuario no válido...")
+                return render_template('auth/loginadm.jinja')
+
+            else:
+                flash("Contraseña no válida...")
+                return render_template('auth/loginadm.jinja')
+
+        flash("Administrador no encontrado...")
         return render_template('auth/loginadm.jinja')
+
+    return render_template('auth/loginadm.jinja')
 
 
 #---------------------------------Login para empleados, tipo de usuario 2----------------------------------------------
 
-
 @app.route('/loginemp', methods=['GET', 'POST'])
 def loginemp():
     if request.method == 'POST':
-        user = User(0, request.form['username'], request.form['password'])
-        logged_user = ModelUser.login(mysql, user)
-        
-        if logged_user is not None:
-            cur = mysql.connection.cursor()
-            cur.execute("SELECT tipousuario FROM user WHERE id=%s", (logged_user.id,))
-            tipoUsuario = cur.fetchone()[0]
-            cur.execute("SELECT areaUsuario FROM user WHERE id=%s", (logged_user.id,))
-            idArea = cur.fetchone()[0]
-            cur.close()
+        username = request.form['username']
+        password = request.form['password']
 
-            if tipoUsuario == 2 and idArea == 2:  #redireccion para usuarios de ventas
-                login_user(logged_user)
-                session['user_id'] = logged_user.id  
-                return redirect(url_for('sales_emp_area'))
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id, password, tipousuario, areaUsuario FROM user WHERE username=%s", (username,))
+        user_data = cur.fetchone()
+        cur.close()
+        
+        if user_data is not None:
+            user_id, hashed_password, tipoUsuario, idArea = user_data
             
-            elif tipoUsuario == 2 and idArea == 3: #redireccion para usuarios de almacen
-                login_user(logged_user)
-                session['user_id'] = logged_user.id  
-                return redirect(url_for('storage_home'))
-            
-            elif tipoUsuario == 2 and idArea == 5: #redireccion para usuarios de mantenimieto
-                login_user(logged_user)
-                session['user_id'] = logged_user.id  
-                return redirect(url_for('maintenance_home'))
-            
-            elif tipoUsuario == 2 and idArea == 6: #redireccion para usuarios de envios
-                login_user(logged_user)
-                session['user_id'] = logged_user.id  
-                return redirect(url_for('shipping_home'))
-            
+            if check_password_hash(hashed_password, password):
+                # Contraseña válida, puedes continuar con el inicio de sesión
+                logged_user = User(user_id, username, password)
+
+                if tipoUsuario == 2 and idArea == 2:  #redireccion para usuarios de ventas
+                    login_user(logged_user)
+                    session['user_id'] = logged_user.id  
+                    return redirect(url_for('sales_emp_area'))
+                
+                elif tipoUsuario == 2 and idArea == 3: #redireccion para usuarios de almacen
+                    login_user(logged_user)
+                    session['user_id'] = logged_user.id  
+                    return redirect(url_for('storage_home'))
+                
+                elif tipoUsuario == 2 and idArea == 5: #redireccion para usuarios de mantenimieto
+                    login_user(logged_user)
+                    session['user_id'] = logged_user.id  
+                    return redirect(url_for('maintenance_home'))
+                
+                elif tipoUsuario == 2 and idArea == 6: #redireccion para usuarios de envios
+                    login_user(logged_user)
+                    session['user_id'] = logged_user.id  
+                    return redirect(url_for('shipping_home'))
+                
+                else:
+                    flash("Invalid user type or area...")
+                    return render_template('auth/loginemp.jinja')
+
             else:
-                flash("Invalid user type or area...")
+                flash("Contraseña no valida...")
                 return render_template('auth/loginemp.jinja')
 
-        flash("User not found...")
+        flash("Usuario no encontrado...")
         return render_template('auth/loginemp.jinja')
 
     return render_template('auth/loginemp.jinja')

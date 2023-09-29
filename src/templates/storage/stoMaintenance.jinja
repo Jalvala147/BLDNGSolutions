@@ -18,8 +18,8 @@
 
 <table class="table1">
     <tr>
-        <th>Id de la Maquina</th>
-        <th>Modelo de la Maquina</th>
+        <th>No. Maquina</th>
+        <th>Maquina</th>
         <th>Mantenimiento</th>
     </tr>
 
@@ -29,20 +29,20 @@
         <td>{{ machine[1] | upper }}</td>
         <td>
             <form method="POST" action="/storage/preventive/{{ machine[0] }}"
-                onsubmit="return confirmAction('preventive');">
+                onsubmit="return confirmAction('preventivo');">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-primary">preventive</button>
+                <button type="submit" class="btn btn-primary">preventivo</button>
             </form>
             <form method="POST" action="/storage/corrective/{{ machine[0] }}"
-                onsubmit="return confirmAction('corrective');">
+                onsubmit="return confirmAction('correctivo');">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-primary">corrective</button>
+                <button type="submit" class="btn btn-primary">correctivo</button>
             </form>
         </td>
     </tr>
     <script>
         function confirmAction(action) {
-            return confirm(`¿Estás seguro que quieres marcar esta máquina para dar mantenimiento ${action}?`);
+            return confirm(`Al seleccionar esta opción se avisará al área de mantenimiento que la maqiuna requiere mantenimiento ${action}`);
         }
     </script>
 

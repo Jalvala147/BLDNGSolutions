@@ -61,7 +61,7 @@ def projectionsResults():
     return render_template('administration/stats/projectionsResults.jinja')
 
 
-@admin.route('/administration/profitsProjections')
+@admin.route('/administration/profitsProjections') #esto es solo un ejemplo sobre la regresion lineal
 def profitsProjections():
     # Generar datos de ejemplo
     np.random.seed(0)
@@ -77,8 +77,8 @@ def profitsProjections():
     df['y_pred'] = model.predict(X)
 
     # Crear una gráfica interactiva con Plotly Express
-    fig = px.scatter(df, x='X', y='y', title='Regresión Lineal')
-    fig.add_scatter(x=df['X'], y=df['y_pred'], mode='lines', name='Regresión Lineal')
+    fig = px.scatter(df, x='X', y='y', title='Precios unitarios')
+    fig.add_scatter(x=df['X'], y=df['y_pred'], mode='lines', name='Proyección')
 
     # Convertir la figura de Plotly a HTML
     graph_html = fig.to_html(full_html=False)
@@ -86,9 +86,64 @@ def profitsProjections():
     return render_template('administration/stats/profitsProjections.jinja', graph_html=graph_html)
 
 
-@admin.route('/administration/profitsResults')
+@admin.route('/administration/profitsResults', methods=['GET', 'POST'])
 def profitsResults():
-    return render_template('administration/stats/profitsResults.jinja')
+    try:
+        # Establecer una conexión a la base de datos
+        cur = mysql.connection.cursor()
+
+        # Obtener todos los meses disponibles
+        cur.execute("SELECT DISTINCT DATE_FORMAT(order_date, '%Y-%m') as month FROM orders")
+        months = [row[0] for row in cur.fetchall()]
+
+        ganancias_totales_mes = None
+
+        if request.method == 'POST':
+            # El usuario ha seleccionado un mes
+            selected_month = request.form['month']
+
+            # Consulta SQL para obtener las ganancias del mes seleccionado
+            sql_query = """
+                SELECT id, total as ganancias
+                FROM orders
+                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
+            """
+            cur.execute(sql_query, [selected_month])
+            ganancias = cur.fetchall()
+
+            # Calcular la suma total de las ganancias para el mes seleccionado
+            ganancias_totales_mes = sum(g[1] for g in ganancias)
+
+            # Cerrar la conexión a la base de datos
+            cur.close()
+
+            # Crear un DataFrame de pandas con las ganancias
+            df_ganancias = pd.DataFrame(ganancias, columns=['No. Orden', 'ganancias']).set_index('No. Orden')
+
+            # Crear una gráfica de líneas para las ganancias
+            fig_ganancias = px.line(df_ganancias, x=df_ganancias.index, y='ganancias', title='Ganancias de ' + selected_month)
+            fig_ganancias.update_xaxes(
+                tickmode = 'array',
+                tickvals = df_ganancias.index,
+                dtick = 1
+            )
+            
+            # Convertir la figura de Plotly a HTML
+            graph_html_ganancias = fig_ganancias.to_html(full_html=False)
+        else:
+            # No se ha seleccionado un mes, no mostrar ninguna gráfica
+            graph_html_ganancias = None
+
+        return render_template(
+            'administration/stats/profitsResults.jinja',
+            months=months,
+            ganancias_totales_mes=ganancias_totales_mes,
+            graph_html_ganancias=graph_html_ganancias
+        )
+
+    except Exception as e:
+        return f"Error al calcular las ganancias: {str(e)}"
 
 
 @admin.route('/administration/lossResults')

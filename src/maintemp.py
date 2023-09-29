@@ -57,9 +57,7 @@ def mantHistory(machine_id):
     cursor.execute("SELECT brand, model FROM machines WHERE id_Machine = %s", (machine_id,))
     machine_info = cursor.fetchone()
     brand, model = machine_info if machine_info else ("Desconocido", "Desconocido")
-
-
-    # Cerrar el cursor
+    
     cursor.close()
 
     return render_template('maintenance/mantHistory.jinja',
@@ -103,7 +101,6 @@ def completedReports():
     return render_template('/maintenance/completedMantReports.jinja', reports_data=reports_data)
 
 #------------------------Marcar que mantenimiento necesitan las maquinas-----------------------
-
 
 @maintemp.route('/maintenance/mantMaintenance')
 def mantMaintenance():
@@ -157,6 +154,11 @@ def corrective(id_machine):
                        (id_machine,))
         mysql.connection.commit()
         
+        #Modificar la tabla "machines" estableciendo maintenanceNotice en Null, indicando ya se corrigio el problema
+        cursor.execute("UPDATE machines SET maintenanceNotice = NULL WHERE id_Machine = %s",
+                       (id_machine,))
+        mysql.connection.commit()
+        
         cursor.close()
         
         return redirect(url_for('maintemp.mantMaintenance'))  # Redirigir a la página de mantenimiento
@@ -181,6 +183,22 @@ def preventive(id_machine):
         cursor.execute("INSERT INTO preventivemaintenance (id_Maintenance, date, scheduled_date) VALUES (%s, %s, %s)",
                        (new_id_maintenance, current_date, scheduled_date))
         mysql.connection.commit()
+        
+        #Modificar la tabla "machines" estableciendo maintenanceNotice en Null, indicando ya programó mantenimiento preventivo
+        cursor.execute("UPDATE machines SET maintenanceNotice = NULL WHERE id_Machine = %s",
+                       (id_machine,))
+        mysql.connection.commit()
+        
         cursor.close()
 
     return redirect(url_for('maintemp.mantMaintenance'))  # Redirigir a la página de mantenimiento
+
+@maintemp.route('/maintenance/storageRequests')
+def storageRequests():
+    cur = mysql.connection.cursor()
+
+    # Realizar la consulta a la tabla machines
+    cur.execute("SELECT id_Machine, model, brand, maintenanceNotice FROM machines")
+    machines_data = cur.fetchall()
+
+    return render_template('maintenance/storageRequests.jinja', machines_data=machines_data)

@@ -9,5 +9,22 @@
 {% block body %}
 <a href="{{ url_for('admin.projectionsResults') }}" class="btn">Atrás</a>
 
+<h1>Resultados de Ganancias</h1>
+
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select name="month">
+        {% for month in months %}
+            <option value="{{ month }}">{{ month }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="Mostrar">
+</form>
+
+<h2>Ganancias Totales brutas: {{ ganancias_totales_mes }}</h2>
+
+<div>
+    {{ graph_html_ganancias | safe }}
+</div>
 
 {% endblock %}

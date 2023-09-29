@@ -1,0 +1,49 @@
+{% extends './base.html' %}
+
+{% block title %}Mantenimiento{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance/maintenance.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0" />
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+{% endblock %}
+
+
+{% block body %}
+<a href="{{ url_for('maintenance_home') }}" class="btn btn-primary">Atrás</a>
+
+<h1>Avisos del área de almacén de mantenimiento a máquina</h1>
+
+<table class="table1">
+    <tr>
+        <th>No. Maquina</th>
+        <th>Máquina</th>
+        <th>Mantenimiento necesario</th>
+    </tr>
+
+    {% for machine in machines_data %}
+    <tr>
+        <td>{{ machine[0] }}</td>
+        <td>{{ machine[2] | upper }} {{ machine[1] | upper }}</td>
+        <td {% if machine[3] == 1 or machine[3] == 0 %} class="red-cell" {% endif %}>
+            {% if machine[3] == 1 %}
+                CORRECTIVO
+            {% elif machine[3] == 0 %}
+                PREVENTIVO
+            {% elif machine[3] is none %}
+                SIN AVISO
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<style>
+    .red-cell {
+        background-color: #FF672C;
+    }
+</style>
+
+{% endblock %}

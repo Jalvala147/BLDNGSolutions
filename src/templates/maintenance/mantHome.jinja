@@ -3,15 +3,14 @@
 {% block title%}Mantenimiento{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" 
-    href="{{ url_for('static', filename='css/maintenance/mantHome.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance/mantHome.css')}}">
 <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-{% endblock %} 
+{% endblock %}
 
-{% block body %} 
+{% block body %}
 <div id="particles-js"></div>
 <style>
     body {
@@ -68,14 +67,6 @@
                 <span class="text">Maquinas</span>
             </a>
         </li>
-        {# <li class="list">
-            <a href="/maintenance/mantHistory">
-                <span class="icon">
-                    <ion-icon name="person-outline"></ion-icon>
-                </span>
-                <span class="text">Historial</span>
-            </a>
-        </li> #}
         <li class="list">
             <a href="/maintenance/mantMaintenance">
                 <span class="icon">
@@ -94,6 +85,16 @@
                     </span>
                 </span>
                 <span class="text">Reportes</span>
+            </a>
+        </li>
+        <li class="list">
+            <a href="/maintenance/storageRequests">
+                <span class="icon">
+                    <span class="material-symbols-outlined">
+                        notifications
+                    </span>
+                </span>
+                <span class="text">Avisos de mantenimiento</span>
             </a>
         </li>
 
