@@ -82,44 +82,26 @@ def stoMaintenance():
 def preventive(id_machine):
     if request.method == 'POST':
         
-        # Crear un nuevo registro en la tabla maintenancehistory
+        # Update the maintenanceNotice field to 0 (preventive)
         cursor = mysql.connection.cursor()
-        cursor.execute("INSERT INTO maintenancehistory (id_Machine) VALUES (%s)", (id_machine,))
+        cursor.execute("UPDATE machines SET maintenanceNotice = 0 WHERE id_Machine = %s", (id_machine,))
         mysql.connection.commit()
-        
-        # Obtener el id recién creado
-        new_id_maintenance = cursor.lastrowid
-        
-        # Insertar el registro en la tabla preventivemaintenance con el nuevo id_Maintenance
-        cursor.execute("INSERT INTO preventivemaintenance (id_Maintenance, date) VALUES (%s, CURRENT_TIMESTAMP)",
-                       (new_id_maintenance,))
-        mysql.connection.commit()
-        
         cursor.close()
         
-        return redirect(url_for('storageemp.stoMaintenance'))  # Redirigir a la página de mantenimiento
-
+        return redirect(url_for('storageemp.stoMaintenance'))  # Redirect to the maintenance page
 
 @storageemp.route('/storage/corrective/<int:id_machine>', methods=['POST'])
 def corrective(id_machine):
     if request.method == 'POST':
         
-        # Crear un nuevo registro en la tabla maintenancehistory
+        # Update the maintenanceNotice field to 1 (corrective)
         cursor = mysql.connection.cursor()
-        cursor.execute("INSERT INTO maintenancehistory (id_Machine) VALUES (%s)", (id_machine,))
+        cursor.execute("UPDATE machines SET maintenanceNotice = 1 WHERE id_Machine = %s", (id_machine,))
         mysql.connection.commit()
-        
-        # Obtener el id recién creado
-        new_id_maintenance = cursor.lastrowid
-        
-        # Insertar el registro en la tabla correctivemaintenance con el nuevo id_Maintenance
-        cursor.execute("INSERT INTO correctivemaintenance (id_Maintenance, date) VALUES (%s, CURRENT_TIMESTAMP)",
-                       (new_id_maintenance,))
-        mysql.connection.commit()
-        
         cursor.close()
         
-        return redirect(url_for('storageemp.stoMaintenance'))  # Redirigir a la página de mantenimiento
+        return redirect(url_for('storageemp.stoMaintenance'))  # Redirect to the maintenance page
+
 
 
 #------------------------Almacén de las maquinas-------------------------------
@@ -222,5 +204,5 @@ def add_machine():
             mysql.connection.rollback()
         finally:
             cursor.close()
-
+            
     return render_template('storage/add_machine.jinja')

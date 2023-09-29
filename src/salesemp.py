@@ -309,7 +309,6 @@ def clientsList():
 @salesemp.route('/salesEmpArea/newRequest')
 def newRequest():
     cur = mysql.connection.cursor()
-
     # Joins
     cur.execute("""
         SELECT orders.id AS 'NO. DE SOLICITUD',
@@ -323,14 +322,10 @@ def newRequest():
         WHERE orders.status = 1
         GROUP BY orders.id, user.fullname, user.email
     """)
-
-    # Fetch all the results of the query
     orders_data = cur.fetchall()
-
-    # Close the cursor
     cur.close()
 
-    # Pass the results to the template newRequest.jinja and render it
+    #Mandar los resultados al la plantilla newRequest.jinja y renderizarla
     return render_template('salesEmpArea/newRequest.jinja', orders=orders_data)
 
 
@@ -372,56 +367,56 @@ def prospects():
 @salesemp.route('/salesEmpArea/prospects/add', methods=['GET', 'POST'])
 def add_prospect():
     if request.method == 'POST':
-        # Get form data
+        # Obtener los datos del formulario
         fullname = request.form['fullname']
         number = request.form['number']
         email = request.form['email']
 
-        # Insert a new prospect into the database
+        # Insertar un nuevo prospecto en la base de datos
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO prospects (fullname, number, email) VALUES (%s, %s, %s)", (fullname, number, email))
         mysql.connection.commit()
         cur.close()
 
-        # Redirect to the prospects page after adding the prospect
+        # Redirigir a la página de prospectos después de agregar el prospecto
         return redirect(url_for('salesemp.prospects'))
     else:
-        # Display the form for adding a new prospect
+        # Mostrar el formulario para agregar un nuevo prospecto
         return render_template('salesEmpArea/prospects/add_prospect.jinja')
     
 @salesemp.route('/salesEmpArea/prospects/edit/<int:prospect_id>', methods=['GET', 'POST'])
 def edit_prospect(prospect_id):
     if request.method == 'POST':
-        # Get form data
+        # Obtener los datos del formulario
         fullname = request.form['fullname']
         number = request.form['number']
         email = request.form['email']
 
-        # Update the prospect in the database
+        # Actualizar el prospecto en la base de datos
         cur = mysql.connection.cursor()
         cur.execute("UPDATE prospects SET fullname = %s, number = %s, email = %s WHERE id_Prospect = %s", (fullname, number, email, prospect_id))
         mysql.connection.commit()
         cur.close()
 
-        # Redirect to the prospects page after editing the prospect
+        # Redirigir a la página de prospectos después de editar el prospecto
         return redirect(url_for('salesemp.prospects'))
     else:
-        # Fetch the current prospect details from the database
+        # Obtener los detalles actuales del prospecto de la base de datos
         cur = mysql.connection.cursor()
         cur.execute("SELECT id_Prospect, fullname, number, email FROM prospects WHERE id_Prospect = %s", (prospect_id,))
         prospect_details = cur.fetchone()
         cur.close()
 
-        # Display the edit form with the current prospect details
+        # Mostrar el formulario de edición con los detalles actuales del prospecto
         return render_template('salesEmpArea/prospects/edit_prospect.jinja', prospect=prospect_details)
 
 @salesemp.route('/salesEmpArea/prospects/delete/<int:prospect_id>', methods=['POST'])
 def delete_prospect(prospect_id):
-    # Delete the prospect from the database
+    # Eliminar el prospecto de la base de datos
     cur = mysql.connection.cursor()
     cur.execute("DELETE FROM prospects WHERE id_Prospect = %s", (prospect_id,))
     mysql.connection.commit()
     cur.close()
 
-    # Redirect to the prospects page after deleting the prospect
+    # Redirigir a la página de prospectos después de eliminar el prospecto
     return redirect(url_for('salesemp.prospects'))

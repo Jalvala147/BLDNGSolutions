@@ -175,16 +175,19 @@ body
 }
 
 .navigation ul li:nth-child(1).active ~ .indicator {
-    transform: translateX(calc(10px));
+    transform: translateX(calc(5px));
 }
 
 .navigation ul li:nth-child(2).active ~ .indicator {
-    transform: translateX(calc(98px * 1));
+    transform: translateX(calc(85px * 1));
 }
 
 .navigation ul li:nth-child(3).active ~ .indicator {
-    transform: translateX(calc(95px * 2));
+    transform: translateX(calc(82px * 2));
 }
 
+.navigation ul li:nth-child(4).active ~ .indicator {
+    transform: translateX(calc(82px * 3));
+}
 
 
