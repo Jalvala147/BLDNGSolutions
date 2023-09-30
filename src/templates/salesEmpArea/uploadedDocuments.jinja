@@ -19,13 +19,15 @@
   <table class="table1">
     <thead>
       <tr>
-        <th>ID</th>
+        <th>No.</th>
         <th>Archivo</th>
         <th>Descargar</th>
         <th>Visualizar</th>
         <th>Validar</th>
         <th>No válido</th>
         <th>Estado</th>
+        <th>Solicitud de cambio</th>
+        <th>Aceptar solicitud</th>
       </tr>
     </thead>
     <tbody>
@@ -40,10 +42,20 @@
             </span></a>
         </td>
         <td>
-          <a href="{{ url_for('salesemp.view_file', filename=file[1]) }}" class="btn btn-primary" target="_blank"><span
-              class="material-symbols-rounded">
+          {% if file[1].lower().endswith('.pdf') %}
+          <a href="{{ url_for('salesemp.view_file', filename=file[1]) }}" class="btn btn-primary" target="_blank">
+            <span class="material-symbols-rounded">
               visibility
-            </span></a>
+            </span>
+          </a>
+          {% else %}
+          
+          <button class="btn btn-primary" disabled>
+            <span class="material-symbols-rounded">
+              visibility
+            </span>
+          </button>
+          {% endif %}
         </td>
 
         <td>
@@ -58,8 +70,7 @@
               close
             </span></a>
         </td>
-
-        <td>
+        <td class="{% if file[2] == 1 %}valido{% elif file[2] == 0 %}no-valido{% else %}desconocido{% endif %}">
           {% if file[2] == 1 %}
           Valido
           {% elif file[2] == 0 %}
@@ -68,6 +79,23 @@
           Valor desconocido
           {% endif %}
         </td>
+        <td style="{% if file[3] == 1 %}background-color: #d4ff00;{% endif %}">
+          {% if file[3] == 1 %}
+            Se necesita un cambio
+          {% elif file[3] is none %}
+            Sin solicitud
+          {% elif file[3] == 0 %}
+            En espera de modificacion
+          {% endif %}
+        </td>        
+        <td>
+          <a href="{{ url_for('salesemp.accept_change_request', file_id=file[0], user_id=user_id) }}"
+             class="btn btn-primary btn-valid"><span class="material-symbols-rounded">
+              task
+              </span>
+          </a>
+        </td>
+           
       </tr>
       {% endfor %}
     </tbody>
@@ -80,8 +108,17 @@
 
 </div>
 
-
-
+<style>
+  .valido {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .no-valido {
+    background-color: #ff3c00;
+    color: white;
+  }
+</style>
 
 <script>
   function confirmDownload() {
@@ -117,6 +154,5 @@
   });
 
 </script>
-
 
 {% endblock %}

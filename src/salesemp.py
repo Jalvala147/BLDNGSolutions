@@ -207,7 +207,7 @@ def auto_progress(order_id):
         flash("Error al obtener información de la base de datos.", "error")
         return redirect(url_for('salesemp.rentsList'))
 
-#------------------------------Guardado de archivos-----------------ppo-------
+#------------------------------Guardado de archivos------------------------
 @salesemp.route('/download_file/<filename>')
 def download_file(filename):
     # Obtén el archivo blob de la base de datos
@@ -242,12 +242,24 @@ def view_file(filename):
 def uploaded_documents(user_id):
     # Realizar la consulta para obtener los documentos del usuario con el ID proporcionado
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, filename, status FROM files WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT id, filename, status, changeRequest FROM files WHERE user_id = %s", (user_id,))
     documents = cur.fetchall()
     cur.close()
 
     # Pasar los documentos a la plantilla uploaded_documents.jinja
     return render_template('/salesEmpArea/uploadedDocuments.jinja', user_id=user_id, documents=documents)
+
+
+@salesemp.route('/accept_change_request/<int:file_id>/<int:user_id>')
+def accept_change_request(file_id, user_id):
+    # Actualiza el campo changeRequest a 0 para el documento con el ID proporcionado
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE files SET changeRequest = 0 WHERE id = %s AND user_id = %s", (file_id, user_id))
+    mysql.connection.commit()
+    cur.close()
+
+    # Redirige de nuevo a la página de documentos del usuario
+    return redirect(url_for('salesemp.uploaded_documents', user_id=user_id))
 
 #----------------------------------------------------
 
@@ -266,7 +278,7 @@ def mark_as_completed(file_id, user_id):
     documents = cur.fetchall()
     cur.close()
 
-    return render_template('/salesEmpArea/uploadedDocuments.jinja', documents=documents, user_id=user_id)
+    return redirect(url_for('salesemp.uploaded_documents', user_id=user_id))
 
 
 @salesemp.route('/mark_as_incomplete/<int:file_id>/<int:user_id>')
@@ -283,7 +295,7 @@ def mark_as_incomplete(file_id, user_id):
     documents = cur.fetchall()
     cur.close()
 
-    return render_template('/salesEmpArea/uploadedDocuments.jinja', documents=documents, user_id=user_id)
+    return redirect(url_for('salesemp.uploaded_documents', user_id=user_id))
 
 
 

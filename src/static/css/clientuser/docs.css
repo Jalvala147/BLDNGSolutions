@@ -18,7 +18,7 @@ body {
 
 /* Container Styles */
 .container {
-    max-width: 930px;
+    max-width: 1000px;
     width: 100%;
     background: rgba(255, 255, 255, .5);
     padding: 2rem;

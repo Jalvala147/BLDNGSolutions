@@ -134,21 +134,30 @@ def docs():
 
     # Realizar la consulta para obtener los documentos del usuario con el ID proporcionado
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, filename, status FROM files WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT id, filename, status, changeRequest FROM files WHERE user_id = %s", (user_id,))
     documents = cur.fetchall()
     cur.close()
 
-    # Obtener el tamaño máximo permitido en bytes
+    return render_template('/clientuser/docs.jinja', user_id=user_id, documents=documents)   
+
+@clients.route('/request_change/<int:document_id>', methods=['GET'])
+@login_required
+def request_change_document(document_id):
+    # Ensure that the document belongs to the current user
     cur = mysql.connection.cursor()
-    cur.execute("SHOW VARIABLES LIKE 'max_allowed_packet'")
+    cur.execute("SELECT user_id FROM files WHERE id = %s", (document_id,))
     result = cur.fetchone()
-    max_size_bytes = int(result[1])
-    cur.close()
 
-    # Calcular el tamaño máximo en KB
-    max_size_kb = math.ceil(max_size_bytes / 1024)
+    if result and result[0] == current_user.id:
+        # Update the changeRequest field to 1
+        cur.execute("UPDATE files SET changeRequest = 1 WHERE id = %s", (document_id,))
+        mysql.connection.commit()
+        cur.close()
+        flash('Solicitud de cambio enviada correctamente ✔️')
+    else:
+        flash('No tienes permisos para solicitar cambio de este documento ❌')
 
-    return render_template('/clientuser/docs.jinja', max_size_kb=max_size_kb, user_id=user_id, documents=documents)   
+    return redirect(url_for('clients.docs'))
 
 @clients.route('/delete_document/<int:document_id>', methods=['GET', 'POST'])
 @login_required
