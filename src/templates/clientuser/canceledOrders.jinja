@@ -13,17 +13,16 @@
 
 {% block body %}
 
-<a href="{{ url_for('clients.clientsHome') }}" class="btn btn-primary">Atrás</a>
+<a href="{{ url_for('clients.orders') }}" class="btn btn-primary">Atrás</a>
 
-<h1>Tus pedidos</h1>
-
+<h1>Pedidos cancelados</h1>
+<p>Estos pedidos ya han sido cancelados, pero aun puedes volver a hacer el pedido</p>
 <table class="table1">
     <tr>
         <th>No. Pedido</th>
         <th>Fecha del pedido</th>
         <th>Total</th>
         <th>Información completa</th>
-        <th>Solicitar cancelación*</th>
     </tr>
     {% for order in orders_data %}
     <tr>
@@ -34,21 +33,9 @@
                     info
                 </span></a>
         </td>
-        <td>
-            <form method="POST" action="{{ url_for('clients.cancel_order_request', order_id=order[0]) }}"
-                onsubmit="return confirm('¿Estás seguro de que quieres solicitar la cancelación para este pedido?');">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-danger">
-                    <span class="material-symbols-rounded">cancel</span>
-                </button>
-            </form>
-        </td>
 
     </tr>
     {% endfor %}
 </table>
-<a href="{{ url_for('clients.canceledOrders') }}" class="btn btn-primary">Pedidos cancelados</a>
-<p>*al solicitar la cancelacion de un pedido, favor de </p>
-<p>esperar a que se acepte la cancelacion. Los pedidos</p>
-<p>cancelados se podrán ver presionando el botón</p>
+
 {% endblock %}
