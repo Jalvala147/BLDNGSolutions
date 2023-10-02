@@ -264,7 +264,3 @@ function weeksChanged(event) {
     updateTotal(); // Agrega esta línea para llamar a updateTotal
     console.log("Valor de semanas:", input.value); // Agrega esta línea para depurar
 }
-
-
-
-
