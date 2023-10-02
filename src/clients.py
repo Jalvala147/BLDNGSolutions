@@ -180,19 +180,53 @@ def delete_document(document_id):
     return redirect(url_for('clients.docs'))
 
 
-
+#-----------------listado de los pedidos del cliente---------------------
 @clients.route('/orders')
 def orders():
 
     user_id = current_user.id
     cur = mysql.connection.cursor()
     #tomamos id la fecha y total de los pedidos del usuario actual
-    cur.execute("SELECT id, order_date, total FROM orders WHERE clientUser_id = %s", (user_id,))
+    cur.execute("SELECT id, order_date, total, cancel_status FROM orders WHERE clientUser_id = %s AND (cancel_status != 0 OR cancel_status IS NULL)", (user_id,))
     orders_data = cur.fetchall()
     cur.close()
 
     # Renderizar la plantilla con los datos obtenidos
     return render_template('/clientuser/orders.jinja', orders_data=orders_data)
+    
+#-----------------listado de los pedidos cancelados del cliente-------------------
+@clients.route('/canceledOrders')
+def canceledOrders():
+
+    user_id = current_user.id
+    cur = mysql.connection.cursor()
+    #tomamos id la fecha y total de los pedidos del usuario actual
+    cur.execute("SELECT id, order_date, total, cancel_status FROM orders WHERE clientUser_id = %s AND (cancel_status != 0 OR cancel_status IS NOT NULL)", (user_id,))
+    orders_data = cur.fetchall()
+    cur.close()
+
+    # Renderizar la plantilla con los datos obtenidos
+    return render_template('/clientuser/canceledOrders.jinja', orders_data=orders_data)
+
+
+
+@clients.route('/cancel_order_request/<int:order_id>', methods=['POST'])
+def cancel_order_request(order_id):
+    if request.method == 'POST':
+        
+        user_id = current_user.id
+        cur = mysql.connection.cursor()
+        
+        # Update the cancel_status to 1 for the specified order
+        cur.execute("UPDATE orders SET cancel_status = 1 WHERE id = %s AND clientUser_id = %s", (order_id, user_id))
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Order canceled successfully', 'success')
+    
+    # Redirect back to the list of orders
+    return redirect(url_for('clients.orders'))
+
 
 @clients.route('/orders/info/<int:id_order>')
 def information(id_order):
@@ -259,7 +293,7 @@ def products():
     user_id = current_user.id
 
     cur = mysql.connection.cursor() 
-    cur.execute("SELECT id, name, image, price, id_Machine FROM products")
+    cur.execute("SELECT id, name, image, price, id_Machine, sell_price FROM products")
     product_data = cur.fetchall()
 
     # Crear una lista para almacenar los productos como dicconarios

@@ -53,11 +53,32 @@ def salesList():
 @salesemp.route('/salesEmpArea/rentsList')   
 def rentsList():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id FROM orders WHERE status = 1")
+    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL)")
+
     orders_ids = cur.fetchall()
     cur.close
     return render_template('/salesEmpArea/rentsList.jinja', order_ids=orders_ids)
 
+@salesemp.route('/salesEmpArea/acceptCancelRequest/<int:order_id>', methods=['POST'])
+def acceptCancelRequest(order_id):
+    if request.method == 'POST':
+        # Actualiza el valor de cancel_status a 0 en la base de datos
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE orders SET cancel_status = 0 WHERE id = %s", (order_id,))
+        mysql.connection.commit()
+        cur.close()
+        flash('Solicitud de cancelación aceptada', 'success')
+        return redirect(url_for('salesemp.rentsList'))
+
+#Listado de rentas canceladas
+@salesemp.route('/salesEmpArea/canceledRentsList')   
+def canceledRentsList():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND cancel_status = 0 ")
+
+    orders_ids = cur.fetchall()
+    cur.close
+    return render_template('/salesEmpArea/canceledRentsList.jinja', order_ids=orders_ids)
 
 #Funcion para actualizar el campo verifiedDocs cuando el empleado haya verificado los documentos
 @salesemp.route('/salesEmpArea/updateVerifiedDocs/<int:order_id>')

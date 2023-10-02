@@ -1,0 +1,55 @@
+{% extends './base.html' %}
+
+{% block title %}Rentas{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+{% endblock %}
+
+{% block body %}
+
+<a href="{{ url_for('salesemp.rentsList') }}" class="btn">Atras</a>
+
+<h1>Pedidod de Rentas cancelados</h1>
+
+
+<table class="table1">
+    <tr>
+        <th>No. de orden</th>
+        <th>Detalles</th>
+    
+    </tr>
+    {% for order_id in order_ids %}
+    <tr>
+        <td>{{ order_id[0] }}</td>
+        <td><a href="{{ url_for('salesemp.orderDetails', order_id=order_id[0]) }}"><button><span
+                        class="material-symbols-rounded">
+                        info
+                    </span></button>
+            </a>
+        </td>
+
+
+        {% endfor %}
+        
+</table>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var flashMessages = document.getElementById("flash-messages");
+
+        if (flashMessages) {
+            setTimeout(function () {
+                flashMessages.style.display = "none";
+            }, 1500); // Ocultar después de 1.5 segundos (1500 milisegundos)
+        }
+    });
+</script>
+
+{% endblock %}
