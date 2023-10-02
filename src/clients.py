@@ -310,7 +310,10 @@ def products():
 
     cur.close()
     
-    return render_template('/clientuser/products.jinja', user_id=user_id, products=products)
+    # Pass the selected purchase option to the template
+    purchase_option = request.args.get('purchase_option', 'renta')
+
+    return render_template('/clientuser/products.jinja', user_id=user_id, products=products, purchase_option=purchase_option)
 
 
 # -------------Peticion de productos/Place order------------------------

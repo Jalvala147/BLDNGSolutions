@@ -45,12 +45,18 @@ def employeelist():
 
 #---------------Control de accesos----------------------------------
 
-@admin.route('/administration/accesscontrol')
+@admin.route('/administration/accessControl')
 def accesscontrol():
-    return render_template('administration/empAccessControl/accessControl.jinja')
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, username, fullname, email, areaUsuario FROM user WHERE tipousuario = 2")
+    users = cur.fetchall()
+    cur.close()
+    return render_template('administration/empAccessControl/accessControl.jinja', users=users)
 
 
-
+@admin.route('/administration/accessHistory/<int:id>/<string:name>')
+def accessHistory(id, name):
+    return render_template('administration/empAccessControl/accessHistory.jinja', id=id, name=name)
 
 
 #-------------------------------------------------
@@ -181,7 +187,7 @@ def maintListEmp():
     return render_template('administration/maintListEmp.jinja', users=users)
 
 
-# Vista para agregar un empleado
+# Vista para agregar un empleado✅
 @csrf.exempt
 @admin.route('/administration/maintAddEmp', methods=['GET', 'POST'])
 def maintAddEmp():
@@ -197,13 +203,11 @@ def maintAddEmp():
         cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, fullname, email, tipoUsuario, areaUsuario))
         mysql.connection.commit()
         cur.close()
-        
-        return "Empleado de mantenimiento registrado con éxito."
-
+        return redirect(url_for('admin.maintListEmp'))
     return render_template('administration/maintAddEmp.jinja')
 
 
-# Vista para eliminar un empleado
+# Vista para eliminar un empleado✅
 @admin.route('/administration/maintDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
 def maintDeleteEmp(id):
     cur = mysql.connection.cursor()
@@ -213,7 +217,7 @@ def maintDeleteEmp(id):
     return redirect(url_for('admin.maintListEmp'))
 
 
-# Vista para actualizar un empleado
+# Vista para actualizar un empleado✅
 @admin.route('/administration/maintUpdateEmp/<int:id>', methods=['GET', 'POST'])
 def maintUpdateEmp(id):
     cur = mysql.connection.cursor()
@@ -261,9 +265,7 @@ def salesAddEmp():
         cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, fullname, email, tipoUsuario, areaUsuario))
         mysql.connection.commit()
         cur.close()
-        
-        return "Empleado de ventas registrado con éxito."
-
+        return redirect(url_for('admin.salesListEmp'))
     return render_template('administration/salesAddEmp.jinja')
 
 
@@ -328,9 +330,7 @@ def storAddEmp():
         cur.execute("INSERT INTO user (username, password, fullname, email, tipousuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, fullname, email, tipoUsuario, areaUsuario))
         mysql.connection.commit()
         cur.close()
-        
-        return "Empleado de almacén registrado con éxito."
-
+        return redirect(url_for('admin.storListEmp'))
     return render_template('administration/storAddEmp.jinja')
 
 
@@ -380,7 +380,7 @@ def shipListEmp():
     return render_template('administration/shipListEmp.jinja', users=users)
 
 
-# Vista para agregar un empleado
+# Vista para agregar un empleado de envios✅
 @csrf.exempt
 @admin.route('/administration/shipAddEmp', methods=['GET', 'POST'])
 def shipAddEmp():
@@ -410,7 +410,7 @@ def shipDeleteEmp(id):
     return redirect(url_for('admin.shipListEmp'))
 
 
-# Vista para actualizar un empleado
+# Vista para actualizar un empleado✅
 @admin.route('/administration/shipUpdateEmp/<int:id>', methods=['GET', 'POST'])
 def shipUpdateEmp(id):
     cur = mysql.connection.cursor()

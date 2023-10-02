@@ -31,25 +31,20 @@ def logout():
     return redirect(url_for('startpage'))
 #------------------------------------------------------------------------
 
+
+#----------------------------Listado de ventas---------------------------
 @salesemp.route('/salesEmpArea/salesList')
 def salesList():
-    # Obtén una conexión a la base de datos
+    
     cur = mysql.connection.cursor()
+    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL)")
 
-    # Realiza la consulta a la base de datos
-    cur.execute("SELECT maquina, num_orden, estado_pedido FROM tabla_pedidos")
-
-    # Obtiene los resultados de la consulta
-    pedidos = cur.fetchall()
-
-    # Cierra el cursor
-    cur.close()
-
-    # Pasa los datos a la plantilla salesList.jinja para mostrarlos en la tabla
-    return render_template('/salesEmpArea/salesList.jinja', pedidos=pedidos)
+    orders_ids = cur.fetchall()
+    cur.close
+    return render_template('/salesEmpArea/salesList.jinja', order_ids=orders_ids)
 
 
-#Listado de rentas
+#-----------------------------Listado de rentas-------------------------
 @salesemp.route('/salesEmpArea/rentsList')   
 def rentsList():
     cur = mysql.connection.cursor()
@@ -59,6 +54,7 @@ def rentsList():
     cur.close
     return render_template('/salesEmpArea/rentsList.jinja', order_ids=orders_ids)
 
+#-------------Aceptar solicitudes de cancelacion de rentas
 @salesemp.route('/salesEmpArea/acceptCancelRequest/<int:order_id>', methods=['POST'])
 def acceptCancelRequest(order_id):
     if request.method == 'POST':

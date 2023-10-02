@@ -3,16 +3,41 @@
 {% block title%}Control de accesos{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 {% endblock %}
 
 
 {% block body %}
 
-<a href="{{ url_for('admin.adminHome') }}" class="btn" >Atras</a>
+<a href="{{ url_for('admin.adminHome') }}" class="btn">Atras</a>
 
 <h1>Control de accesos</h1>
-<h2>Empleados</h2>
+
+<table class="table1">
+    <tr>
+        <th>ID</th>
+        <th>Nombre de usuario</th>
+        <th>Nombre completo</th>
+        <th>Correo electrónico</th>
+        <th>Historial</th>
+
+    </tr>
+    {% for user in users %}
+    <tr>
+        <td>{{ user[0] }}</td>
+        <td>{{ user[1] }}</td>
+        <td>{{ user[2] }}</td>
+        <td>{{ user[3] }}</td>
+        <td>
+            <a href="{{ url_for('admin.accessHistory', id=user[0], name=user[2]) }}"><span
+                    class="material-symbols-rounded">
+                    history
+                </span></a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 
 {% endblock %}

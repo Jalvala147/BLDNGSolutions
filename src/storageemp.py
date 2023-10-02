@@ -37,9 +37,8 @@ def storage_home():
 #--------------------Historial de las Máquinas-----------------------------
 @storageemp.route('/storage/stoHistory')
 def stoHistory():
+    
     cursor = mysql.connection.cursor()
-
-    # Fetch data from the 'machines' table
     cursor.execute("SELECT id, uid, model, datecurrent, status FROM store")
     machines_data = cursor.fetchall()
 
@@ -104,7 +103,7 @@ def corrective(id_machine):
 
 
 
-#------------------------Almacén de las maquinas-------------------------------
+#------------------------Almacén: Listado de las maquinas---------------------
 @storageemp.route('/storage/stoMachines')
 def stoMachines():
     # crear el cursor
@@ -120,47 +119,40 @@ def stoMachines():
     # renderizar la plantilla con los datos
     return render_template('/storage/stoMachines.jinja', machines_data=machines_data)
 
+
+#----------------------Actualizar una maquina------------------------✅
 @csrf.exempt
 @storageemp.route('/storage/update_machine/<int:machine_id>', methods=['GET', 'POST'])
 def update_machine(machine_id):
     cursor = mysql.connection.cursor()
+
+    # Fetch the existing machine data
+    cursor.execute("SELECT * FROM machines WHERE id_Machine=%s", (machine_id,))
+    machine_data = cursor.fetchone()
 
     if request.method == 'POST':
         # Get the updated data from the form
         model = request.form['model']
         brand = request.form['brand']
         type = request.form['type']
-        #status = request.form['status']
 
         # Update the machine record in the database
         cursor.execute(
-            "UPDATE machines SET model=%s, brand=%s, type=%s, currentUser=%s WHERE id_Machine=%s",
+            "UPDATE machines SET model=%s, brand=%s, type=%s WHERE id_Machine=%s",
             (model, brand, type, machine_id)
         )
 
-        # cursor.execute(
-        #     "UPDATE machines SET model=%s, brand=%s, type=%s, status=%s, currentUser=%s WHERE id_Machine=%s",
-        #     (model, brand, type, status, machine_id)
-        # )
-
-        # Commit the changes
+        # Commit the changes to the database
         mysql.connection.commit()
-        cursor.close()
 
-        # Redirect back to the machine list page
+        # Redirect to the 'stoMachines' route after updating
         return redirect(url_for('storageemp.stoMachines'))
 
-
-    # If it's a GET request, fetch the machine data for the form pre-population
-    cursor.execute("SELECT id_Machine, model, brand, type FROM machines WHERE id_Machine=%s", (machine_id,))
-    machine_data = cursor.fetchone()
     cursor.close()
 
-    # Render the update form with the machine data
-    return render_template('/storage/update_machine.jinja', machine_data=machine_data)
+    return render_template('storage/update_machine.jinja', machine_data=machine_data)
 
-
-
+#--------------------Eliminar una maquina-----------------✅
 @csrf.exempt
 @storageemp.route('/storage/delete_machine/<int:machine_id>', methods=['POST'])
 def delete_machine(machine_id):
@@ -176,7 +168,7 @@ def delete_machine(machine_id):
     # Redirect back to the machine list page
     return redirect(url_for('storageemp.stoMachines'))
 
-
+#--------------Agregar una nueva maquina------------✅
 @csrf.exempt
 @storageemp.route('/storage/add_machine', methods=['GET', 'POST'])
 def add_machine():
@@ -185,24 +177,22 @@ def add_machine():
         model = request.form['model']
         brand = request.form['brand']
         machine_type = request.form['type']
-        status = request.form['status']
 
-
+        # Crear una conexión y cursor para la base de datos
         cursor = mysql.connection.cursor()
 
-        # El ID de usuario existe, proceder con agregar la máquina
-        query = "INSERT INTO machines (model, brand, type, status) VALUES (%s, %s, %s, %s)"
-        values = (model, brand, machine_type, status)
+        # Definir la consulta SQL para insertar la máquina
+        query = "INSERT INTO machines (model, brand, type) VALUES (%s, %s, %s)"
+        values = (model, brand, machine_type)
 
-        try:
-            cursor.execute(query, values)
-            mysql.connection.commit()
-            flash("Registro agregado exitosamente.", "success")
-            return redirect(url_for('storageemp.stoMachines'))
-        except Exception as e:
-            flash("Error al agregar el registro: " + str(e), "danger")
-            mysql.connection.rollback()
-        finally:
-            cursor.close()
-            
+        # Ejecutar la consulta SQL con los valores proporcionados
+        cursor.execute(query, values)
+
+        # Confirmar la transacción en la base de datos
+        mysql.connection.commit()
+
+        # Cerrar el cursor y la conexión
+        cursor.close()
+        return redirect(url_for('storageemp.stoMachines'))
     return render_template('storage/add_machine.jinja')
+
