@@ -37,28 +37,61 @@ def storage_home():
 #--------------------Historial de las Máquinas-----------------------------
 @storageemp.route('/storage/stoHistory')
 def stoHistory():
-    
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id, uid, model, datecurrent, status FROM store")
+    cursor.execute("""
+        SELECT machines.id_Machine, store.uid, machines.model, store.datecurrent, store.status
+        FROM store
+        INNER JOIN machinesid ON store.uid = machinesid.uid_Machine
+        INNER JOIN machines ON machinesid.id_Machine = machines.id_Machine
+    """)
     machines_data = cursor.fetchall()
-
     # Close the cursor
     cursor.close()
-
     # Render the template with the data
     return render_template('/storage/stoHistory.jinja', machines_data=machines_data)
-    
+
+
 
 @storageemp.route('/storage/machineHistory/<int:machine_id>')
 def machineHistory(machine_id):
-    # Obtener los datos del historial de la máquina con el ID proporcionado
+    # Get the UID, model, and brand associated with the provided machine_id
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id_History, id_Machine, entry_date, entry_time, exit_date, exit_time FROM machinehistory WHERE id_Machine=%s", (machine_id,))
-    machine_history_data = cursor.fetchall()
+    cursor.execute("""
+        SELECT machinesid.uid_Machine, machines.model, machines.brand
+        FROM machinesid
+        INNER JOIN machines ON machinesid.id_Machine = machines.id_Machine
+        WHERE machinesid.id_Machine = %s
+    """, (machine_id,))
+    machine_data = cursor.fetchone()
     cursor.close()
 
-    # Renderizar la plantilla con los datos del historial de la máquina
-    return render_template('/storage/machineHistory.jinja', machine_id=machine_id, machine_history_data=machine_history_data)
+    if machine_data:
+        uid = machine_data[0]
+        model = machine_data[1]
+        brand = machine_data[2]
+
+        # Retrieve machine history based on the UID
+        cursor = mysql.connection.cursor()
+        query = """
+        SELECT timestamp, new_status
+        FROM machinehistory
+        WHERE uid = %s AND (new_status = 1 OR new_status = 0)
+        ORDER BY timestamp
+        """
+        cursor.execute(query, (uid,))
+        machine_history_data = cursor.fetchall()
+        cursor.close()
+
+        # Separate the entry and exit dates
+        entry_dates = [entry[0] for entry in machine_history_data if entry[1] == 1]
+        exit_dates = [exit[0] for exit in machine_history_data if exit[1] == 0]
+
+        # Render the template with the machine history data, model, and brand
+        return render_template('/storage/machineHistory.jinja', machine_id=machine_id, model=model, brand=brand, entry_dates=entry_dates, exit_dates=exit_dates)
+    else:
+        # Handle the case where no matching machine was found
+        return "Machine not found"
+
 
 #---------------Mantenimiento Almacén aviso-------------
 @storageemp.route('/storage/stoMaintenance')
@@ -127,7 +160,7 @@ def update_machine(machine_id):
     cursor = mysql.connection.cursor()
 
     # Fetch the existing machine data
-    cursor.execute("SELECT * FROM machines WHERE id_Machine=%s", (machine_id,))
+    cursor.execute("SELECT machines.id_Machine, machinesid.uid_Machine, machines.model, machines.brand, machines.type FROM machines LEFT JOIN machinesid ON machines.id_Machine = machinesid.id_Machine WHERE machines.id_Machine=%s", (machine_id,))
     machine_data = cursor.fetchone()
 
     if request.method == 'POST':
@@ -135,8 +168,26 @@ def update_machine(machine_id):
         model = request.form['model']
         brand = request.form['brand']
         type = request.form['type']
+        uid = request.form['uid']
 
-        # Update the machine record in the database
+        # Check if a record with the given 'machine_id' exists in 'machinesid'
+        cursor.execute("SELECT * FROM machinesid WHERE id_Machine=%s", (machine_id,))
+        existing_machine = cursor.fetchone()
+
+        if existing_machine:
+            # If the record exists, update it
+            cursor.execute(
+                "UPDATE machinesid SET uid_Machine=%s WHERE id_Machine=%s",
+                (uid, machine_id)
+            )
+        else:
+            # If the record doesn't exist, insert a new one
+            cursor.execute(
+                "INSERT INTO machinesid (id_Machine, uid_Machine) VALUES (%s, %s)",
+                (machine_id, uid)
+            )
+
+        # Update the machine record in the 'machines' table
         cursor.execute(
             "UPDATE machines SET model=%s, brand=%s, type=%s WHERE id_Machine=%s",
             (model, brand, type, machine_id)
@@ -150,7 +201,12 @@ def update_machine(machine_id):
 
     cursor.close()
 
+    if machine_data is None:
+        # Handle the case when no data is found, you can redirect to an error page or provide a message to the user.
+        return "No se encontraron datos para la máquina con ID {}".format(machine_id)
+
     return render_template('storage/update_machine.jinja', machine_data=machine_data)
+
 
 #--------------------Eliminar una maquina-----------------✅
 @csrf.exempt

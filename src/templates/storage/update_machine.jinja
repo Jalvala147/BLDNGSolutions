@@ -15,12 +15,14 @@
 
     <form method="post" action="{{ url_for('storageemp.update_machine', machine_id=machine_data[0]) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="uid">UID:</label>
+        <input type="text" id="uid" name="uid" value="{{ machine_data[1] }}" required>
         <label for="model">Modelo:</label>
-        <input type="text" id="model" name="model" value="{{ machine_data[1] }}" required>
+        <input type="text" id="model" name="model" value="{{ machine_data[2] }}" required>
         <label for="brand">Marca:</label>
-        <input type="text" id="brand" name="brand" value="{{ machine_data[2] }}" required>
+        <input type="text" id="brand" name="brand" value="{{ machine_data[3] }}" required>
         <label for="type">Tipo de máquina:</label>
-        <input type="text" id="type" name="type" value="{{ machine_data[3] }}" required>
+        <input type="text" id="type" name="type" value="{{ machine_data[4] }}" required>
         <button type="submit">Guardar cambios</button>
     </form>
 

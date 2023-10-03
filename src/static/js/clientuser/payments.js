@@ -26,3 +26,5 @@ function generarOrdenPago() {
 
     document.getElementById('orden_pago').style.display = 'block';
 }
+
+
