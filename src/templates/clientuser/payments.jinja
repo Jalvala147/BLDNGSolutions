@@ -15,12 +15,12 @@
 <h1>{{current_user.fullname}}, Seleccione el pedido a realizar el pago</h1>
 
 <form>
-  <select id="order-select" name="order" autocomplete="off">
-    <option value="" disabled selected>Selecciona una orden</option>
-    {% for order in orders %}
-      <option value="{{ order[0] }}">Orden: {{ order[0] }}, Total: ${{ order[1] }}</option>
-    {% endfor %}
-  </select>
+    <select id="order-select" name="order" autocomplete="off">
+        <option value="" disabled selected>Selecciona una orden</option>
+        {% for order in orders %}
+        <option value="{{ order[0] }}">Orden: {{ order[0] }}, Total: ${{ order[1] }}</option>
+        {% endfor %}
+    </select>
 </form>
 
 <h1 id="selected-order-info">Información de la orden seleccionada:</h1>
@@ -83,10 +83,13 @@
 
     <div id="paypal" class="formulario" style="display: none;">
         <!-- Formulario de PayPal -->
-        <label for="correo_paypal">Correo electrónico de <img src="{{ url_for('static', filename = 'images/logos/paypallogo.png') }}" alt="PayPal Logo" width="100">:</label>
+        <label for="correo_paypal">Correo electrónico de <img
+                src="{{ url_for('static', filename = 'images/logos/paypallogo.png') }}" alt="PayPal Logo"
+                width="100">:</label>
         <input type="text" id="correo_paypal" name="correo_paypal" required><br><br>
-        <!-- ... Otros campos específicos de PayPal ... -->
+        <button onclick="generarOrdenPago()">Generar Orden de Pago</button>
     </div>
+
 
     <div id="orden_pago" style="display: none;">
         <!-- Información de la orden de pago generada -->
@@ -99,4 +102,5 @@
 
 <script src="{{ url_for('static', filename='js/clientuser/payments.js') }}"></script>
 
+<script src="https://www.paypal.com/sdk/js?client-id=ATwXrFmndPUWoHzlRO8nWHc8YFSb-VG6mqQzEXfCq3AQokm94kymKZKGYCOMTXWUU5Ce8g4bcKGI_dsF"></script>
 {% endblock %}

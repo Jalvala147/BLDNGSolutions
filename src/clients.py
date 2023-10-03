@@ -12,11 +12,19 @@ from flask import redirect
 import math
 import json
 
+from paypalrestsdk import Payment
+import paypalrestsdk
+
 
 app = Flask(__name__)
 mysql = MySQL()
 mail = Mail(app)
 
+# paypalrestsdk.configure({
+#   "mode": "sandbox",  # Cambia a "live" en producción
+#   "client_id": app.config['ATwXrFmndPUWoHzlRO8nWHc8YFSb-VG6mqQzEXfCq3AQokm94kymKZKGYCOMTXWUU5Ce8g4bcKGI_dsF'],
+#   "client_secret": app.config['EDj6_ZPQBQxcAnUDiHOCPYZKzzH0P-o1-6tA8j8YHzjn8hE2AJfAN6YqgBtv1NuRCVLteGY0fhBe10nC']
+# })
 
 clients = Blueprint('clients', __name__)
 

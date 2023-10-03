@@ -10,28 +10,36 @@
 {% block body %}
 <a href="{{ url_for('storageemp.stoHistory') }}" class="btn btn-primary">Atras</a>
 
-<h1>Historial maquina {{ machine_id }}</h1>
+<h1><p> Historial máquina #{{machine_id}} </p> <p>{{ brand | upper }} {{ model | upper }}</p></h1>
 
-<h3>Información de la máquina con ID {{ machine_id }}</h3>
+<h3>Número de entrdas al almacén: {{ entry_dates|length }}</h3>
+<h3>Némero de salidas del almacen: {{ exit_dates|length }}</h3>
 
-<table class="table1">
-    <tr>
-        <th>ID Historial</th>
-        <th>Fecha de ingreso al almacén</th>
-        <th>Hora de ingreso al almacén</th>
-        <th>Fecha de salida del almacén</th>
-        <th>Hora de salida del almacén</th>
-    </tr>
+<div class="table-container">
+    <table class="table1">
+        <thead>
+            <tr>
+                <th>Fechas de ingreso al almacén</th>
+                <th>Fechas de salida del almacén</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry_date in entry_dates %}
+            <tr>
+                <td>{{ entry_date }}</td>
+                <td></td>  
+            </tr>
+            {% endfor %}
 
-    {% for history in machine_history_data %}
-    <tr>
-        <td>{{ history[0] }}</td>
-        <td>{{ history[2] }}</td>
-        <td>{{ history[3] }}</td>
-        <td>{{ history[4] }}</td>
-        <td>{{ history[5] }}</td>
-    </tr>
-    {% endfor %}
-</table>
+            {% for exit_date in exit_dates %}
+            <tr>
+                <td></td>  
+                <td>{{ exit_date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 
 {% endblock %}
