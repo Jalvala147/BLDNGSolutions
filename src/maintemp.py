@@ -3,12 +3,26 @@ from flask import render_template, session, redirect, flash
 from flask import Blueprint
 from flask import request
 from flask import Flask, url_for
+from flask_login import current_user
 from datetime import datetime, timedelta
 app = Flask(__name__)
 mysql = MySQL()
-import os
+from functools import wraps
 
 maintemp = Blueprint('maintemp', __name__)
+
+# Decorador para mantenimiento (tipoUsuario = 2 y areaUsuario = 5 o tipoUsuario = 1 y areaUsuario = 1)
+def maintenance_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash("Debes iniciar sesión para acceder a esta página.")
+            return redirect(url_for('loginemp'))
+        elif not (current_user.tipoUsuario == 2 and current_user.areaUsuario == 5) and not (current_user.tipoUsuario == 1 and current_user.areaUsuario == 1):
+            flash("Acceso no autorizado. Debes ser un empleado de mantenimiento para acceder a esta página.")
+            return redirect(url_for('loginemp'))
+        return func(*args, **kwargs)
+    return decorated_view
 
 @maintemp.route('/maintenance_home')
 def maintenance_home():
@@ -18,11 +32,13 @@ def maintenance_home():
 #--------------------rutas mantenimiento-----------------------
 
 @maintemp.route('/maintenance/mantHome')   
+@maintenance_required
 def mantHome():
     return render_template('/maintenance/mantHome.jinja')
 
 #listado de las maquinas con boton para ver historial de mantenimiento
 @maintemp.route('/maintenance/mantMachines')   
+@maintenance_required
 def mantMachines():
     # crear el cursor
     cursor = mysql.connection.cursor()
@@ -37,6 +53,7 @@ def mantMachines():
 
 #-----------------Historial de las maquinas------------------------
 @maintemp.route('/maintenance/mantHistory/<int:machine_id>', methods=['GET', 'POST'])
+@maintenance_required
 def mantHistory(machine_id):
     # Crear el cursor
     cursor = mysql.connection.cursor()
@@ -70,6 +87,7 @@ def mantHistory(machine_id):
 #-----------------------Reportes generados por clientes-----------------------
 
 @maintemp.route('/maintenance/mantReports')   
+@maintenance_required
 def mantReports():
     cursor = mysql.connection.cursor()
 
@@ -86,6 +104,7 @@ def mantReports():
 
 
 @maintemp.route('/maintenance/completedMantReports')   
+@maintenance_required
 def completedReports():
     cursor = mysql.connection.cursor()
 
@@ -103,6 +122,7 @@ def completedReports():
 #------------------------Marcar que mantenimiento necesitan las maquinas-----------------------
 
 @maintemp.route('/maintenance/mantMaintenance')
+@maintenance_required
 def mantMaintenance():
     cursor = mysql.connection.cursor()
 
@@ -133,6 +153,7 @@ def mantMaintenance():
 
 #---------Mantenimiento correctivo
 @maintemp.route('/maintenance/corrective/<int:id_machine>', methods=['POST'])
+@maintenance_required
 def corrective(id_machine):
     if request.method == 'POST':
         
@@ -165,6 +186,7 @@ def corrective(id_machine):
 
 #---------Mantenimiento preventivo
 @maintemp.route('/maintenance/preventive/<int:id_machine>', methods=['POST'])
+@maintenance_required
 def preventive(id_machine):
     if request.method == 'POST':
         days = int(request.form['days'])  # Obtiene el número de días desde el formulario
@@ -194,6 +216,7 @@ def preventive(id_machine):
     return redirect(url_for('maintemp.mantMaintenance'))  # Redirigir a la página de mantenimiento
 
 @maintemp.route('/maintenance/storageRequests')
+@maintenance_required
 def storageRequests():
     cur = mysql.connection.cursor()
 

@@ -7,6 +7,7 @@ from flask import Blueprint
 from flask import request
 from flask import Flask, url_for
 from flask import redirect
+from functools import wraps
 
 
 app = Flask(__name__)
@@ -16,6 +17,21 @@ mysql = MySQL()
 storageemp = Blueprint('storageemp', __name__)
 
 csrf = CSRFProtect()
+
+# Decorador para almacén (tipoUsuario = 2 y areaUsuario = 3 o tipoUsuario = 1 y areaUsuario = 1)
+def storage_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash("Debes iniciar sesión para acceder a esta página.")
+            return redirect(url_for('loginemp'))
+        elif not (current_user.tipoUsuario == 2 and current_user.areaUsuario == 3) and not (current_user.tipoUsuario == 1 and current_user.areaUsuario == 1):
+            flash("Acceso no autorizado. Debes ser un empleado de almacén para acceder a esta página.")
+            return redirect(url_for('loginemp'))
+        return func(*args, **kwargs)
+
+    return decorated_view
+
 
 @storageemp.route('/logout')
 def logout():
@@ -30,12 +46,14 @@ def logout():
 
 
 @storageemp.route('/storage_home')
+@storage_required
 def storage_home():
     # Código necesario para la página "storage/storageHome.jinja"
     return render_template('storage/storageHome.jinja')
 
 #--------------------Historial de las Máquinas-----------------------------
 @storageemp.route('/storage/stoHistory')
+@storage_required
 def stoHistory():
     cursor = mysql.connection.cursor()
     cursor.execute("""
@@ -53,6 +71,7 @@ def stoHistory():
 
 
 @storageemp.route('/storage/machineHistory/<int:machine_id>')
+@storage_required
 def machineHistory(machine_id):
     # Get the UID, model, and brand associated with the provided machine_id
     cursor = mysql.connection.cursor()
@@ -95,6 +114,7 @@ def machineHistory(machine_id):
 
 #---------------Mantenimiento Almacén aviso-------------
 @storageemp.route('/storage/stoMaintenance')
+@storage_required
 def stoMaintenance():
     # crear el cursor
     cursor = mysql.connection.cursor()
@@ -111,6 +131,7 @@ def stoMaintenance():
 
 
 @storageemp.route('/storage/preventive/<int:id_machine>', methods=['POST'])
+@storage_required
 def preventive(id_machine):
     if request.method == 'POST':
         
@@ -123,6 +144,7 @@ def preventive(id_machine):
         return redirect(url_for('storageemp.stoMaintenance'))  # Redirect to the maintenance page
 
 @storageemp.route('/storage/corrective/<int:id_machine>', methods=['POST'])
+@storage_required
 def corrective(id_machine):
     if request.method == 'POST':
         
@@ -138,6 +160,7 @@ def corrective(id_machine):
 
 #------------------------Almacén: Listado de las maquinas---------------------
 @storageemp.route('/storage/stoMachines')
+@storage_required
 def stoMachines():
     # crear el cursor
     cursor = mysql.connection.cursor()
@@ -154,8 +177,8 @@ def stoMachines():
 
 
 #----------------------Actualizar una maquina------------------------✅
-@csrf.exempt
 @storageemp.route('/storage/update_machine/<int:machine_id>', methods=['GET', 'POST'])
+@storage_required
 def update_machine(machine_id):
     cursor = mysql.connection.cursor()
 
@@ -209,8 +232,8 @@ def update_machine(machine_id):
 
 
 #--------------------Eliminar una maquina-----------------✅
-@csrf.exempt
 @storageemp.route('/storage/delete_machine/<int:machine_id>', methods=['POST'])
+@storage_required
 def delete_machine(machine_id):
     cursor = mysql.connection.cursor()
 
@@ -225,8 +248,8 @@ def delete_machine(machine_id):
     return redirect(url_for('storageemp.stoMachines'))
 
 #--------------Agregar una nueva maquina------------✅
-@csrf.exempt
 @storageemp.route('/storage/add_machine', methods=['GET', 'POST'])
+@storage_required
 def add_machine():
     if request.method == 'POST':
         # Obtener los datos de la máquina del formulario

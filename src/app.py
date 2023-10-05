@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+#Importaciones
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
 from flask_mail import Mail, Message
 import secrets
@@ -8,16 +9,16 @@ from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from salesemp import salesemp
 from clients import clients
-import re
 from maintemp import maintemp
 from storageemp import storageemp
 from shipemp import shipemp
 from admin import admin
+import re
 
 app = Flask(__name__)
 
 #app.run(host="0.0.0.0", debug=True, port=8000)
-
+#Blueprints de las otras areas
 app.register_blueprint(salesemp)
 app.register_blueprint(clients)
 app.register_blueprint(maintemp)
@@ -120,11 +121,33 @@ def aboutUs():
 
 #-----------------Query para crear un nuevo usuario de tipo cliente----------------
 
-@csrf.exempt
+# Funcion para verificar las politicas del nombre de usuario
+def verificar_nombre_usuario(username):
+    if len(username) < 6 or len(username) > 15:
+        return "El nombre de usuario debe tener entre 6 y 15 caracteres."
+    if not any(char.isupper() for char in username):
+        return "El nombre de usuario debe contener al menos una mayúscula."
+    if not username.isalnum():
+        return "El nombre de usuario solo debe contener caracteres alfanuméricos."
+    if not any(char.isdigit() for char in username):
+        return "El nombre de usuario debe contener al menos un número."
+    return None
+
+# Funcion para verificar las politicas de contraseña
+def verificar_contrasena(password):
+    if len(password) < 8:
+        return "La contraseña debe tener al menos 8 caracteres."
+    if not any(char.isupper() for char in password):
+        return "La contraseña debe contener al menos una mayúscula."
+    if not any(char in "!@#$%^&*()_+[]{}|;:'\"<>,.?/~`" for char in password):
+        return "La contraseña debe contener al menos un caracter especial."
+    return None
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    
     if request.method == 'POST':
-        # Recibir los datos del formulario
+        # Recibir la informacion del formulario de signup.jinja
         username = request.form['username']
         password = generate_password_hash(request.form['password'], method='sha256')
         fullname = request.form['fullname']
@@ -132,23 +155,30 @@ def signup():
         tipoUsuario = 3
         areaUsuario = 4
         
+        # Verificar las politicas de nombre de usuario
+        username_error = verificar_nombre_usuario(username)
+        if username_error:
+            flash(username_error)
+            return render_template('signup.jinja', username=username, fullname=fullname, email=email)
         
-        # Crear un cursor
+        # Verificar las politicas de contraseña
+        password_error = verificar_contrasena(request.form['password'])
+        if password_error:
+            flash(password_error)
+            return render_template('signup.jinja', username=username, fullname=fullname, email=email)
+
         cur = mysql.connection.cursor()
         
-        # Ejecutar una consulta SQL para insertar los datos en la tabla de usuarios
+        # Query para insertar en la bd la informacion del nuevo usuario cliente
         cur.execute("INSERT INTO user (username, password, fullname, email, tipoUsuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, fullname, email, tipoUsuario, areaUsuario))
-        
-        # Commitear los cambios en la base de datos
+
+        # Se hace commit a la bd
         mysql.connection.commit()
-        
-        # Cerrar el cursor
         cur.close()
 
-        return "Usuario registrado con éxito."
-
+        flash("Usuario registrado con éxito.")
+        return redirect(url_for('login'))  # Redirecciona al login de los clientes para iniciar sesion
     return render_template('signup.jinja')
-
 
 #---------------Ruta por defecto /-------------------------
 
