@@ -8,6 +8,7 @@ from flask import Blueprint
 from flask import request, jsonify
 from flask import Flask, url_for
 from flask import redirect
+from functools import wraps
 #import stripe
 import math
 import json
@@ -33,6 +34,18 @@ csrf = CSRFProtect()
 app.config['STRIPE_PUBLIC_KEY'] = 'pk_test_51Ns9uVB0WRECsvw4RKybB3WRFOviaJea7AiDaHYrGoPLt08xWU7fS5Q8Dfyr6clI9SimSIsSNZclseD4Oq5Vsjur00L5NDp3cm'
 app.config['STRIPE_SECRET_KEY'] = 'sk_test_51Ns9uVB0WRECsvw4UN0P1pswEObrLOzD1XrNGDTFol3jUKfwJmctLxLBGvC356AScv0w4J86D0k6inGHFlLhj6nz00653AbSdX'
 
+
+def client_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        # Verificar si el usuario está autenticado y tiene un tipo de usuario válido (1 o 3)
+        if not current_user.is_authenticated or current_user.tipoUsuario not in [1, 3]:
+            flash("Acceso no autorizado. Inicia sesión como cliente.")
+            return redirect(url_for('login')) 
+        return func(*args, **kwargs)
+    return decorated_view
+
+
 @app.route('/logout')
 def logout():
     logout_user()
@@ -48,12 +61,15 @@ def logout():
 
 #--------------------rutas clientes-----------------------
 @clients.route('/clientsHome')
+@client_required
 @login_required
 def clientsHome():
     return render_template('/clientuser/clientsHome.jinja')
 
 #--------------------------------------------
 @clients.route('/payments', methods=['GET', 'POST'])
+@client_required
+@login_required
 def payments():
     user_id = current_user.id
 
@@ -68,6 +84,8 @@ def payments():
 
 #----Hacer un reporte a maquina--------
 @clients.route('/clientuser/makereport', methods=['GET', 'POST'])
+@client_required
+@login_required
 def makereport():
     if request.method == 'POST':
         # Obtén el ID de la máquina seleccionada del formulario
@@ -114,8 +132,8 @@ def makereport():
 
 
 #------------------------Subida de archivos necesarios--------------------------
-@csrf.exempt
 @clients.route('/docs', methods=['GET', 'POST'])
+@client_required
 @login_required
 def docs():
     # Obtener el ID del usuario actualmente autenticado
@@ -149,6 +167,7 @@ def docs():
     return render_template('/clientuser/docs.jinja', user_id=user_id, documents=documents)   
 
 @clients.route('/request_change/<int:document_id>', methods=['GET'])
+@client_required
 @login_required
 def request_change_document(document_id):
     # Ensure that the document belongs to the current user
@@ -168,6 +187,7 @@ def request_change_document(document_id):
     return redirect(url_for('clients.docs'))
 
 @clients.route('/delete_document/<int:document_id>', methods=['GET', 'POST'])
+@client_required
 @login_required
 def delete_document(document_id):
     # Verificar si el documento existe y pertenece al usuario actual
@@ -190,8 +210,9 @@ def delete_document(document_id):
 
 #-----------------listado de los pedidos del cliente---------------------
 @clients.route('/orders')
+@client_required
+@login_required
 def orders():
-
     user_id = current_user.id
     cur = mysql.connection.cursor()
     #tomamos id la fecha y total de los pedidos del usuario actual
@@ -204,6 +225,8 @@ def orders():
     
 #-----------------listado de los pedidos cancelados del cliente-------------------
 @clients.route('/canceledOrders')
+@client_required
+@login_required
 def canceledOrders():
 
     user_id = current_user.id
@@ -219,6 +242,8 @@ def canceledOrders():
 
 
 @clients.route('/cancel_order_request/<int:order_id>', methods=['POST'])
+@client_required
+@login_required
 def cancel_order_request(order_id):
     if request.method == 'POST':
         
@@ -237,6 +262,8 @@ def cancel_order_request(order_id):
 
 
 @clients.route('/orders/info/<int:id_order>')
+@client_required
+@login_required
 def information(id_order):
 
     cur = mysql.connection.cursor()
@@ -281,6 +308,8 @@ def information(id_order):
 
 
 @clients.route('/clientuser/statusprogress')
+@client_required
+@login_required
 def statusprogress():
     user_id = current_user.id
 
@@ -297,6 +326,8 @@ def statusprogress():
 
 #------------Listado de los productos(maquinas)---------------------
 @clients.route('/clientuser/products')   
+@client_required
+@login_required
 def products():
     user_id = current_user.id
 
@@ -326,6 +357,7 @@ def products():
 
 # -------------Peticion de productos/Place order------------------------
 @clients.route('/clientuser/place_order', methods=['POST'])
+@client_required
 @login_required
 def place_order():
     if request.method == 'POST':

@@ -6,7 +6,8 @@ from flask import url_for
 from flask_wtf.csrf import CSRFProtect
 from flask import request
 from flask import Flask
-from flask_login import login_required
+from flask_login import login_required, current_user
+from functools import wraps
 #import pandas as pd
 
 import numpy as np
@@ -32,6 +33,15 @@ csrf = CSRFProtect()
 admin = Blueprint('admin', __name__)
 
 
+def admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.tipoUsuario != 1:
+            flash("Acceso no autorizado. Inicia sesión como administrador.")
+            return redirect(url_for('loginadm'))  
+        return func(*args, **kwargs)
+    return decorated_view
+
 #--------------------rutas administracion-----------------------
 @admin.route('/administration/administrationindex')
 def adminHome():
@@ -46,6 +56,7 @@ def employeelist():
 #---------------Control de accesos----------------------------------
 
 @admin.route('/administration/accessControl')
+@admin_required
 def accesscontrol():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, username, fullname, email, areaUsuario FROM user WHERE tipousuario = 2")
@@ -55,6 +66,7 @@ def accesscontrol():
 
 
 @admin.route('/administration/accessHistory/<int:id>/<string:name>')
+@admin_required
 def accessHistory(id, name):
     return render_template('administration/empAccessControl/accessHistory.jinja', id=id, name=name)
 
@@ -62,12 +74,14 @@ def accessHistory(id, name):
 #-------------------------------------------------
 
 @admin.route('/administration/projectionsResults')
+@admin_required
 def projectionsResults():
 
     return render_template('administration/stats/projectionsResults.jinja')
 
 
 @admin.route('/administration/profitsProjections') #esto es solo un ejemplo sobre la regresion lineal
+@admin_required
 def profitsProjections():
     # Generar datos de ejemplo
     np.random.seed(0)
@@ -93,6 +107,7 @@ def profitsProjections():
 
 
 @admin.route('/administration/profitsResults', methods=['GET', 'POST'])
+@admin_required
 def profitsResults():
     try:
         # Establecer una conexión a la base de datos
@@ -153,20 +168,24 @@ def profitsResults():
 
 
 @admin.route('/administration/lossResults')
+@admin_required
 def lossResults():
     return render_template('administration/stats/lossResults.jinja')
 
 @admin.route('/administration/lossProjections')
+@admin_required
 def lossProjections():
     return render_template('administration/stats/lossProjections.jinja')
 
 
 @admin.route('/administration/profitabilityProjections')
+@admin_required
 def profitabilityProjections():
     return render_template('administration/stats/profitabilityProjections.jinja')
 
 
 @admin.route('/administration/profitabilityResults')
+@admin_required
 def profitabilityResults():
     return render_template('administration/stats/profitabilityResults.jinja')
 
@@ -179,6 +198,7 @@ def profitabilityResults():
 
 # Vista para listar todos los empleados mantenimiento
 @admin.route('/administration/maintListEmp')
+@admin_required
 def maintListEmp():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 5")
@@ -188,8 +208,9 @@ def maintListEmp():
 
 
 # Vista para agregar un empleado✅
-@csrf.exempt
+ 
 @admin.route('/administration/maintAddEmp', methods=['GET', 'POST'])
+@admin_required
 def maintAddEmp():
     if request.method == 'POST':
         username = request.form['username']
@@ -209,6 +230,7 @@ def maintAddEmp():
 
 # Vista para eliminar un empleado✅
 @admin.route('/administration/maintDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+@admin_required
 def maintDeleteEmp(id):
     cur = mysql.connection.cursor()
     cur.execute("DELETE FROM user WHERE id = %s", [id])
@@ -219,6 +241,7 @@ def maintDeleteEmp(id):
 
 # Vista para actualizar un empleado✅
 @admin.route('/administration/maintUpdateEmp/<int:id>', methods=['GET', 'POST'])
+@admin_required
 def maintUpdateEmp(id):
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM user WHERE id = %s", [id])
@@ -241,6 +264,7 @@ def maintUpdateEmp(id):
 
 # Vista para listar todos los empleados ventas
 @admin.route('/administration/salesListEmp')
+@admin_required
 def salesListEmp():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 2")
@@ -250,8 +274,9 @@ def salesListEmp():
 
 
 # Vista para agregar un empleado
-@csrf.exempt
+ 
 @admin.route('/administration/salesAddEmp', methods=['GET', 'POST'])
+@admin_required
 def salesAddEmp():
     if request.method == 'POST':
         username = request.form['username']
@@ -271,6 +296,7 @@ def salesAddEmp():
 
 # Vista para eliminar un empleado
 @admin.route('/administration/salesDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+@admin_required
 def salesDeleteEmp(id):
     cur = mysql.connection.cursor()
     cur.execute("DELETE FROM user WHERE id = %s", [id])
@@ -281,6 +307,7 @@ def salesDeleteEmp(id):
 
 # Vista para actualizar un empleado
 @admin.route('/administration/salesUpdateEmp/<int:id>', methods=['GET', 'POST'])
+@admin_required
 def salesUpdateEmp(id):
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM user WHERE id = %s", [id])
@@ -305,6 +332,7 @@ def salesUpdateEmp(id):
 
 # Vista para listar todos los empleados almacen
 @admin.route('/administration/storListEmp')
+@admin_required
 def storListEmp():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 3")
@@ -314,9 +342,9 @@ def storListEmp():
 
 
 # Vista para agregar un empleado
-@csrf.exempt
-@login_required
+ 
 @admin.route('/administration/storAddEmp', methods=['GET', 'POST'])
+@admin_required
 def storAddEmp():
     if request.method == 'POST':
         username = request.form['username']
@@ -337,6 +365,7 @@ def storAddEmp():
 
 # Vista para eliminar un empleado
 @admin.route('/administration/storDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+@admin_required
 def storDeleteEmp(id):
     cur = mysql.connection.cursor()
     cur.execute("DELETE FROM user WHERE id = %s", [id])
@@ -346,8 +375,9 @@ def storDeleteEmp(id):
 
 
 # Vista para actualizar un empleado
-@csrf.exempt
+ 
 @admin.route('/administration/storUpdateEmp/<int:id>', methods=['GET', 'POST'])
+@admin_required
 def storUpdateEmp(id):
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM user WHERE id = %s", [id])
@@ -372,6 +402,7 @@ def storUpdateEmp(id):
 
 # Vista para listar todos los empleados envios
 @admin.route('/administration/shipListEmp')
+@admin_required
 def shipListEmp():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 6")
@@ -381,8 +412,9 @@ def shipListEmp():
 
 
 # Vista para agregar un empleado de envios✅
-@csrf.exempt
+ 
 @admin.route('/administration/shipAddEmp', methods=['GET', 'POST'])
+@admin_required
 def shipAddEmp():
     if request.method == 'POST':
         username = request.form['username']
@@ -402,6 +434,7 @@ def shipAddEmp():
 
 # Vista para eliminar un empleado
 @admin.route('/administration/shipDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+@admin_required
 def shipDeleteEmp(id):
     cur = mysql.connection.cursor()
     cur.execute("DELETE FROM user WHERE id = %s", [id])
@@ -412,6 +445,7 @@ def shipDeleteEmp(id):
 
 # Vista para actualizar un empleado✅
 @admin.route('/administration/shipUpdateEmp/<int:id>', methods=['GET', 'POST'])
+@admin_required
 def shipUpdateEmp(id):
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM user WHERE id = %s", [id])

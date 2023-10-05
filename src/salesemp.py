@@ -7,6 +7,7 @@ from flask import Flask
 from flask import url_for
 from flask import redirect  
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
+from functools import wraps
 from io import BytesIO
 import os
 import io
@@ -30,10 +31,22 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('startpage'))
 #------------------------------------------------------------------------
-
+# Decorador para ventas (tipoUsuario = 2 y areaUsuario = 2 o tipoUsuario = 1 y areaUsuario = 1)
+def sales_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash("Debes iniciar sesión.")
+            return redirect(url_for('loginemp'))
+        elif not (current_user.tipoUsuario == 2 and current_user.areaUsuario == 2) and not (current_user.tipoUsuario == 1 and current_user.areaUsuario == 1):
+            flash("Acceso no autorizado. Debes ser un empleado de ventas o un administrador para acceder a esta página.")
+            return redirect(url_for('loginemp'))
+        return func(*args, **kwargs)
+    return decorated_view
 
 #----------------------------Listado de ventas---------------------------
 @salesemp.route('/salesEmpArea/salesList')
+@sales_required
 def salesList():
     
     cur = mysql.connection.cursor()
@@ -46,6 +59,7 @@ def salesList():
 
 #-----------------------------Listado de rentas-------------------------
 @salesemp.route('/salesEmpArea/rentsList')   
+@sales_required
 def rentsList():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL)")
@@ -68,6 +82,7 @@ def acceptCancelRequest(order_id):
 
 #Listado de rentas canceladas
 @salesemp.route('/salesEmpArea/canceledRentsList')   
+@sales_required
 def canceledRentsList():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND cancel_status = 0 ")
@@ -78,6 +93,7 @@ def canceledRentsList():
 
 #Funcion para actualizar el campo verifiedDocs cuando el empleado haya verificado los documentos
 @salesemp.route('/salesEmpArea/updateVerifiedDocs/<int:order_id>')
+@sales_required
 def update_verified_docs(order_id):
     try:
         cur = mysql.connection.cursor()
@@ -93,6 +109,7 @@ def update_verified_docs(order_id):
 
 #Funcion para actualizar el campo paymentMade a 1 cuando el empleado haya verificado que el pago fue recibido
 @salesemp.route('/salesEmpArea/updatePaymentMade/<int:order_id>')
+@sales_required
 def update_payment_made(order_id):
     try:
         cur = mysql.connection.cursor()
@@ -109,6 +126,7 @@ def update_payment_made(order_id):
 
 #---------------Mostrar toda la informacion de las tablas orders y machineorders---------
 @salesemp.route('/salesEmpArea/rentsDetails/<int:order_id>')
+@sales_required
 def orderDetails(order_id):
     cur = mysql.connection.cursor()
     
@@ -144,6 +162,7 @@ def orderDetails(order_id):
 #---------------Detalles editables--------------------
 
 @salesemp.route('/salesEmpArea/actualizarOrden/<int:order_id>', methods=['POST'])
+@sales_required
 def actualizarOrden(order_id):
     if request.method == 'POST':
         new_address = request.form['address']
@@ -170,6 +189,7 @@ def actualizarOrden(order_id):
 
 #Cambio de estado cuando se marque como completada una orden
 @salesemp.route('/salesEmpArea/orderCompleted/<int:order_id>')
+@sales_required
 def orderCompleted(order_id):
     cur = mysql.connection.cursor()
     
@@ -184,6 +204,7 @@ def orderCompleted(order_id):
 
 #Listar los pedidos completados (con el status cambiado)
 @salesemp.route('/salesEmpArea/completedOrders')   
+@sales_required
 def completedOrders():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id FROM orders WHERE status = 0")
@@ -195,6 +216,7 @@ def completedOrders():
 
 
 @salesemp.route('/salesEmpArea/autoProgress/<int:order_id>')
+@sales_required
 def auto_progress(order_id):
     try:
         # Consulta la base de datos para obtener el valor de verifiedDocs y paymentMade para la orden actual
@@ -256,6 +278,7 @@ def view_file(filename):
 
 
 @salesemp.route('/salesEmpArea/uploadedDocuments/<int:user_id>')
+@sales_required
 def uploaded_documents(user_id):
     # Realizar la consulta para obtener los documentos del usuario con el ID proporcionado
     cur = mysql.connection.cursor()
@@ -268,6 +291,7 @@ def uploaded_documents(user_id):
 
 
 @salesemp.route('/accept_change_request/<int:file_id>/<int:user_id>')
+@sales_required
 def accept_change_request(file_id, user_id):
     # Actualiza el campo changeRequest a 0 para el documento con el ID proporcionado
     cur = mysql.connection.cursor()
@@ -282,6 +306,7 @@ def accept_change_request(file_id, user_id):
 
 
 @salesemp.route('/mark_as_completed/<int:file_id>/<int:user_id>')
+@sales_required
 def mark_as_completed(file_id, user_id):
     # Actualiza el estado en la base de datos a completado (1)
     cur = mysql.connection.cursor()
@@ -299,6 +324,7 @@ def mark_as_completed(file_id, user_id):
 
 
 @salesemp.route('/mark_as_incomplete/<int:file_id>/<int:user_id>')
+@sales_required
 def mark_as_incomplete(file_id, user_id):
     # Actualiza el estado en la base de datos a incompleto (0)
     cur = mysql.connection.cursor()
@@ -320,12 +346,14 @@ def mark_as_incomplete(file_id, user_id):
 #----------------------------------------------------
 
 @salesemp.route('/salesEmpArea/salesHome')   
+@sales_required
 def salesHome():
     return render_template('salesEmpArea/salesHome.jinja')
 
 
 # Definimos la función clientsList para la ruta '/salesEmpArea/clientsList'
 @salesemp.route('/salesEmpArea/clientsList')
+@sales_required
 def clientsList():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 3 AND areaUsuario = 4")
@@ -336,6 +364,7 @@ def clientsList():
 #-----------------------------------------------------------
 
 @salesemp.route('/salesEmpArea/newRequest')
+@sales_required
 def newRequest():
     cur = mysql.connection.cursor()
     # Joins
@@ -358,11 +387,8 @@ def newRequest():
     return render_template('salesEmpArea/newRequest.jinja', orders=orders_data)
 
 
-
-
-
-
 @salesemp.route('/salesEmpArea/updateType/<int:id_order>', methods=['POST'])
+@sales_required
 def update_type(id_order):
     if request.method == 'POST':
         cur = mysql.connection.cursor()
@@ -381,10 +407,10 @@ def update_type(id_order):
     return redirect(url_for('salesemp.newRequest'))
 
 
-
 #-----------------------------------------------------------
 
-@salesemp.route('/salesEmpArea/prospects')   
+@salesemp.route('/salesEmpArea/prospects')  
+@sales_required 
 def prospects():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id_Prospect, fullname, number, email FROM prospects")
@@ -394,6 +420,7 @@ def prospects():
     return render_template('salesEmpArea/prospects.jinja', prospects=prospects)
 
 @salesemp.route('/salesEmpArea/prospects/add', methods=['GET', 'POST'])
+@sales_required
 def add_prospect():
     if request.method == 'POST':
         # Obtener los datos del formulario
@@ -414,6 +441,7 @@ def add_prospect():
         return render_template('salesEmpArea/prospects/add_prospect.jinja')
     
 @salesemp.route('/salesEmpArea/prospects/edit/<int:prospect_id>', methods=['GET', 'POST'])
+@sales_required
 def edit_prospect(prospect_id):
     if request.method == 'POST':
         # Obtener los datos del formulario
@@ -440,6 +468,7 @@ def edit_prospect(prospect_id):
         return render_template('salesEmpArea/prospects/edit_prospect.jinja', prospect=prospect_details)
 
 @salesemp.route('/salesEmpArea/prospects/delete/<int:prospect_id>', methods=['POST'])
+@sales_required
 def delete_prospect(prospect_id):
     # Eliminar el prospecto de la base de datos
     cur = mysql.connection.cursor()
