@@ -163,12 +163,20 @@ button:hover {
     font-size: 18px;
 }
 
+.text:hover {
+    display: block;
+    margin-top: 5px;
+    font-size: 18px;
+    text-decoration: none;
+}
+
 a {
-    text-decoration: none; /* Remove underline */
-    color: #333; /* Set your desired text color */
-    transition: color 0.3s; /* Add smooth transition for color change */
+    text-decoration: none; 
+    color: #333; 
+    transition: color 0.3s;
 }
 
 a:hover {
-    color: #dddddd; /* Set a slightly different color on hover */
+    color: #dddddd; 
+    text-decoration: none;
 }

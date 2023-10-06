@@ -1,0 +1,43 @@
+{% extends './base.html' %}
+
+{% block title%}Prospectos contactados{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css')}}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
+
+
+{% endblock %}
+
+
+{% block body %}
+<a href="{{ url_for('admin.prospects') }}" class="btn" >Atras</a>
+<h1>Prospectos contactados</h1>
+
+<table class="table1">
+    <tr>
+        <th>Numero</th>
+        <th>Nombre</th>
+        <th>Empresa</th>
+        <th>Telefono</th>
+        <th>Correo electrónico</th>
+        <th>Eliminar</th>
+    </tr>
+    {% for prospect in prospects %}
+    <tr>
+        <td>{{ prospect[0] }}</td>
+        <td>{{ prospect[1] }}</td>
+        <td>{{ prospect[2] }}</td>
+        <td>{{ prospect[3] }}</td>
+        <td>{{ prospect[4] }}</td>
+        <td><a href="{{ url_for('admin.deleteProspect', id=prospect[0]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
+            <input type="hidden" name="_method" value="DELETE">
+            <span class="material-symbols-rounded">
+            delete
+            </span></a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

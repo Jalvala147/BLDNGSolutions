@@ -1,6 +1,6 @@
 from flask_mysqldb import MySQL
 from flask import render_template, session, redirect, flash
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 from flask import Blueprint
 from flask import url_for
 from flask_wtf.csrf import CSRFProtect
@@ -8,18 +8,11 @@ from flask import request
 from flask import Flask
 from flask_login import login_required, current_user
 from functools import wraps
-#import pandas as pd
 
-import numpy as np
 import matplotlib.pyplot as plt
-from io import BytesIO
-import base64
 
 
 from sklearn.linear_model import LinearRegression
-
-import plotly.graph_objs as go
-import plotly.offline as opy
 
 import plotly.express as px
 import pandas as pd
@@ -33,6 +26,7 @@ csrf = CSRFProtect()
 admin = Blueprint('admin', __name__)
 
 
+#Decorador para que solo los administradores puedan acceder a sus rutas
 def admin_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
@@ -461,3 +455,134 @@ def shipUpdateEmp(id):
         cur.close()
         return redirect(url_for('admin.shipListEmp'))
     return render_template('administration/shipUpdateEmp.jinja', user=user)
+
+#--------------CRUD Prospectos-----------------------------------
+# Vista para listar todos los prospectos
+@admin.route('/administration/prospects')
+# @admin_required
+def prospects():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id_Prospect, fullname, company, number, email FROM prospects WHERE contacted = 0")
+    prospects = cur.fetchall()
+    cur.close()
+    return render_template('administration/prospects.jinja', prospects=prospects)
+
+# Vista para agregar un prospecto
+@admin.route('/administration/addProspect', methods=['GET', 'POST'])
+@admin_required
+def addProspect():
+    if request.method == 'POST':
+        # Recupera los datos del formulario
+        fullname = request.form['fullname']
+        company = request.form['company']  
+        number = request.form['number']
+        email = request.form['email']
+        
+        # Realiza la inserción en la tabla de prospects
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO prospects (fullname, company, number, email) VALUES (%s, %s, %s, %s)", (fullname, company, number, email))
+        mysql.connection.commit()
+        cur.close()
+        
+        return redirect(url_for('admin.prospects'))
+    
+    return render_template('administration/addProspect.jinja')
+
+# Vista para actualizar un prospecto
+@admin.route('/administration/updateProspect/<int:id>', methods=['GET', 'POST'])
+@admin_required
+def updateProspect(id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM prospects WHERE id_Prospect = %s", [id])
+    prospect = cur.fetchone()
+    cur.close()
+    if request.method == 'POST':
+        fullname = request.form['fullname']
+        company = request.form['company'] 
+        number = request.form['number']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE prospects SET fullname=%s, company=%s, number=%s, email=%s WHERE id_Prospect=%s", (fullname, company, number, email, id))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('admin.prospects'))
+    return render_template('administration/updateProspect.jinja', prospects=prospect)
+
+# Vista para eliminar un prospecto
+@admin.route('/administration/deleteProspect/<int:id>', methods=['GET', 'POST', 'DELETE'])
+@admin_required
+def deleteProspect(id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM prospects WHERE id_Prospect = %s", [id])
+    mysql.connection.commit()
+    cur.close()
+    return redirect(url_for('admin.prospects'))
+    
+# Vista para listar todos los prospectos contactados
+@admin.route('/administration/contactedProspectsList')
+@admin_required
+def contactedProspectsList():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id_Prospect, fullname, company, number, email FROM prospects WHERE contacted = 1")
+    prospects = cur.fetchall()
+    cur.close()
+    return render_template('administration/contactedProspects.jinja', prospects=prospects)
+
+#----------------RUD Clientes--------------------------
+
+# Vista para listar todos los clientes
+@admin.route('/administration/clientsList')
+@admin_required
+def clientsList():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 3 AND areaUsuario = 4")
+    users = cur.fetchall()
+    cur.close()
+    return render_template('administration/clients/clientsList.jinja', users=users)
+
+# Vista para editar un cliente existente
+@admin.route('/administration/editClient/<int:id>', methods=['GET', 'POST'])
+@admin_required
+def editClient(id):
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        username = request.form['username']
+        fullname = request.form['fullname']
+        email = request.form['email']
+
+        # Actualizar el cliente en la base de datos
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE user SET username = %s, fullname = %s, email = %s WHERE id = %s", (username, fullname, email, id))
+        mysql.connection.commit()
+        cur.close()
+
+        # Redirigir a la página de listado de clientes después de editar el cliente
+        return redirect(url_for('admin.clientsList'))
+    else:
+        # Obtener los detalles actuales del cliente de la base de datos
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id, username, fullname, email FROM user WHERE id = %s", [id])
+        user_details = cur.fetchone()
+        cur.close()
+
+        # Mostrar el formulario de edición con los detalles actuales del cliente
+        return render_template('administration/clients/editClient.jinja', user=user_details)
+    
+# Vista para eliminar un cliente
+@admin.route('/administration/deleteClient/<int:id>', methods=['GET', 'POST', 'DELETE'])
+@admin_required
+def deleteClient(id):
+        # Elimina los registros relacionados en la tabla 'files'
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM files WHERE user_id = %s", [id])
+        mysql.connection.commit()
+        
+        # Luego, elimina al cliente de la tabla 'user'
+        cur.execute("DELETE FROM user WHERE id = %s", [id])
+        mysql.connection.commit()
+        cur.close()
+        
+        # Redirige al listado de clientes después de la eliminación
+        return redirect(url_for('admin.clientsList'))
+
+

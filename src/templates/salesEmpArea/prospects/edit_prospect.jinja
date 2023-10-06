@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Actualizar Máquina{% endblock %}
+{% block title %}Actualizar Prospecto{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/crud/edit.css')}}">
@@ -17,6 +17,8 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="fullname">Nombre:</label>
         <input type="text" id="fullname" name="fullname" value="{{ prospect[1] }}" required>
+        <label for="company">Empresa:</label>
+        <input type="text" id="company" name="company" value="{{ prospect[4] }}" required>
         <label for="number">Telefono:</label>
         <input type="text" id="number" name="number" value="{{ prospect[2] }}" required>
         <label for="email">Correo Electrónico:</label>

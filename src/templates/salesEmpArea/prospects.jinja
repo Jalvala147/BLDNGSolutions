@@ -9,25 +9,21 @@
 
 {% endblock %}
 
-
 {% block body %}
-
 <a href="{{ url_for('sales_emp_area') }}" class="btn">Atras</a>
-
 
 <h1>Prospeccion de clientes</h1>
 <a href="{{ url_for('salesemp.add_prospect') }}" class="btn">Agregar prospecto de cliente</a>
 
+
 <table class="table1">
     <tr>
         <th>Cliente</th>
+        <th>Empresa</th>
         <th>Telefono</th>
         <th>Email</th>
-        <th>Estado</th>
-        <th>Contactado</th>
+        <th>Marcar como contactado</th>
         <th>Editar</th>
-        <th>Eliminar</th>
-
     </tr>
 
     {% for prospect in prospects %}
@@ -36,26 +32,23 @@
         <td>{{ prospect[2] }}</td>
         <td>{{ prospect[3] }}</td>
         <td>{{ prospect[4] }}</td>
-        <td></td>
         <td>
-            <a href="{{ url_for('salesemp.edit_prospect', prospect_id=prospect[0]) }}" class="btn"><span
-                    class="material-symbols-rounded">
-                    edit
-                </span></a>
-        </td>
-        <td>
-            <form method="post" action="{{ url_for('salesemp.delete_prospect', prospect_id=prospect[0]) }}">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-primary" onclick="return confirmDelete();"><span
-                        class="material-symbols-rounded">
-                        delete
-                    </span>
-                </button>
-            </form>
+            <a href="{{ url_for('salesemp.mark_contacted', prospect_id=prospect[0]) }}" class="btn"
+                onclick="return confirm('¿Estás seguro de marcar como contactado?')">
+                <span class="material-symbols-rounded">done</span>
+            </a>
         </td>
 
+        <td>
+            <a href="{{ url_for('salesemp.edit_prospect', prospect_id=prospect[0]) }}" class="btn">
+            <span class="material-symbols-rounded">edit</span>
+            </a>
+        </td>
     </tr>
     {% endfor %}
 </table>
-
+<a href="{{ url_for('salesemp.contactedProspects') }}" class="btn">
+    <p>Clientes</p>
+    <p>contactados</p>
+</a>
 {% endblock %}

@@ -1,0 +1,46 @@
+{% extends './base.html' %}
+
+{% block title %}Actualizar prospecto{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/updateEmp.css') }}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
+
+{% endblock %}
+
+{% block body %}
+
+<div class="update-employee-container" align="center">
+    <div class="update-employee-card">
+        <a href="{{ url_for('admin.prospects') }}" class="btn">Atras</a>
+        <h1>Editar prospecto</h1>
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-item">
+                <label for="fullname">Nombre completo:</label>
+                <input type="text" id="fullname" name="fullname" value="{{ prospects[1] }}" required>
+            </div>
+
+            <div class="form-item">
+                <label for="company">Empresa:</label>
+                <input type="text" id="company" name="company" value="{{ prospects[2] }}" required>
+            </div>
+
+            <div class="form-item">
+                <label for="number">Número de teléfono:</label>
+                <input type="text" id="number" name="number" value="{{ prospects[3] }}" required>
+            </div>
+
+            <div class="form-item">
+                <label for="email">Correo electrónico:</label>
+                <input type="email" id="email" name="email" value="{{ prospects[4] }}" required>
+            </div>
+
+            <button type="submit">Actualizar prospecto</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
