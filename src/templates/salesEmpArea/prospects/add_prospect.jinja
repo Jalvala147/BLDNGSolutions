@@ -13,18 +13,21 @@
 
 <div class="container">
 
-    <h1>Agregar Nuevo prospecto</h1>
-    
+    <h1>Agregar Nuevo Prospecto</h1>
 
     <form method="post" action="{{ url_for('salesemp.add_prospect') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
         <label for="fullname">Nombre Completo:</label>
         <input type="text" name="fullname" required>
         <br>
-        <label for="number">Telefono:</label>
+        <label for="company">Empresa:</label>
+        <input type="text" name="company" required>
+        <br>
+        <label for="number">Teléfono:</label>
         <input type="text" name="number" required>
         <br>
-        <label for="email">Email:</label>
+        <label for="email">Correo Electrónico:</label>
         <input type="text" name="email" required>
         <br>
 

@@ -13,8 +13,6 @@ from functools import wraps
 import math
 import json
 
-from paypalrestsdk import Payment
-import paypalrestsdk
 
 
 app = Flask(__name__)
