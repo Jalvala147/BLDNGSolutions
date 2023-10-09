@@ -19,6 +19,13 @@
     </div>
 </header>
 
+<style>
+    body {
+        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+</style>
 
 <section class="shop container">
     <div class="shop-content">
@@ -26,7 +33,7 @@
         <div class="product-box" data-machine-id="{{ product.id }}">
             <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="" class="product-img">
             <h4 class="machine-id" style="display: none;">{{ product.id_Machine }}</h4>
-            
+
             <h2 class="product-title">{{ product.name }}</h2>
             <span class="">Rentas <br> desde: </span>
             <span class="price">${{ product.price }} MXN</span>
