@@ -8,14 +8,18 @@ from flask import request
 from flask import Flask
 from flask_login import login_required, current_user
 from functools import wraps
+import calendar
+import locale
+import pandas as pd
 
 import matplotlib.pyplot as plt
-
+import plotly.graph_objs as go
+import plotly.express as px
 
 from sklearn.linear_model import LinearRegression
 
-import plotly.express as px
-import pandas as pd
+
+
 import numpy as np
 
 admin = Flask(__name__)
@@ -24,6 +28,8 @@ mysql = MySQL()
 csrf = CSRFProtect()
 
 admin = Blueprint('admin', __name__)
+
+locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
 
 
 #Decorador para que solo los administradores puedan acceder a sus rutas
@@ -74,30 +80,68 @@ def projectionsResults():
     return render_template('administration/stats/projectionsResults.jinja')
 
 
-@admin.route('/administration/profitsProjections') #esto es solo un ejemplo sobre la regresion lineal
-@admin_required
+# Ruta para mostrar las proyecciones de ganancias
+@admin.route('/administration/profitsProjections')
+@admin_required  
 def profitsProjections():
-    # Generar datos de ejemplo
-    np.random.seed(0)
-    X = 2 * np.random.rand(100, 1)
-    y = 4 + 3 * X + np.random.rand(100, 1)
+    try:
+        # Establecer una conexión a la base de datos
+        cur = mysql.connection.cursor()
 
-    # Crear un modelo de regresión lineal
-    model = LinearRegression()
-    model.fit(X, y)
+        # Consulta SQL para obtener datos históricos de ganancias
+        cur.execute("SELECT DATE_FORMAT(order_date, '%Y-%m') as month, SUM(total) as total_monthly FROM orders GROUP BY month")
+        data = cur.fetchall()
 
-    # Preparar datos para la gráfica
-    df = pd.DataFrame({'X': X.squeeze(), 'y': y.squeeze()})
-    df['y_pred'] = model.predict(X)
+        if len(data) < 2:
+            # No hay suficientes datos para hacer proyecciones
+            return render_template('administration/stats/no_projections.jinja')
 
-    # Crear una gráfica interactiva con Plotly Express
-    fig = px.scatter(df, x='X', y='y', title='Precios unitarios')
-    fig.add_scatter(x=df['X'], y=df['y_pred'], mode='lines', name='Proyección')
+        # Crear un DataFrame de Pandas con los datos históricos
+        df = pd.DataFrame(data, columns=['Month', 'Total'])
 
-    # Convertir la figura de Plotly a HTML
-    graph_html = fig.to_html(full_html=False)
-    # Renderiza la plantilla Jinja2 con la gráfica incrustada
-    return render_template('administration/stats/profitsProjections.jinja', graph_html=graph_html)
+        # Convertir la columna 'Month' a tipo datetime
+        df['Month'] = pd.to_datetime(df['Month'])
+
+        # Dividir los datos en conjuntos de entrenamiento y prueba
+        train_data = df.iloc[:-1]
+        test_data = df.iloc[-1:]
+
+        # Preparar los datos para la regresión lineal
+        X_train = train_data['Month'].map(lambda x: x.toordinal()).values.reshape(-1, 1)
+        y_train = train_data['Total'].values
+        X_test = test_data['Month'].map(lambda x: x.toordinal()).values.reshape(-1, 1)
+
+        # Crear y entrenar el modelo de regresión lineal
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+
+        # Realizar proyecciones
+        projected_month = df['Month'].max() + pd.DateOffset(months=1)
+        X_projected = np.array(projected_month.toordinal()).reshape(-1, 1)
+        projected_total = model.predict(X_projected)
+
+        # Crear un nuevo DataFrame con la proyección
+        projected_data = pd.DataFrame({'Month': [projected_month], 'Total': [projected_total[0]]})
+
+        # Concatenar el nuevo DataFrame con el original
+        df = pd.concat([df, projected_data], ignore_index=True)
+
+        # Crear una gráfica de proyección
+        fig_projection = px.line(df, x='Month', y='Total', title='Proyección de Ganancias')
+
+        # Convertir la figura de Plotly a HTML
+        graph_html_projection = fig_projection.to_html(full_html=False)
+
+        # Cerrar la conexión a la base de datos
+        cur.close()
+
+        return render_template(
+            'administration/stats/profitsProjections.jinja',
+            graph_html_projection=graph_html_projection
+        )
+
+    except Exception as e:
+        return f"Error al generar proyecciones: {str(e)}"
 
 
 @admin.route('/administration/profitsResults', methods=['GET', 'POST'])
@@ -136,12 +180,37 @@ def profitsResults():
             # Crear un DataFrame de pandas con las ganancias
             df_ganancias = pd.DataFrame(ganancias, columns=['No. Orden', 'ganancias']).set_index('No. Orden')
 
-            # Crear una gráfica de líneas para las ganancias
-            fig_ganancias = px.line(df_ganancias, x=df_ganancias.index, y='ganancias', title='Ganancias de ' + selected_month)
+            # Obtener el número del mes a partir de 'selected_month' (formato 'YYYY-MM')
+            numero_mes = int(selected_month.split('-')[1])
+
+            # Obtener el nombre del mes a partir del número del mes
+            nombre_mes = calendar.month_name[numero_mes]
+
+            # Crear una gráfica de puntos unidos por líneas para las ganancias
+            fig_ganancias = go.Figure(data=go.Scatter(
+                x=df_ganancias.index,   # Definir el eje x como 'No. Orden'
+                y=df_ganancias['ganancias'],  # Definir el eje y como 'ganancias'
+                mode='lines+markers'    # Indicar que deseas puntos unidos por líneas
+            ))
+
+            # Configurar etiquetas y título con el número de año y el nombre del mes en texto
+            fig_ganancias.update_layout(
+                xaxis_title='No. Orden',
+                yaxis_title='$ Ganancias',
+                title=f'Ganancias de {selected_month.split("-")[0]} - {nombre_mes}'  # Usar el año y el nombre del mes en el título
+            )
+
+
+            # Configurar los ticks del eje x como números enteros
             fig_ganancias.update_xaxes(
-                tickmode = 'array',
-                tickvals = df_ganancias.index,
-                dtick = 1
+                tickvals=df_ganancias.index,  # Usar los valores de 'No. Orden' como ticks
+                tickmode='array',             # Modo de ticks personalizados
+                ticktext=[str(int(val)) for val in df_ganancias.index]  # Convertir los valores a enteros
+            )
+
+            # Formatear el eje y como valores de dinero para indicar que son pesos
+            fig_ganancias.update_yaxes(
+                tickformat='$,.2f',  # Formato de número con símbolo de pesos y decimales
             )
             
             # Convertir la figura de Plotly a HTML

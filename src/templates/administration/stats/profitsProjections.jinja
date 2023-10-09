@@ -4,15 +4,16 @@
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock %}
 
 {% block body %}
 <a href="{{ url_for('admin.projectionsResults') }}" class="btn">Atrás</a>
 
+<h1>Regresión de proyecciones de resultados</h1>
 
-    <h1>Regresión Resultados ganancias unitarias</h1>
-    <div id="plot"></div>
-    {{ graph_html | safe }}
+<!-- Mostrar la gráfica de proyección -->
+<div>
+    {{ graph_html_projection | safe }}
+</div>
 
 {% endblock %}
