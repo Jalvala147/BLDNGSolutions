@@ -11,16 +11,16 @@ from functools import wraps
 import calendar
 import locale
 import pandas as pd
-
+import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 import plotly.express as px
-
 from sklearn.linear_model import LinearRegression
 
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
-import numpy as np
 
 admin = Flask(__name__)
 mysql = MySQL()
@@ -29,8 +29,7 @@ csrf = CSRFProtect()
 
 admin = Blueprint('admin', __name__)
 
-locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
-
+locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8') #indicamos a locale que se está usando el sistema en español
 
 #Decorador para que solo los administradores puedan acceder a sus rutas
 def admin_required(func):
@@ -230,10 +229,104 @@ def profitsResults():
         return f"Error al calcular las ganancias: {str(e)}"
 
 
-@admin.route('/administration/lossResults')
+@admin.route('/administration/lossResults', methods=['GET', 'POST'])
 @admin_required
 def lossResults():
-    return render_template('administration/stats/lossResults.jinja')
+    try:
+        # Establecer una conexión a la base de datos
+        cur = mysql.connection.cursor()
+
+        # Obtener todos los meses disponibles
+        cur.execute("SELECT DISTINCT DATE_FORMAT(order_date, '%Y-%m') as month FROM orders")
+        months = [row[0] for row in cur.fetchall()]
+
+        perdidas_mes_anterior = None
+
+        if request.method == 'POST':
+            # El usuario ha seleccionado un mes
+            selected_month = request.form['month']
+
+            # Consulta SQL para obtener las pérdidas del mes seleccionado
+            sql_query = """
+                SELECT id, total as perdidas
+                FROM orders
+                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
+            """
+            cur.execute(sql_query, [selected_month])
+            perdidas = cur.fetchall()
+
+            # Calcular las pérdidas totales para el mes seleccionado
+            perdidas_mes = sum(p[1] for p in perdidas)
+
+            # Consulta SQL para obtener las pérdidas del mes anterior
+            mes_anterior = (datetime.strptime(selected_month, '%Y-%m') - relativedelta(months=1)).strftime('%Y-%m')
+            sql_query_anterior = """
+                SELECT id, total as perdidas
+                FROM orders
+                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
+            """
+            cur.execute(sql_query_anterior, [mes_anterior])
+            perdidas_anterior = cur.fetchall()
+
+            # Calcular las pérdidas totales para el mes anterior
+            perdidas_mes_anterior = sum(p[1] for p in perdidas_anterior)
+
+            # Cerrar la conexión a la base de datos
+            cur.close()
+
+            # Crear una gráfica de barras para mostrar las pérdidas del mes seleccionado y el mes anterior
+            fig_perdidas = go.Figure()
+            fig_perdidas.add_trace(go.Bar(
+                x=[f'Mes actual ({selected_month})', f'Mes anterior ({mes_anterior})'],
+                y=[perdidas_mes, perdidas_mes_anterior],
+                text=[f'{perdidas_mes:.2f}', f'{perdidas_mes_anterior:.2f}'],
+                textposition='auto',
+                marker=dict(color=['blue', 'red']),
+            ))
+
+            # Configurar etiquetas y título
+            fig_perdidas.update_layout(
+                xaxis_title='Mes',
+                yaxis_title='$ Pérdidas',
+                title='Comparación de resultados'
+            )
+
+            # Formatear el eje y como valores de dinero para indicar que son pesos
+            fig_perdidas.update_yaxes(
+                tickformat='$,.2f',  # Formato de número con símbolo de pesos y decimales
+            )
+
+            # Convertir la figura de Plotly a HTML
+            graph_html_perdidas = fig_perdidas.to_html(full_html=False)
+        else:
+            # No se ha seleccionado un mes, no mostrar ninguna gráfica
+            graph_html_perdidas = None
+        
+        # Calcular la diferencia entre las pérdidas del mes actual y el mes anterior
+        diferencia_perdidas = perdidas_mes - perdidas_mes_anterior
+
+        # Definir un mensaje descriptivo en función de la diferencia
+        if diferencia_perdidas > 0:
+            mensaje_perdida = f'Hubo una ganancia de ${abs(diferencia_perdidas):.2f} en comparación con el mes anterior.'
+        elif diferencia_perdidas < 0:
+            mensaje_perdida = f'Hubo una pérdida de ${abs(diferencia_perdidas):.2f} en comparación con el mes anterior.'
+        else:
+            mensaje_perdida = 'No hubo cambios en las pérdidas en comparación con el mes anterior.'
+
+
+        return render_template(
+        'administration/stats/lossResults.jinja',
+        months=months,
+        graph_html_perdidas=graph_html_perdidas,
+        mensaje_perdida=mensaje_perdida
+        )
+
+
+    except Exception as e:
+        return f"Error al calcular las pérdidas: {str(e)}"
+
 
 @admin.route('/administration/lossProjections')
 @admin_required

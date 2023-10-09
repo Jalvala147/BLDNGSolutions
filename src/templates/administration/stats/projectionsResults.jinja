@@ -1,54 +1,84 @@
 {% extends './base.html' %}
 
-{% block title %}Rentas{% endblock %}
+{% block title %}Seleccion de resultados{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css')}}">
+
 {% endblock %}
 
 {% block body %}
 <a href="{{ url_for('administrationindex') }}" class="btn">Atrás</a>
 
+<div class="container">
+    <h1>Ganancias</h1>
 
-<h1>Ganancias</h1>
+    <div class="button-section">
+        <a href="{{ url_for('admin.profitsResults') }}">
+            <button class="inline-button">
+                Resultados
+            </button>
+        </a>
 
-<a href="{{ url_for('admin.profitsProjections') }}">
-    <button>
-        Proyecciones
-    </button>
-</a>
+        <a href="{{ url_for('admin.profitsProjections') }}">
+            <button class="inline-button">
+                Proyecciones
+            </button>
+        </a>
+    </div>
+</div>
 
-<a href="{{ url_for('admin.profitsResults') }}">
-    <button>
-        Resultados
-    </button>
-</a>
+<div class="container">
+    <h1>Pérdidas</h1>
 
-<h1>Pérdidas</h1>
-<a href="{{ url_for('admin.lossProjections') }}">
-    <button>
-        Proyecciones
-    </button>
-</a>
+    <div class="button-section">
+        <a href="{{ url_for('admin.lossResults') }}">
+            <button class="inline-button">
+                Resultados
+            </button>
+        </a>
 
-<a href="{{ url_for('admin.lossResults') }}">
-    <button>
-        Resultados
-    </button>
-</a>
+        <a href="{{ url_for('admin.lossProjections') }}">
+            <button class="inline-button">
+                Proyecciones
+            </button>
+        </a>
+    </div>
+</div>
 
-<h1>Rentabilidad</h1>
-<a href="{{ url_for('admin.profitabilityProjections') }}">
-    <button>
-        Proyecciones
-    </button>
-</a>
+<div class="container">
+    <h1>Rentabilidad</h1>
 
-<a href="{{ url_for('admin.profitabilityResults') }}">
-    <button>
-        Resultados
-    </button>
-</a>
+    <div class="button-section">
+        <a href="{{ url_for('admin.profitabilityResults') }}">
+            <button class="inline-button">
+                Resultados  
+            </button>
+        </a>
 
+        <a href="{{ url_for('admin.profitabilityProjections') }}">
+            <button class="inline-button">
+                Proyecciones
+            </button>
+        </a>
+    </div>
+</div>
+
+<style>
+    .inline-button {
+        display: inline-block;
+        margin: 0 30px; /* Ajusta el espacio horizontal entre botones según sea necesario */
+        padding: 10px 20px; /* Ajusta el espaciado interior según sea necesario */
+    }
+
+    .button-section {
+        text-align: center;
+        margin-top: 20px; /* Ajusta el espacio entre las secciones de botones según sea necesario */
+    }
+
+    h1 {
+        color: black;
+    }
+</style>
 
 {% endblock %}
