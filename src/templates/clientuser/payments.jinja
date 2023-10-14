@@ -23,50 +23,41 @@
     </select>
 </form>
 
-<h1 id="selected-order-info">Información de la orden seleccionada:</h1>
+<h1 id="selected-order-info">Información de la orden seleccionada: </h1>
+
+<p>Ingresa esta informacion a la hora de hacer el pago.</p>
 
 
 <div class="container">
     <label for="tipo_pago">Tipo de pago:</label>
     <select id="tipo_pago" name="tipo_pago" autocomplete="off" onchange="mostrarFormulario(this.value)">
         <option value="Selecciona" selected>Seleccione una opción</option>
-        <option value="debito">Tarjeta de Débito</option>
-        <option value="credito">Tarjeta de Crédito</option>
+        <option value="tarjeta">Tarjeta de Débito/Crédito</option>
         <option value="transferencia">Transferencia Bancaria</option>
         <option value="paypal">PayPal</option>
     </select><br><br>
 
-    <div id="debito" class="formulario" style="display: none;">
-        <!-- Formulario de Tarjeta de Débito -->
-        <img src="{{ url_for('static', filename = 'images/logos/visalogo.png') }}" alt="Visa Logo" width="100">
-        <img src="{{ url_for('static', filename = 'images/logos/mastercardlogo.png') }}" alt="Mastercard Logo"
-            width="100">
-        <label for="nombre_debito">Nombre en la tarjeta:</label>
-        <input type="text" id="nombre_debito" name="nombre_debito" required><br><br>
-        <label for="numero_tarjeta_debito">Número de tarjeta:</label>
-        <input type="text" id="numero_tarjeta_debito" name="numero_tarjeta_debito" required><br><br>
-        <label for="fecha_vencimiento_debito"> Vencimiento:</label>
-        <input type="text" id="fecha_vencimiento_debito" name="fecha_vencimiento_debito" placeholder="MM/AA"
-            required><br><br>
-        <label for="cvv_debito">CVV:</label>
-        <input type="text" id="cvv_debito" name="cvv_debito" required><br><br>
+    {# integracion del boton de stripe para realizar pagos #}
+    <div id="tarjeta" class="formulario" style="display: none;">
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <div>
+                <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+
+                <stripe-buy-button buy-button-id="buy_btn_1O12DmB0WRECsvw4Ns053ayM"
+                    publishable-key="pk_live_51Ns9uVB0WRECsvw4CEuNX0i64jS8HihjuUXtFXX0UdthG1NRBeafAy80xoZdNct62aG4DPbdKGMq7FXzLWXcPIsn00xM57vaPk"
+                    class="stripe-button-container">
+                </stripe-buy-button>
+            </div>
+            <div style="margin: 50px;">
+                <h1>Ó</h1>
+            </div>
+            <div>
+
+                <img src="{{ url_for('static', filename='images/qr_stripe.png') }}" style="width: 160px;">
+            </div>
+        </div>
     </div>
 
-    <div id="credito" class="formulario" style="display: none;">
-        <!-- Formulario de Tarjeta de Crédito -->
-        <img src="{{ url_for('static', filename = 'images/logos/visalogo.png') }}" alt="Visa Logo" width="100">
-        <img src="{{ url_for('static', filename = 'images/logos/mastercardlogo.png') }}" alt="Mastercard Logo"
-            width="100">
-        <label for="nombre_credito">Nombre en la tarjeta:</label>
-        <input type="text" id="nombre_credito" name="nombre_credito" required><br><br>
-        <label for="numero_tarjeta_credito">Número de tarjeta:</label>
-        <input type="text" id="numero_tarjeta_credito" name="numero_tarjeta_credito" required><br><br>
-        <label for="fecha_vencimiento_credito">Vencimiento:</label>
-        <input type="text" id="fecha_vencimiento_credito" name="fecha_vencimiento_credito" placeholder="MM/AA"
-            required><br><br>
-        <label for="cvv_credito">CVV:</label>
-        <input type="text" id="cvv_credito" name="cvv_credito" required><br><br>
-    </div>
 
     <div id="transferencia" class="formulario" style="display: none;">
         <!-- Formulario de Transferencia Bancaria -->
@@ -99,8 +90,23 @@
         <!-- ... Otros detalles de la orden de pago ... -->
     </div>
 </div>
+<br>
+<p>Despues de relizar el pago, favor de guardar como PDF algun comprobante de pago</p>
+<p>en donde sea legible el numero de pedido y el monto pagado. Y favor de cargarlo</p>
+<p> en la ventana de subida de documentos.</p>
 
 <script src="{{ url_for('static', filename='js/clientuser/payments.js') }}"></script>
 
-<script src="https://www.paypal.com/sdk/js?client-id=ATwXrFmndPUWoHzlRO8nWHc8YFSb-VG6mqQzEXfCq3AQokm94kymKZKGYCOMTXWUU5Ce8g4bcKGI_dsF"></script>
+<script
+    src="https://www.paypal.com/sdk/js?client-id=ATwXrFmndPUWoHzlRO8nWHc8YFSb-VG6mqQzEXfCq3AQokm94kymKZKGYCOMTXWUU5Ce8g4bcKGI_dsF"></script>
+
+<style>
+    .stripe-button-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        /* Asegúrate de que el contenedor tenga una altura definida para centrar verticalmente si es necesario */
+    }
+</style>
 {% endblock %}
