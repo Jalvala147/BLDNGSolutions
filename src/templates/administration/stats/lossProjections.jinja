@@ -10,4 +10,26 @@
 <a href="{{ url_for('admin.projectionsResults') }}" class="btn">Atrás</a>
 
 
+<h1>Estimación de Pérdidas Futuras</h1>
+
+    <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="selected_months">Selecciona los meses futuros:</label>
+        <select id="selected_months" name="selected_months" multiple>
+            {% for month in months %}
+                <option value="{{ month }}">{{ month }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <button type="submit">Estimar Pérdidas</button>
+    </form>
+
+    {% if graph_html_estimated_losses %}
+        <div>
+            <!-- Aquí se mostrará la gráfica de estimaciones de pérdidas -->
+            {{ graph_html_estimated_losses | safe }}
+        </div>
+    {% else %}
+        <p>Selecciona uno o varios meses futuros para estimar las pérdidas.</p>
+    {% endif%}
 {% endblock %}
