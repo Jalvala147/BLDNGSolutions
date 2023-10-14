@@ -1,13 +1,45 @@
 {% extends './base.html' %}
 
-{% block title %}Rentas{% endblock %}
+{% block title %}Rentabilidad de la Empresa{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css')}}">
 {% endblock %}
 
 {% block body %}
 <a href="{{ url_for('admin.projectionsResults') }}" class="btn">Atrás</a>
 
+<h1>Rentabilidad de la Empresa</h1>
 
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="month">Selecciona un mes:</label>
+    <select name="month" id="month">
+        {% for month in months %}
+        <option value="{{ month }}">{{ month }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="Calcular">
+</form>
+
+
+{% if graph_html_rentabilidad %}
+<div>
+    {{ graph_html_rentabilidad | safe }}
+</div>
+
+<div class="container">
+<p>Rentabilidad del mes: ${{ rentabilidad_mes | default("No se ha seleccionado un mes") }}</p>
+
+{% if porcentaje_cambio is not none %}
+<p>Porcentaje de cambio en relación con el mes anterior: 
+    <span class="{% if porcentaje_cambio > 0 %}text-success{% elif porcentaje_cambio < 0 %}text-danger{% endif %}">
+        {{ porcentaje_cambio|float|round(2) }}%
+    </span>
+</p>
+{% endif %}
+</div>
+
+</div>
+{% endif %}
 {% endblock %}

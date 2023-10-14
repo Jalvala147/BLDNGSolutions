@@ -18,6 +18,8 @@
 
 <a href="{{ url_for('salesemp.completedOrders') }}" class="btn">Pedidos completados</a>
 
+
+
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 <div class="alert">
@@ -45,8 +47,9 @@
         <th>Detalles</th>
         <th>Documentos Validos</th>
         <th>Pago realizado</th>
-        <th>Marcar como completada</th>
+        <th>*Marcar como completada</th>
         <th>Aceptar solicitud de cancelacion</th>
+        {# <th>Avisar a almacén</th> #}
     </tr>
     {% for order_id in order_ids %}
     <tr>
@@ -92,9 +95,15 @@
             {% endif %}
         </td>
 
+        {# <td><button><span class="material-symbols-rounded">
+            new_releases
+            </span></button>
+        </td> #}
 
         {% endfor %}
         <a href="{{ url_for('salesemp.canceledRentsList') }}" class="btn btn-primary">Pedidos cancelados</a>
+        <p>*Al marcar una orden como completada, se enviará un aviso</p>
+        <p>a almacén para preparar la(s) maquina(s) para su salida</p>
 </table>
 
 
@@ -102,7 +111,7 @@
 <script>
     $(document).ready(function () {
         $(".mark-as-completed").click(function () {
-            if (confirm("¿Está seguro de que desea marcar este pedido como completado? Esta acción no se puede deshacer.")) {
+            if (confirm("¿Está seguro de que desea marcar este pedido como completado? Se le hará saber al area de almacen que la(s) maquina(s) serán retiradas de almacén.")) {
 
                 window.location.href = $(this).attr('data-href');
             }

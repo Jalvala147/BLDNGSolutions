@@ -129,7 +129,7 @@ def update_payment_made(order_id):
 @sales_required
 def orderDetails(order_id):
     cur = mysql.connection.cursor()
-    
+
     # Consulta para obtener los detalles del pedido, las máquinas, semanas, precios y el total correspondiente al order_id en la tabla machineorders
     query = """
     SELECT o.clientUser_id, GROUP_CONCAT(CONCAT(m.brand, ' ', m.model)) AS machines, o.order_date, u.fullname, GROUP_CONCAT(mo.weeks) AS weeks, GROUP_CONCAT(mo.price) AS prices, SUM(mo.price) AS order_total
@@ -143,21 +143,26 @@ def orderDetails(order_id):
     cur.execute(query, (order_id,))
     order_details = cur.fetchone()
 
-    # Consulta para obtener la información de la tabla "orders" relacionada con el order_id
-    order_info_query = """
-    SELECT address, postalCode, rfc, phoneNumber, paymentMethod
-    FROM orders
-    WHERE id = %s
-    """
-    cur.execute(order_info_query, (order_id,))
-    order_info = cur.fetchone()
-    cur.close()
+    if order_details is not None:
+        # Consulta para obtener la información de la tabla "orders" relacionada con el order_id
+        order_info_query = """
+        SELECT address, postalCode, rfc, phoneNumber, paymentMethod
+        FROM orders
+        WHERE id = %s
+        """
+        cur.execute(order_info_query, (order_id,))
+        order_info = cur.fetchone()
+        cur.close()
 
-    # Separar las semanas y precios en listas
-    weeks = order_details[4].split(',')
-    prices = order_details[5].split(',')
+        # Separar las semanas y precios en listas
+        weeks = order_details[4].split(',')
+        prices = order_details[5].split(',')
 
-    return render_template('/salesEmpArea/rentsDetails.jinja', order_id=order_id, order_details=order_details, weeks=weeks, prices=prices, order_info=order_info)
+        return render_template('/salesEmpArea/rentsDetails.jinja', order_id=order_id, order_details=order_details, weeks=weeks, prices=prices, order_info=order_info)
+    else:
+        # Manejo el caso en el que no se encuentre ningún pedido con el order_id
+        return redirect(url_for('salesemp.rentsList'))
+
 
 #---------------Detalles editables--------------------
 

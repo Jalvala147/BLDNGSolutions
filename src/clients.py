@@ -9,11 +9,9 @@ from flask import request, jsonify
 from flask import Flask, url_for
 from flask import redirect
 from functools import wraps
-#import stripe
-import math
 import json
 
-
+#import stripe
 
 app = Flask(__name__)
 mysql = MySQL()

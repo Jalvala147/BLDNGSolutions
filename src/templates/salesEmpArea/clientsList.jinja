@@ -22,7 +22,7 @@
         <th>Nombre de usuario</th>
         <th>Nombre completo</th>
         <th>Correo electrónico</th>
-        <th>Avisar a almacén</th>
+        {# <th>Avisar a almacén</th> #}
     </tr>
     {% for user in users %}
     <tr>
@@ -38,9 +38,10 @@
             <span class="material-symbols-rounded" data-symbol="delete"></span></a>
         </td> #}
 
-        <td><button><span class="material-symbols-rounded">
+        {# <td><button><span class="material-symbols-rounded">
             new_releases
-            </span></button></td>
+            </span></button>
+        </td> #}
 
     </tr>
     {% endfor %}

@@ -78,71 +78,7 @@ def projectionsResults():
 
     return render_template('administration/stats/projectionsResults.jinja')
 
-
-# Ruta para mostrar las proyecciones de ganancias
-@admin.route('/administration/profitsProjections')
-@admin_required  
-def profitsProjections():
-    try:
-        # Establecer una conexión a la base de datos
-        cur = mysql.connection.cursor()
-
-        # Consulta SQL para obtener datos históricos de ganancias
-        cur.execute("SELECT DATE_FORMAT(order_date, '%Y-%m') as month, SUM(total) as total_monthly FROM orders GROUP BY month")
-        data = cur.fetchall()
-
-        if len(data) < 2:
-            # No hay suficientes datos para hacer proyecciones
-            return render_template('administration/stats/no_projections.jinja')
-
-        # Crear un DataFrame de Pandas con los datos históricos
-        df = pd.DataFrame(data, columns=['Month', 'Total'])
-
-        # Convertir la columna 'Month' a tipo datetime
-        df['Month'] = pd.to_datetime(df['Month'])
-
-        # Dividir los datos en conjuntos de entrenamiento y prueba
-        train_data = df.iloc[:-1]
-        test_data = df.iloc[-1:]
-
-        # Preparar los datos para la regresión lineal
-        X_train = train_data['Month'].map(lambda x: x.toordinal()).values.reshape(-1, 1)
-        y_train = train_data['Total'].values
-        X_test = test_data['Month'].map(lambda x: x.toordinal()).values.reshape(-1, 1)
-
-        # Crear y entrenar el modelo de regresión lineal
-        model = LinearRegression()
-        model.fit(X_train, y_train)
-
-        # Realizar proyecciones
-        projected_month = df['Month'].max() + pd.DateOffset(months=1)
-        X_projected = np.array(projected_month.toordinal()).reshape(-1, 1)
-        projected_total = model.predict(X_projected)
-
-        # Crear un nuevo DataFrame con la proyección
-        projected_data = pd.DataFrame({'Month': [projected_month], 'Total': [projected_total[0]]})
-
-        # Concatenar el nuevo DataFrame con el original
-        df = pd.concat([df, projected_data], ignore_index=True)
-
-        # Crear una gráfica de proyección
-        fig_projection = px.line(df, x='Month', y='Total', title='Proyección de Ganancias')
-
-        # Convertir la figura de Plotly a HTML
-        graph_html_projection = fig_projection.to_html(full_html=False)
-
-        # Cerrar la conexión a la base de datos
-        cur.close()
-
-        return render_template(
-            'administration/stats/profitsProjections.jinja',
-            graph_html_projection=graph_html_projection
-        )
-
-    except Exception as e:
-        return f"Error al generar proyecciones: {str(e)}"
-
-
+#Ruta para mostrar las gráficas de los resultados de las ganancias
 @admin.route('/administration/profitsResults', methods=['GET', 'POST'])
 @admin_required
 def profitsResults():
@@ -228,7 +164,7 @@ def profitsResults():
     except Exception as e:
         return f"Error al calcular las ganancias: {str(e)}"
 
-
+#Ruta para mostrar los resultados de las perdidas
 @admin.route('/administration/lossResults', methods=['GET', 'POST'])
 @admin_required
 def lossResults():
@@ -240,7 +176,8 @@ def lossResults():
         cur.execute("SELECT DISTINCT DATE_FORMAT(order_date, '%Y-%m') as month FROM orders")
         months = [row[0] for row in cur.fetchall()]
 
-        perdidas_mes_anterior = None
+        perdidas_mes_anterior = 0
+        perdidas_mes = 0
 
         if request.method == 'POST':
             # El usuario ha seleccionado un mes
@@ -304,8 +241,11 @@ def lossResults():
             # No se ha seleccionado un mes, no mostrar ninguna gráfica
             graph_html_perdidas = None
         
-        # Calcular la diferencia entre las pérdidas del mes actual y el mes anterior
-        diferencia_perdidas = perdidas_mes - perdidas_mes_anterior
+        # Calcular la diferencia entre las pérdidas del mes actual y el mes anterior si ambos tienen valores
+        diferencia_perdidas = None  # Inicializa la variable
+        if perdidas_mes is not None and perdidas_mes_anterior is not None:
+            diferencia_perdidas = perdidas_mes - perdidas_mes_anterior
+
 
         # Definir un mensaje descriptivo en función de la diferencia
         if diferencia_perdidas > 0:
@@ -314,7 +254,6 @@ def lossResults():
             mensaje_perdida = f'Hubo una pérdida de ${abs(diferencia_perdidas):.2f} en comparación con el mes anterior.'
         else:
             mensaje_perdida = 'No hubo cambios en las pérdidas en comparación con el mes anterior.'
-
 
         return render_template(
         'administration/stats/lossResults.jinja',
@@ -328,24 +267,248 @@ def lossResults():
         return f"Error al calcular las pérdidas: {str(e)}"
 
 
-@admin.route('/administration/lossProjections')
+
+# Ruta para mostrar los resultados de la rentabilidad de la empresa
+@admin.route('/administration/profitabilityResults', methods=['GET', 'POST'])
+@admin_required
+def profitabilityResults():
+    try:
+        # Establecer una conexión a la base de datos
+        cur = mysql.connection.cursor()
+
+        # Obtener todos los meses disponibles
+        cur.execute("SELECT DISTINCT DATE_FORMAT(order_date, '%Y-%m') as month FROM orders")
+        months = [row[0] for row in cur.fetchall()]
+
+        rentabilidad_mes = None
+        porcentaje_cambio = None  # Definir la variable porcentaje_cambio aquí
+
+        if request.method == 'POST':
+            # El usuario ha seleccionado un mes
+            selected_month = request.form['month']
+
+            # Consulta SQL para obtener los ingresos del mes seleccionado
+            income_query = """
+                SELECT SUM(total) as income
+                FROM orders
+                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
+            """
+            cur.execute(income_query, [selected_month])
+            income = cur.fetchone()[0]
+
+            # Consulta SQL para obtener los ingresos del mes anterior
+            mes_anterior = (datetime.strptime(selected_month, '%Y-%m') - relativedelta(months=1)).strftime('%Y-%m')
+            income_query_anterior = """
+                SELECT SUM(total) as income
+                FROM orders
+                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
+            """
+            cur.execute(income_query_anterior, [mes_anterior])
+            income_anterior = cur.fetchone()[0]
+
+            if income_anterior is not None:
+                rentabilidad_mes = income - income_anterior
+                porcentaje_cambio = ((income - income_anterior) / income_anterior) * 100
+            else:
+                rentabilidad_mes = income
+                porcentaje_cambio = 0  # Porcentaje de cambio nulo si no hay mes anterior
+
+            # Cerrar la conexión a la base de datos
+            cur.close()
+
+            # Calcular la rentabilidad como la diferencia entre los ingresos del mes actual y el mes anterior
+            rentabilidad_mes = income - income_anterior
+
+            # Crear una gráfica de barras para mostrar la rentabilidad
+            labels = ['Mes actual', 'Mes anterior']
+            values = [income, income_anterior]
+            fig_rentabilidad = go.Figure(data=[go.Bar(x=labels, y=values)])
+
+            # Obtener el número del mes a partir de 'selected_month' (formato 'YYYY-MM')
+            numero_mes = int(selected_month.split('-')[1])
+
+            # Obtener el nombre del mes a partir del número del mes
+            nombre_mes = calendar.month_name[numero_mes]
+
+            # Configurar título con el nombre del mes
+            fig_rentabilidad.update_layout(
+                title=f'Rentabilidad de {nombre_mes} {selected_month.split("-")[0]}'
+            )
+
+            # Convertir la figura de Plotly a HTML
+            graph_html_rentabilidad = fig_rentabilidad.to_html(full_html=False)
+        else:
+            # No se ha seleccionado un mes, no mostrar ninguna gráfica
+            graph_html_rentabilidad = None
+
+        return render_template(
+            'administration/stats/profitabilityResults.jinja',
+            months=months,
+            porcentaje_cambio=porcentaje_cambio,  # Asegúrate de pasar la variable aquí
+            rentabilidad_mes=rentabilidad_mes,
+            graph_html_rentabilidad=graph_html_rentabilidad
+        )
+
+    except Exception as e:
+        return f"Error al calcular la rentabilidad: {str(e)}"
+
+
+
+
+#-----------------------Proyecciones de resultados-------------
+
+# Ruta para mostrar las proyecciones de ganancias, haciendo uso de regresion lineal simple
+@admin.route('/administration/profitsProjections')
+@admin_required  
+def profitsProjections():
+    try:
+        # Establecer una conexión a la base de datos
+        cur = mysql.connection.cursor()
+
+        # Consulta SQL para obtener datos históricos de ganancias
+        cur.execute("SELECT DATE_FORMAT(order_date, '%Y-%m') as month, SUM(total) as total_monthly FROM orders GROUP BY month")
+        data = cur.fetchall()
+
+        if len(data) < 2:
+            # No hay suficientes datos para hacer proyecciones
+            return render_template('administration/stats/no_projections.jinja')
+
+        # Crear un DataFrame de Pandas con los datos históricos
+        df = pd.DataFrame(data, columns=['Month', 'Total'])
+
+        # Convertir la columna 'Month' a tipo datetime
+        df['Month'] = pd.to_datetime(df['Month'])
+
+        # Dividir los datos en conjuntos de entrenamiento y prueba
+        train_data = df.iloc[:-1]
+        test_data = df.iloc[-1:]
+
+        # Preparar los datos para la regresión lineal
+        X_train = train_data['Month'].map(lambda x: x.toordinal()).values.reshape(-1, 1)
+        y_train = train_data['Total'].values
+        X_test = test_data['Month'].map(lambda x: x.toordinal()).values.reshape(-1, 1)
+
+        # Crear y entrenar el modelo de regresión lineal
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+
+        # Realizar proyecciones
+        projected_month = df['Month'].max() + pd.DateOffset(months=1)
+        X_projected = np.array(projected_month.toordinal()).reshape(-1, 1)
+        projected_total = model.predict(X_projected)
+
+        # Crear un nuevo DataFrame con la proyección
+        projected_data = pd.DataFrame({'Month': [projected_month], 'Total': [projected_total[0]]})
+
+        # Concatenar el nuevo DataFrame con el original
+        df = pd.concat([df, projected_data], ignore_index=True)
+
+        # Crear una gráfica de proyección
+        fig_projection = px.line(df, x='Month', y='Total', title='Proyección de Ganancias')
+
+        # Convertir la figura de Plotly a HTML
+        graph_html_projection = fig_projection.to_html(full_html=False)
+
+        # Cerrar la conexión a la base de datos
+        cur.close()
+
+        return render_template(
+            'administration/stats/profitsProjections.jinja',
+            graph_html_projection=graph_html_projection
+        )
+
+    except Exception as e:
+        return f"Error al generar proyecciones: {str(e)}"
+
+#Estimacion o proyecion de las perdidas a meses futuros, tomando los resultados de los meses previos, mediante la regresión lineal simple
+@admin.route('/administration/lossProjections', methods=['GET', 'POST'])
 @admin_required
 def lossProjections():
-    return render_template('administration/stats/lossProjections.jinja')
+    try:
+        # Establecer una conexión a la base de datos
+        cur = mysql.connection.cursor()
 
+        # Obtener todos los meses disponibles en la base de datos
+        cur.execute("SELECT DISTINCT DATE_FORMAT(order_date, '%Y-%m') as month FROM orders")
+        months = [row[0] for row in cur.fetchall()]
+
+        if request.method == 'POST':
+            # El usuario ha seleccionado meses futuros
+            selected_months = request.form.getlist('selected_months')
+
+            # Obtener datos históricos de pérdidas para los meses seleccionados
+            loss_data = []
+
+            for selected_month in selected_months:
+                sql_query = """
+                    SELECT id, total as perdidas
+                    FROM orders
+                    WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                    AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
+                """
+                cur.execute(sql_query, [selected_month])
+                perdidas = cur.fetchall()
+
+                # Calcular las pérdidas totales para el mes seleccionado
+                perdidas_mes = sum(p[1] for p in perdidas)
+
+                loss_data.append({'month': selected_month, 'total_loss': perdidas_mes})
+
+            # Cerrar la conexión a la base de datos
+            cur.close()
+
+            # Crear un DataFrame de pandas con los datos de pérdidas
+            df_loss = pd.DataFrame(loss_data)
+
+            # Utilizar la regresión lineal simple para estimar las pérdidas futuras
+            X_train = df_loss.index.values.reshape(-1, 1)
+            y_train = df_loss['total_loss'].values
+
+            model = LinearRegression()
+            model.fit(X_train, y_train)
+
+            # Crear datos para la estimación de pérdidas
+            future_months = pd.date_range(start=df_loss['month'].max(), periods=6, freq='M')
+            X_future = np.array(range(len(df_loss), len(df_loss) + 6)).reshape(-1, 1)
+            estimated_losses = model.predict(X_future)
+
+            # Crear una gráfica de las estimaciones de pérdidas
+            fig_estimated_losses = go.Figure()
+            fig_estimated_losses.add_trace(go.Scatter(
+                x=future_months,
+                y=estimated_losses,
+                mode='lines+markers',
+                name='Estimaciones de Pérdidas'
+            ))
+
+            fig_estimated_losses.update_layout(
+                xaxis_title='Mes',
+                yaxis_title='$ Pérdidas',
+                title='Estimación de Pérdidas Futuras'
+            )
+
+            # Convertir la figura de Plotly a HTML
+            graph_html_estimated_losses = fig_estimated_losses.to_html(full_html=False)
+        else:
+            # No se han seleccionado meses futuros
+            graph_html_estimated_losses = None
+
+        return render_template(
+            'administration/stats/lossProjections.jinja',
+            months=months,
+            graph_html_estimated_losses=graph_html_estimated_losses
+        )
+
+    except Exception as e:
+        return f"Error al realizar estimaciones de pérdidas: {str(e)}"
+    
 
 @admin.route('/administration/profitabilityProjections')
 @admin_required
 def profitabilityProjections():
     return render_template('administration/stats/profitabilityProjections.jinja')
-
-
-@admin.route('/administration/profitabilityResults')
-@admin_required
-def profitabilityResults():
-    return render_template('administration/stats/profitabilityResults.jinja')
-
-
 
 
 #-----------------------------------------------------
