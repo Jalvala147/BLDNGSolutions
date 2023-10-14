@@ -11,7 +11,7 @@ from flask import redirect
 from functools import wraps
 import json
 
-#import stripe
+import stripe
 
 app = Flask(__name__)
 mysql = MySQL()
@@ -30,6 +30,7 @@ csrf = CSRFProtect()
 app.config['STRIPE_PUBLIC_KEY'] = 'pk_test_51Ns9uVB0WRECsvw4RKybB3WRFOviaJea7AiDaHYrGoPLt08xWU7fS5Q8Dfyr6clI9SimSIsSNZclseD4Oq5Vsjur00L5NDp3cm'
 app.config['STRIPE_SECRET_KEY'] = 'sk_test_51Ns9uVB0WRECsvw4UN0P1pswEObrLOzD1XrNGDTFol3jUKfwJmctLxLBGvC356AScv0w4J86D0k6inGHFlLhj6nz00653AbSdX'
 
+stripe.api_key = "sk_test_51Ns9uVB0WRECsvw4UN0P1pswEObrLOzD1XrNGDTFol3jUKfwJmctLxLBGvC356AScv0w4J86D0k6inGHFlLhj6nz00653AbSdX"
 
 def client_required(func):
     @wraps(func)
@@ -62,7 +63,7 @@ def logout():
 def clientsHome():
     return render_template('/clientuser/clientsHome.jinja')
 
-#--------------------------------------------
+#--------------Ventana en la que se muestran los pedidos de cada usuario, asi como su total------------------
 @clients.route('/payments', methods=['GET', 'POST'])
 @client_required
 @login_required
