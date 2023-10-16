@@ -1,36 +1,73 @@
 {% extends './base.html' %}
 
-{% block title%}Historial de accesos de {{ name }}{% endblock %}
-
+{% block title %} Historial de accesos de {{ name }} {% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css')}}">
-<link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-{% endblock %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
+<style>
+    .table-container {
+        display: flex;
+    }
+
+    .table-container table {
+        margin-right: 20px; /* Espacio entre las tablas */
+    }
+
+    .green-bg {
+        background-color: green;
+    }
+
+    .red-bg {
+        background-color: red;
+    }
+</style>
+{% endblock %}
 
 {% block body %}
 
 <a href="{{ url_for('admin.accesscontrol') }}" class="btn">Atras</a>
 
 <h1>Historial de accesos de {{ name }}, ID:{{ id }}</h1>
+<h1>Empleado de {% if access_records[0][2] == 2 %}Ventas{% elif access_records[0][2] == 5 %}Mantenimiento{% elif access_records[0][2] == 6 %}Envíos{% elif access_records[0][2] == 3 %}Almacén{% else %}Otro{% endif %}</h1>
 
-<a href="#" class="btn">Resultados</a>
-<table class="table1">
-    <tr>
-        <th>Fecha</th>
-        <th>Imgresos</th>
-        <th>Egresos</th>
-        <th>Area</th>
-    </tr>
 
-    <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-</table>
+
+<a href="{{ url_for('admin.employeeResults', id=id, name=name) }}" class="btn">Resultados</a>
+
+<div class="table-container">
+    <div>
+        <h2>Ingresos:</h2>
+        <table class="table1">
+            <tr>
+                <th>Fecha</th>
+            </tr>
+            {% for access in access_records %}
+            {% if access[1] == 1 %}
+            <tr class="access-row">
+                <td>{{ access[0] }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+
+    <div>
+        <h2>Egresos:</h2>
+        <table class="table1">
+            <tr>
+                <th>Fecha</th>
+            </tr>
+            {% for access in access_records %}
+            {% if access[1] == 0 %}
+            <tr class="access-row">
+                <td>{{ access[0] }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+</div>
 
 {% endblock %}

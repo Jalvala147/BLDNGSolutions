@@ -1,16 +1,25 @@
 {% extends './base.html' %}
 
-{% block title%}Resultados de empleados{% endblock %}
+{% block title %} Resultados de empleados {% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/employeelist.css')}}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css') }}">
 {% endblock %}
 
-
 {% block body %}
-
-<h1>Resultados</h1>
-<h2>Empleados</h2>
-
+    <a href="{{ url_for('admin.accesscontrol') }}" class="btn">Página de control de accesos</a>
+    <h1>Resultados para {{ name }}</h1>
+    <h2>Empleados</h2>
+    <table class="table1">
+        <tr>
+            <th>Fecha y Hora</th>
+            <th>Puntualidad</th>
+        </tr>
+        {% for resultado in resultados_puntualidad %}
+        <tr>
+            <td>{{ resultado.fecha_hora }}</td>
+            <td>{{ resultado.puntualidad }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endblock %}
