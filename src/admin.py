@@ -8,6 +8,7 @@ from flask import request
 from flask import Flask
 from flask_login import login_required, current_user
 from functools import wraps
+from datetime import datetime, timedelta
 import calendar
 import locale
 import pandas as pd
@@ -67,8 +68,76 @@ def accesscontrol():
 @admin.route('/administration/accessHistory/<int:id>/<string:name>')
 @admin_required
 def accessHistory(id, name):
-    return render_template('administration/empAccessControl/accessHistory.jinja', id=id, name=name)
+    cur = mysql.connection.cursor()
 
+    #Consulta JOIN para obtener el campo "area" de la tabla "user"
+    sql = """
+    SELECT access_records.date_time, access_records.status, user.areaUsuario
+    FROM user
+    LEFT JOIN access_records ON user.id = access_records.fingerprint_id
+    WHERE user.id = %s
+    """
+
+    cur.execute(sql, (id,))
+
+    access_records = cur.fetchall()
+    cur.close()
+    return render_template('administration/empAccessControl/accessHistory.jinja', id=id, name=name, access_records=access_records)
+
+
+# Crea una función para calcular la puntualidad
+def calcular_puntualidad(access_records):
+    hora_entrada_esperada = datetime.strptime("08:00:00", "%H:%M:%S")
+    hora_entrada_inicial = hora_entrada_esperada - timedelta(minutes=30)
+    hora_entrada_limite = hora_entrada_esperada + timedelta(minutes=15)
+
+    resultados_puntualidad = []
+
+    for access in access_records:
+        fecha_hora_registro = access[0]  # Suponemos que esta es la fecha y hora del registro en formato datetime
+
+        print(f"Fecha y hora de registro: {fecha_hora_registro}")
+
+        if hora_entrada_inicial <= fecha_hora_registro <= hora_entrada_limite:
+            puntualidad = "A tiempo"
+        else:
+            puntualidad = "Tarde"
+
+        resultados_puntualidad.append({"fecha_hora": fecha_hora_registro, "puntualidad": puntualidad})
+
+    return resultados_puntualidad
+
+
+
+def obtener_access_records(empleado_id):
+    cur = mysql.connection.cursor()
+
+    # Consulta para obtener los registros de acceso del empleado con el id proporcionado
+    sql = """
+    SELECT date_time, status
+    FROM access_records
+    WHERE fingerprint_id = %s AND status = 1
+    ORDER BY date_time
+    """
+    cur.execute(sql, (empleado_id,))
+
+    access_records = cur.fetchall()
+    cur.close()
+
+    return access_records
+
+
+# Ruta para mostrar los resultados de puntualidad para un empleado específico
+@admin.route('/administration/empAccessControl/employeeResults/<int:id>/<string:name>')
+@admin_required
+def employeeResults(id, name):
+    # Aquí debes obtener los registros de acceso específicos de este empleado desde tu base de datos
+    access_records = obtener_access_records(id)  # Reemplaza esto con tu propia lógica
+
+    # Llama a la función para calcular la puntualidad
+    resultados_puntualidad = calcular_puntualidad(access_records)
+
+    return render_template('administration/empAccessControl/employeeResults.jinja', id=id, name=name, resultados_puntualidad=resultados_puntualidad)
 
 #-------------------------------------------------
 

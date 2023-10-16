@@ -12,6 +12,18 @@ h1 {
     text-align: center;
 }
 
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+p {
+    font-size: 1rem;
+    margin-bottom: .3rem;
+}
+
 /* Global Styles */
 body {
     font-family: 'Poppins', sans-serif;
@@ -59,11 +71,17 @@ select {
 }
 
 button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
+    display: inline-block;
+    background-color: rgb(171, 37, 212);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: background .5s;
+    margin: 5px;
+    text-decoration: none;
 }
 
 button:hover {
@@ -85,5 +103,28 @@ button:hover {
 }
 
 .btn:hover {
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(61, 61, 61, 0.85);
+}
+
+input[type="text"] {
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, .3);
+    padding: 1rem;
+    padding-left: calc(1rem * 3.5);
+    border-radius: 100px;
+    width: 100%;
+    transition: background .5s;
+}
+
+input[type="text"]:focus {
+    background: white;
+}
+
+select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }

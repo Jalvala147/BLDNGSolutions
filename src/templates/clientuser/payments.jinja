@@ -14,19 +14,18 @@
 
 <h1>{{current_user.fullname}}, Seleccione el pedido a realizar el pago</h1>
 
+
 <form>
-    <select id="order-select" name="order" autocomplete="off">
+    <select id="order-select" name="order" autocomplete="off" onchange="actualizarCamposPago()">
         <option value="" disabled selected>Selecciona una orden</option>
         {% for order in orders %}
-        <option value="{{ order[0] }}">Orden: {{ order[0] }}, Total: ${{ order[1] }}</option>
+        <option value="{{ order[0] }}" data-amount="{{ order[1] }}">Orden: {{ order[0] }}, Total: ${{ order[1] }}
+        </option>
         {% endfor %}
     </select>
 </form>
 
-<h1 id="selected-order-info">Información de la orden seleccionada: </h1>
-
-<p>Ingresa esta informacion a la hora de hacer el pago.</p>
-
+<h2 id="selected-order-info">Información de la orden seleccionada: </h2>
 
 <div class="container">
     <label for="tipo_pago">Tipo de pago:</label>
@@ -35,7 +34,9 @@
         <option value="tarjeta">Tarjeta de Débito/Crédito</option>
         <option value="transferencia">Transferencia Bancaria</option>
         <option value="paypal">PayPal</option>
-    </select><br><br>
+    </select>
+    <br><br>
+
 
     {# integracion del boton de stripe para realizar pagos #}
     <div id="tarjeta" class="formulario" style="display: none;">
@@ -58,20 +59,33 @@
         </div>
     </div>
 
+    <form method="POST" action="/generar-orden-de-pago">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div id="transferencia" class="formulario" style="display: none;">
+            <!-- Formulario de Transferencia Bancaria -->
+            <label for="banco_destino">Banco de destino:</label>
+            <input type="text" id="banco_destino" name="banco_destino" value="Nu México" readonly><br><br>
+            <label for="numero_cuenta">Número de cuenta (CLABE):</label>
+            <input type="text" id="numero_cuenta" name="numero_cuenta" value="638180010133173322" readonly><br><br>
+            <label for="nombre_titular">Nombre del titular de la cuenta:</label>
+            <input type="text" id="nombre_titular" name="nombre_titular" value="Josue Alvarado Arrezola"
+                readonly><br><br>
+            <label for="monto">Monto a transferir:</label>
+            <input type="text" id="monto" name="monto" readonly><br><br>
+            <label for="concepto">Concepto de pago:</label>
+            <input type="text" id="concepto" name="concepto" readonly><br><br>
+            <button onclick="generarOrdenPago()">Generar Orden de Pago</button>
+        </div>
 
-    <div id="transferencia" class="formulario" style="display: none;">
-        <!-- Formulario de Transferencia Bancaria -->
-        <label for="banco_destino">Banco de destino:</label>
-        <input type="text" id="banco_destino" name="banco_destino" required><br><br>
-        <label for="numero_cuenta">Número de cuenta:</label>
-        <input type="text" id="numero_cuenta" name="numero_cuenta" required><br><br>
-        <label for="nombre_titular">Nombre del titular de la cuenta:</label>
-        <input type="text" id="nombre_titular" name="nombre_titular" required><br><br>
-        <label for="rut_titular">RFC del titular de la cuenta:</label>
-        <input type="text" id="rut_titular" name="rut_titular" required><br><br>
-        <button onclick="generarOrdenPago()">Generar Orden de Pago</button>
-    </div>
+        {# <div class="container">
+            <div id="orden_pago" style="display: none;">
+                <!-- Información de la orden de pago generada -->
+                <p>Información de la Orden de Pago Generada:</p>
+                <input type="hidden" id="pdf_info" name="pdf_info" value="">
+            </div>
+        </div> #}
 
+    </form>
     <div id="paypal" class="formulario" style="display: none;">
         <!-- Formulario de PayPal -->
         <label for="correo_paypal">Correo electrónico de <img
@@ -81,32 +95,35 @@
         <button onclick="generarOrdenPago()">Generar Orden de Pago</button>
     </div>
 
-
-    <div id="orden_pago" style="display: none;">
-        <!-- Información de la orden de pago generada -->
-        <p>Orden de Pago Generada:</p>
-        <p>Banco de destino: <span id="info_banco"></span></p>
-        <p>Número de cuenta: <span id="info_cuenta"></span></p>
-        <!-- ... Otros detalles de la orden de pago ... -->
-    </div>
 </div>
+
+
 <br>
-<p>Despues de relizar el pago, favor de guardar como PDF algun comprobante de pago</p>
-<p>en donde sea legible el numero de pedido y el monto pagado. Y favor de cargarlo</p>
+<p>Después de relizar el pago, favor de guardar como PDF algún comprobante de pago</p>
+<p>en donde sea legible el número de pedido y el monto pagado. Y favor de cargarlo</p>
 <p> en la ventana de subida de documentos.</p>
 
 <script src="{{ url_for('static', filename='js/clientuser/payments.js') }}"></script>
 
 <script
-    src="https://www.paypal.com/sdk/js?client-id=ATwXrFmndPUWoHzlRO8nWHc8YFSb-VG6mqQzEXfCq3AQokm94kymKZKGYCOMTXWUU5Ce8g4bcKGI_dsF"></script>
+    src="https://www.paypal.com/sdk/js?client-id=ATwXrFmndPUWoHzlRO8nWHc8YFSb-VG6mqQzEXfCq3AQokm94kymKZKGYCOMTXWUU5Ce8g4bcKGI_dsF">
+    </script>
 
-<style>
-    .stripe-button-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        /* Asegúrate de que el contenedor tenga una altura definida para centrar verticalmente si es necesario */
-    }
-</style>
+
+<script>
+    const orderSelect = document.getElementById('order-select');
+    const tipoPagoSelect = document.getElementById('tipo_pago');
+
+    orderSelect.addEventListener('change', function () {
+        const selectedOption = orderSelect.options[orderSelect.selectedIndex];
+        if (selectedOption.value) {
+            // Habilitar el select de tipo de pago si se selecciona una orden
+            tipoPagoSelect.removeAttribute('disabled');
+        } else {
+            // Deshabilitar el select de tipo de pago si no se selecciona una orden
+            tipoPagoSelect.setAttribute('disabled', 'disabled');
+        }
+    });
+</script>
+
 {% endblock %}

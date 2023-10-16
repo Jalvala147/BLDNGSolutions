@@ -6,11 +6,19 @@ from flask_login import login_user, login_required, current_user
 from flask_login import logout_user
 from flask import Blueprint
 from flask import request, jsonify
-from flask import Flask, url_for
+from flask import Flask, url_for, send_file
 from flask import redirect
+from flask import make_response
 from functools import wraps
 import json
-
+from datetime import datetime
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfgen import canvas
+import os
+from io import BytesIO
 import stripe
 
 app = Flask(__name__)
@@ -77,9 +85,80 @@ def payments():
     cur.close()
 
     return render_template('clientuser/payments.jinja', user_id=user_id, orders=orders)
-    
 
-#----Hacer un reporte a maquina--------
+#---------------Funcion para generar una orden de pago en PDF------------------------------
+def generar_pdf_orden_pago(bancoDestino, numeroCuenta, nombreTitular, monto, concepto, imagen_url):
+    pdf_buffer = BytesIO()
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
+
+    # Obtener la fecha y hora actual
+    now = datetime.now()
+    fecha_hora = now.strftime("%Y-%m-%d %H:%M:%S")
+
+    # Crear una lista de elementos para el contenido del PDF
+    elements = []
+
+    # Agregar una imagen al PDF en la parte superior izquierda
+    if imagen_url:
+        image = Image(imagen_url)
+        image.drawWidth = 60  # Ancho de la imagen
+        image.drawHeight = 60  # Altura de la imagen
+        elements.append(image)
+
+    # Agregar un título al PDF
+    title_style = getSampleStyleSheet()['Title']
+    title_text = "Orden de Pago Generada<br/>BLDNGSolutions®"
+    title = Paragraph(title_text, title_style)
+    elements.append(title)
+
+    # Crear una tabla para una presentación más organizada
+    data = [['Banco de destino:', bancoDestino],
+            ['Número de cuenta:', numeroCuenta],
+            ['Nombre del titular:', nombreTitular],
+            ['Monto a transferir:', f'${monto}'],
+            ['Concepto:', concepto]]
+
+    table = Table(data, colWidths=(120, 250))
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.lightblue),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+
+    # Agregar la tabla a los elementos
+    elements.append(table)
+
+    # Agregar la fecha y hora al PDF
+    elements.append(Paragraph(f'Fecha y Hora de Descarga: {fecha_hora}', getSampleStyleSheet()['Normal']))
+
+    # Construir el PDF
+    doc.build(elements)
+
+    pdf_buffer.seek(0)
+    return pdf_buffer
+
+#----Fucion para generar el PDF y descargarlo
+@clients.route('/generar-orden-de-pago', methods=['POST'])
+def generar_orden_de_pago():
+    # Recopila los valores de los campos del formulario
+    bancoDestino = request.form.get('banco_destino')
+    numeroCuenta = request.form.get('numero_cuenta')
+    nombreTitular = request.form.get('nombre_titular')
+    monto = request.form.get('monto')
+    concepto = request.form.get('concepto')
+
+    # Define la URL de la imagen
+    imagen_url = "https://github.com/Jalvala147/image/blob/main/logo.png?raw=true"
+
+    # Genera el PDF en memoria
+    pdf_data = generar_pdf_orden_pago(bancoDestino, numeroCuenta, nombreTitular, monto, concepto, imagen_url)
+
+    # Envía el archivo PDF como respuesta para que se descargue
+    return send_file(pdf_data, as_attachment=True, download_name='orden_pago.pdf', mimetype='application/pdf')
+
+
+#-----------------------------Hacer un reporte a maquina--------------------------------
 @clients.route('/clientuser/makereport', methods=['GET', 'POST'])
 @client_required
 @login_required
