@@ -4,22 +4,178 @@
 
 {% block customCSS %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css') }}">
+    <style>
+    .green-bg {
+        background-color: rgba(13, 209, 13, 0.692);
+    }
+
+    .red-bg {
+        background-color: rgba(255, 0, 0, 0.671);
+    }
+
+    .red-text {
+        color: red;
+    }
+
+    .green-text {
+        color: green;
+    }
+
+    #mensajeBono {
+        display: block;
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        text-align: center;
+        color: rgb(181, 253, 229);
+    }
+
+    #bonoText {
+        font-size: 18px;
+        font-weight: bold;
+    }
+    /* Selects "Seleccionar mes" y "Seleccionar período" */
+    select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        width: 200px;
+        margin: 5px 0;
+    }
+
+    /* Etiquetas para selects */
+    label {
+        font-weight: bold;
+    }
+
+    /* Tabla "table1" */
+    .table1 {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    </style>
+
 {% endblock %}
 
 {% block body %}
     <a href="{{ url_for('admin.accesscontrol') }}" class="btn">Página de control de accesos</a>
     <h1>Resultados para {{ name }}</h1>
     <h2>Empleados</h2>
+    <div>
+        <label for="monthSelect">Seleccionar mes:</label>
+        <select id="monthSelect">
+            {% for month in months %}
+                <option value="{{ month[0] }}">{{ month[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="periodSelect">Seleccionar período:</label>
+        <select id="periodSelect">
+            <option value="mes">Mensual</option>
+            <option value="quincena1">Primera quincena</option>
+            <option value="quincena2">Segunda quincena</option>
+        </select>
+    </div>
+    <div id="selectedMonthInfo" style="display: none;"></div>
+    <div id="countInfo" style="display: none;">
+        <p>Registros Tarde: <span id="tardeCount">0</span></p>
+        <p>Registros A tiempo: <span id="atimeCount">0</span></p>
+    </div>
+    <div id="mensajeBono" style="display: none;"></div>  {# Mensaje de bono o sanción #}
     <table class="table1">
         <tr>
             <th>Fecha y Hora</th>
             <th>Puntualidad</th>
         </tr>
         {% for resultado in resultados_puntualidad %}
-        <tr>
+        <tr class="puntualidad-row">
             <td>{{ resultado.fecha_hora }}</td>
-            <td>{{ resultado.puntualidad }}</td>
+            <td class="{% if resultado.puntualidad == 'Tarde' %}red-bg{% else %}green-bg{% endif %}">{{ resultado.puntualidad }}</td>
         </tr>
         {% endfor %}
     </table>
+</div>
+
+<script>
+    const monthSelect = document.getElementById('monthSelect');
+    const periodSelect = document.getElementById('periodSelect');
+    const selectedMonthInfo = document.getElementById('selectedMonthInfo');
+    const countInfo = document.getElementById('countInfo');
+    const tardeCount = document.getElementById('tardeCount');
+    const atimeCount = document.getElementById('atimeCount');
+    const mensajeBono = document.getElementById('mensajeBono');  {# Elemento para mostrar el mensaje #}
+    const rows = document.querySelectorAll('.puntualidad-row');
+
+    monthSelect.addEventListener('change', updateTable);
+    periodSelect.addEventListener('change', updateTable);
+
+    function updateTable() {
+        const selectedMonth = monthSelect.value;
+        const selectedPeriod = periodSelect.value;
+        let tarde = 0;
+        let atime = 0;
+
+        rows.forEach(row => {
+            const dateTime = row.querySelector('td:first-child').textContent;
+            const puntualidad = row.querySelector('td:last-child').textContent;
+            const [year, month, day] = dateTime.split(' ')[0].split('-');
+            const dayNumber = parseInt(day, 10);
+
+            if ((selectedPeriod === 'mes' && dateTime.startsWith(selectedMonth)) ||
+                (selectedPeriod === 'quincena1' && dayNumber <= 14 && dateTime.startsWith(selectedMonth)) ||
+                (selectedPeriod === 'quincena2' && dayNumber > 14 && dateTime.startsWith(selectedMonth))) {
+                row.style.display = 'table-row';
+
+                if (puntualidad === 'Tarde') {
+                    tarde++;
+                } else if (puntualidad === 'A tiempo') {
+                    atime++;
+                }
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (selectedPeriod === 'mes') {
+            selectedMonthInfo.innerHTML = `<strong>Registros del mes de ${selectedMonth}</strong>`;
+        } else if (selectedPeriod === 'quincena1') {
+            selectedMonthInfo.innerHTML = `<strong>Registros de la primera quincena de ${selectedMonth}</strong>`;
+        } else if (selectedPeriod === 'quincena2') {
+            selectedMonthInfo.innerHTML = `<strong>Registros de la segunda quincena de ${selectedMonth}</strong>`;
+        }
+
+
+        if (selectedPeriod === 'mes') {
+            selectedMonthInfo.style.display = 'none';
+        } else {
+            selectedMonthInfo.style.display = 'block';
+        }
+
+        tardeCount.textContent = tarde;
+        atimeCount.textContent = atime;
+        countInfo.style.display = 'block';
+
+        // Mensajes
+        if (tarde === 1) {
+            mensajeBono.textContent = "Se perdió el derecho al bono de puntualidad.";
+            mensajeBono.classList.add("red-bg"); // Aplica fondo rojo
+            mensajeBono.classList.remove("green-bg"); // Elimina fondo verde
+        } else if (tarde > 1) {
+            mensajeBono.textContent = "Es necesaria una llamada de atención debido a las faltas de puntualidad.";
+            mensajeBono.classList.add("red-bg"); // Aplica fondo rojo
+            mensajeBono.classList.remove("green-bg"); // Elimina fondo verde
+        } else if (tarde === 0 && atime > 0) {
+            mensajeBono.textContent = "Es acreedor al bono de puntualidad.";
+            mensajeBono.classList.remove("red-bg"); // Elimina fondo rojo
+            mensajeBono.classList.add("green-bg"); // Aplica fondo verde
+        }
+        mensajeBono.style.display = 'block';
+
+
+    }
+</script>
 {% endblock %}
+

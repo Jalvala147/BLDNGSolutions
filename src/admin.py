@@ -70,22 +70,38 @@ def accesscontrol():
 def accessHistory(id, name):
     cur = mysql.connection.cursor()
 
-    #Consulta JOIN para obtener el campo "area" de la tabla "user"
+    # Query distinct months from the access_records
+    cur.execute("SELECT DISTINCT DATE_FORMAT(date_time, '%Y-%m') AS month FROM access_records")
+    months = cur.fetchall()
+
+    selected_month = request.args.get('month')  # Get the selected month from the URL query parameter
+
+    selected_period = request.args.get('period')  # Get the selected period (month or quincena) from the URL query parameter
+
+    # Construct the SQL query to get access records for the selected month or quincena
     sql = """
     SELECT access_records.date_time, access_records.status, user.areaUsuario
     FROM user
     LEFT JOIN access_records ON user.id = access_records.fingerprint_id
     WHERE user.id = %s
     """
-
-    cur.execute(sql, (id,))
+    if selected_month:
+        if selected_period == 'mes':
+            sql += " AND DATE_FORMAT(access_records.date_time, '%Y-%m') = %s"
+        elif selected_period == 'quincena1':
+            sql += " AND DAY(access_records.date_time) <= 15 AND DATE_FORMAT(access_records.date_time, '%Y-%m') = %s"
+        elif selected_period == 'quincena2':
+            sql += " AND DAY(access_records.date_time) > 15 AND DATE_FORMAT(access_records.date_time, '%Y-%m') = %s"
+        cur.execute(sql, (id, selected_month))
+    else:
+        cur.execute(sql, (id,))
 
     access_records = cur.fetchall()
     cur.close()
-    return render_template('administration/empAccessControl/accessHistory.jinja', id=id, name=name, access_records=access_records)
 
+    return render_template('administration/empAccessControl/accessHistory.jinja', id=id, name=name, access_records=access_records, months=months, selected_month=selected_month, selected_period=selected_period)
 
-# Crea una función para calcular la puntualidad
+# Función para calcular la puntualidad
 def calcular_puntualidad(access_records):
     hora_entrada_esperada = datetime.strptime("08:00:00", "%H:%M:%S")
     hora_entrada_inicial = hora_entrada_esperada - timedelta(minutes=30)
@@ -96,9 +112,10 @@ def calcular_puntualidad(access_records):
     for access in access_records:
         fecha_hora_registro = access[0]  # Suponemos que esta es la fecha y hora del registro en formato datetime
 
-        print(f"Fecha y hora de registro: {fecha_hora_registro}")
+        # Asegurémonos de que la fecha no afecte la comparación, considerando solo la hora
+        hora_registro = fecha_hora_registro.time()
 
-        if hora_entrada_inicial <= fecha_hora_registro <= hora_entrada_limite:
+        if hora_entrada_inicial.time() <= hora_registro <= hora_entrada_limite.time():
             puntualidad = "A tiempo"
         else:
             puntualidad = "Tarde"
@@ -137,7 +154,13 @@ def employeeResults(id, name):
     # Llama a la función para calcular la puntualidad
     resultados_puntualidad = calcular_puntualidad(access_records)
 
-    return render_template('administration/empAccessControl/employeeResults.jinja', id=id, name=name, resultados_puntualidad=resultados_puntualidad)
+    # Consulta para obtener los meses disponibles en los registros de acceso
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT DISTINCT DATE_FORMAT(date_time, '%Y-%m') AS month FROM access_records")
+    months = cur.fetchall()
+    cur.close()
+
+    return render_template('administration/empAccessControl/employeeResults.jinja', id=id, name=name, resultados_puntualidad=resultados_puntualidad, months=months)
 
 #-------------------------------------------------
 
