@@ -26,16 +26,32 @@
 {% endblock %}
 
 {% block body %}
-
 <a href="{{ url_for('admin.accesscontrol') }}" class="btn">Atras</a>
 
 <h1>Historial de accesos de {{ name }}, ID:{{ id }}</h1>
 <h1>Empleado de {% if access_records[0][2] == 2 %}Ventas{% elif access_records[0][2] == 5 %}Mantenimiento{% elif access_records[0][2] == 6 %}Envíos{% elif access_records[0][2] == 3 %}Almacén{% else %}Otro{% endif %}</h1>
 
-
-
 <a href="{{ url_for('admin.employeeResults', id=id, name=name) }}" class="btn">Resultados</a>
 
+<div>
+    <label for="monthSelect">Seleccionar mes:</label>
+    <select id="monthSelect">
+        {% for month in months %}
+            <option value="{{ month[0] }}">{{ month[0] }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div>
+    <label for="periodSelect">Seleccionar período:</label>
+    <select id="periodSelect">
+        <option value="mes">Mensual</option>
+        <option value="quincena1">Primera quincena</option>
+        <option value="quincena2">Segunda quincena</option>
+    </select>
+</div>
+
+<div id="selectedMonthInfo" style="display: none;"></div>
 <div class="table-container">
     <div>
         <h2>Ingresos:</h2>
@@ -69,5 +85,50 @@
         </table>
     </div>
 </div>
+
+<script>
+    const monthSelect = document.getElementById('monthSelect');
+    const periodSelect = document.getElementById('periodSelect');
+    const selectedMonthInfo = document.getElementById('selectedMonthInfo');
+    const rows = document.querySelectorAll('.access-row');
+
+    monthSelect.addEventListener('change', updateTable);
+    periodSelect.addEventListener('change', updateTable);
+
+    function updateTable() {
+        const selectedMonth = monthSelect.value;
+        const selectedPeriod = periodSelect.value;
+
+        // Iterar a través de filas y ocultar/mostrar filas según el mes y período seleccionados
+        rows.forEach(row => {
+            const date = row.querySelector('td').textContent;
+            const [year, month, day] = date.split('-');
+            const dayNumber = parseInt(day, 10);
+
+            //Se menciona como quincena pero en realidad son 14 dias o dos semanas, para que se ajuste correctamente la informacion en la tabla
+            if ((selectedPeriod === 'mes' && date.startsWith(selectedMonth)) ||
+                (selectedPeriod === 'quincena1' && dayNumber <= 14 && date.startsWith(selectedMonth)) ||
+                (selectedPeriod === 'quincena2' && dayNumber > 14 && date.startsWith(selectedMonth))) {
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (selectedPeriod === 'mes') {
+            selectedMonthInfo.textContent = `Registros del mes de ${selectedMonth}`;
+        } else if (selectedPeriod === 'quincena1') {
+            selectedMonthInfo.textContent = `Registros de la primera quincena de ${selectedMonth}`;
+        } else if (selectedPeriod === 'quincena2') {
+            selectedMonthInfo.textContent = `Registros de la segunda quincena de ${selectedMonth}`;
+        }
+
+        if (selectedPeriod === 'mes') {
+            selectedMonthInfo.style.display = 'none';
+        } else {
+            selectedMonthInfo.style.display = 'block';
+        }
+    }
+</script>
 
 {% endblock %}
