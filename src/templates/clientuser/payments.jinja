@@ -4,7 +4,8 @@
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/clientuser/payments.css')}}">
-
+<script
+    src="https://www.paypal.com/sdk/js?client-id=AU1AsrvepHaHfWudU_ttLV_7w4OH6ZYDsiveQenlR3Jpuo3Q5zc47oT4hCij1fGaOxjeqSQPTTAuwkuk&currency=MXN"></script>
 {% endblock %}
 
 {% block body %}
@@ -77,22 +78,10 @@
             <button onclick="generarOrdenPago()">Generar Orden de Pago</button>
         </div>
 
-        {# <div class="container">
-            <div id="orden_pago" style="display: none;">
-                <!-- Información de la orden de pago generada -->
-                <p>Información de la Orden de Pago Generada:</p>
-                <input type="hidden" id="pdf_info" name="pdf_info" value="">
-            </div>
-        </div> #}
-
     </form>
-    <div id="paypal" class="formulario" style="display: none;">
-        <!-- Formulario de PayPal -->
-        <label for="correo_paypal">Correo electrónico de <img
-                src="{{ url_for('static', filename = 'images/logos/paypallogo.png') }}" alt="PayPal Logo"
-                width="100">:</label>
-        <input type="text" id="correo_paypal" name="correo_paypal" required><br><br>
-        <button onclick="generarOrdenPago()">Generar Orden de Pago</button>
+    <div id="paypal" class="formulario" style="display: none; text-align: center;">
+        <!-- Boton de PayPal -->
+        <div id="paypal-button-conteiner" style="display: inline-block;"></div>
     </div>
 
 </div>
@@ -103,11 +92,84 @@
 <p>en donde sea legible el número de pedido y el monto pagado. Y favor de cargarlo</p>
 <p> en la ventana de subida de documentos.</p>
 
-<script src="{{ url_for('static', filename='js/clientuser/payments.js') }}"></script>
 
-<script
-    src="https://www.paypal.com/sdk/js?client-id=ATwXrFmndPUWoHzlRO8nWHc8YFSb-VG6mqQzEXfCq3AQokm94kymKZKGYCOMTXWUU5Ce8g4bcKGI_dsF">
-    </script>
+
+<script>
+    // Inicializa el botón de PayPal una sola vez
+    var paypalButton = paypal.Buttons({
+        style: {
+            color: 'silver',
+            shape: 'pill',
+            label: 'pay'
+        },
+        createOrder: function (data, actions) {
+            // Obtén el valor del total del pedido seleccionado
+            var total = 0; // Valor predeterminado si no se selecciona un pedido válido
+
+            var orderSelect = document.getElementById('order-select');
+            var selectedOption = orderSelect.options[orderSelect.selectedIndex];
+
+            if (selectedOption) {
+                total = selectedOption.getAttribute('data-amount');
+            }
+
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: total // Usamos el total del pedido seleccionado
+                    }
+                }]
+            });
+        },
+        onApprove: function (data, actions) {
+            //en detalles se va a guardar todo lo que pase en nuestro pago
+            actions.order.capture().then(function (detalles) {
+                window.location.href = "{{ url_for('clients.clientsHome') }}"
+            });
+        },
+        onCancel: function (data) {
+            alert("Pago cancelado")
+            console.log(data);
+        },
+        onError: function (error) {
+            alert("Error al procesar el pago: " + error.message);
+        }
+    });
+
+    // Renderiza el botón de PayPal en el contenedor
+    paypalButton.render('#paypal-button-conteiner');
+
+    // Función para actualizar el valor del total al cambiar la selección
+    function actualizarCamposPago() {
+        // Actualizar el valor del total en el botón de PayPal
+        var orderSelect = document.getElementById('order-select');
+        var selectedOption = orderSelect.options[orderSelect.selectedIndex];
+        var total = 0; // Valor predeterminado si no se selecciona un pedido válido
+
+        if (selectedOption) {
+            total = selectedOption.getAttribute('data-amount');
+        }
+
+        paypalButton.update({
+            purchase_units: [{
+                amount: {
+                    value: total
+                }
+            }]
+        });
+    }
+
+    // Llama a la función para actualizar los campos de pago cuando el select cambia
+    document.getElementById('order-select').addEventListener('change', actualizarCamposPago);
+
+    // Llama a la función inicialmente para configurar el valor correcto del total
+    actualizarCamposPago();
+</script>
+
+
+
+
+<script src="{{ url_for('static', filename='js/clientuser/payments.js') }}"></script>
 
 
 <script>
@@ -124,6 +186,11 @@
             tipoPagoSelect.setAttribute('disabled', 'disabled');
         }
     });
+
 </script>
+
+
+
+
 
 {% endblock %}

@@ -3,6 +3,15 @@ let cartIcon = document.querySelector("#cart-icon");
 let cart = document.querySelector(".cart");
 let closeCart = document.querySelector("#close-cart");
 
+// Select para elegir entre Compra o Renta
+let purchaseOption = document.getElementById("purchase-option");
+
+// Agregar evento de cambio al select
+purchaseOption.addEventListener("change", function() {
+    updateCartPrices(); // Llamar a una función para actualizar los precios en el carrito
+    console.log(purchaseOption);
+});
+
 //Abrir carrito
 cartIcon.onclick = () => {
     cart.classList.add("active"); // Agrega la clase "active" al elemento con la clase "cart"
@@ -120,8 +129,14 @@ function addCartClicked(event) {
         }
     }
 
+    // Obtener la opción de compra seleccionada
+    var selectedOption = purchaseOption.value;
+
+    // Elegir el precio correcto según la opción de compra
+    var chosenPrice = selectedOption === "renta" ? price : sell_price;
+
     // Si el producto no está duplicado, agregarlo al carrito
-    addProductToCart(title, price, productImg, machineId);
+    addProductToCart(title, chosenPrice, productImg, machineId);
     updateTotal();
 
     // Mostrar mensaje flash
@@ -158,7 +173,9 @@ function addProductToCart(title, price, productImg, machineId) {
         }
     }
 
-    
+    // Elige el precio correcto según la opción de compra
+    var selectedOption = purchaseOption.value;
+    var chosenPrice = selectedOption === "renta" ? price : sell_price;
 
     var cartBoxContent = `
         <img src="${productImg}" alt="" class="cart-img">
@@ -167,7 +184,7 @@ function addProductToCart(title, price, productImg, machineId) {
         <div class="detail-box">
             <div class="cart-product-title">${title}</div>
             <div class="cart-product-id">ID: ${machineId}</div> 
-            <div class="cart-price">${price}</div>
+            <div class="cart-price">${chosenPrice}</div>
             <input type="number" value="1" min="1" max="4" class="cart-weeks" id="cart-weeks">
             <span>semanas</span>
         </div>
@@ -263,4 +280,32 @@ function weeksChanged(event) {
     }
     updateTotal(); // Agrega esta línea para llamar a updateTotal
     console.log("Valor de semanas:", input.value); // Agrega esta línea para depurar
+}
+
+//Función para actualizar los precios en el carrito
+function updateCartPrices() {
+    // Obtener la opción de compra seleccionada
+    var selectedOption = purchaseOption.value;
+    
+    // Obtener todos los elementos de precio en el carrito
+    var cartPrices = document.getElementsByClassName("cart-price");
+
+    // Iterar a través de los elementos de precio y actualizar según la opción
+    for (var i = 0; i < cartPrices.length; i++) {
+        var cartPrice = cartPrices[i];
+        var parentBox = cartPrice.parentElement;
+        var machineId = parentBox.getElementsByClassName("cart-machine-id")[0].value;
+
+        // Obtener el precio actual del producto
+        var currentPrice = parseFloat(cartPrice.innerText.replace("$", ""));
+
+        // Elegir el precio correcto según la opción de compra
+        var chosenPrice = selectedOption === "renta" ? price : sell_price;
+
+        // Actualizar el precio en el carrito
+        cartPrice.innerText = "$" + chosenPrice.toFixed(2);
+
+        // Llamar a updateTotal para actualizar el total del carrito
+        updateTotal();
+    }
 }
