@@ -70,7 +70,7 @@ h1 {
 /* Button Styles */
 .btn {
     display: inline-block;
-    background-color: rgb(143, 92, 158);
+    background-color: #245F94;
     color: white;
     padding: 0.8rem 1.5rem;
     border-radius: 100px;
@@ -93,7 +93,7 @@ h1 {
 
 .custom-button {
     display: block;
-    background-color: rgb(143, 92, 158);
+    background-color: #245F94;
     color: white;
     padding: 0.8rem 1.5rem;
     border-radius: 100px;
@@ -129,7 +129,7 @@ h1 {
 }
 
 .file-input-label {
-    background-color: rgb(143, 92, 158);
+    background-color: #245F94;
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 100px;
@@ -144,7 +144,7 @@ h1 {
     font-weight: bold;
 }
 
-/* Additional Styling for Flash Messages */
+
 .alert {
     background-color: #28a745;
     color: white;

@@ -20,16 +20,25 @@ from reportlab.pdfgen import canvas
 import os
 from io import BytesIO
 import stripe
+import paypalrestsdk
 
 app = Flask(__name__)
 mysql = MySQL()
 mail = Mail(app)
 
-# paypalrestsdk.configure({
-#   "mode": "sandbox",  # Cambia a "live" en producción
-#   "client_id": app.config['ATwXrFmndPUWoHzlRO8nWHc8YFSb-VG6mqQzEXfCq3AQokm94kymKZKGYCOMTXWUU5Ce8g4bcKGI_dsF'],
-#   "client_secret": app.config['EDj6_ZPQBQxcAnUDiHOCPYZKzzH0P-o1-6tA8j8YHzjn8hE2AJfAN6YqgBtv1NuRCVLteGY0fhBe10nC']
-# })
+
+app.config['PAYPAL_MODE'] = 'sandbox' # 'sandbox' o 'live'
+app.config['PAYPAL_CLIENT_ID'] = 'TU_CLIENT_ID_DE_PAYPAL'
+app.config['PAYPAL_CLIENT_SECRET'] = 'TU_CLIENT_SECRET_DE_PAYPAL'
+app.config['PAYPAL_CURRENCY'] = 'MXN' # La moneda que utilizarás para los pagos
+
+
+paypalrestsdk.configure({
+    "mode": app.config['PAYPAL_MODE'],
+    "client_id": app.config['PAYPAL_CLIENT_ID'],
+    "client_secret": app.config['PAYPAL_CLIENT_SECRET']
+})
+
 
 clients = Blueprint('clients', __name__)
 
@@ -419,7 +428,8 @@ def products():
             'name': product[1],
             'image': product[2],
             'price': product[3],
-            'id_Machine' : product[4]
+            'id_Machine' : product[4],
+            'sell_price': product[5]
         }
         products.append(product_dict) #agrega el diccionario del producto a la lista de productos
 

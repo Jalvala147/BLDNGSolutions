@@ -10,6 +10,20 @@
 
 
 {% block body %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="flash-messages">
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endwith %}
+
+
 <div id="particles-js"></div>
 <style>
     body {
@@ -17,6 +31,7 @@
         background-size: cover;
         background-repeat: no-repeat;
     }
+
     #particles-js {
         position: fixed;
         top: 0;
@@ -24,7 +39,7 @@
         width: 100%;
         height: 100%;
         z-index: -1;
-        
+
     }
 </style>
 
@@ -54,28 +69,16 @@
                 <div class="total-price">$0</div>
             </div>
 
-
-            <form id="purchase-form" action="{{ url_for('clients.place_order') }}" method="post">
+            <form id="purchase-form" action="{{ url_for('clients.place_order') }}" method="post"
+                onsubmit="return confirm('¿Estás seguro de que quieres realizar este pedido?');">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="clientUser_id" value="{{ user_id }}">
                 <input type="hidden" id="cart-machine-ids" name="cart_machine_ids" value="">
                 <input type="hidden" name="cart_weeks" id="cart_weeks" value="">
                 <input type="hidden" name="cart_total" id="cart_total" value="">
 
-
-
-                <div class="purchase-options">
-                    <input type="radio" id="option-compra" name="purchase_option" value="compra">
-                    <label for="option-compra">Compra</label>
-
-                    <input type="radio" id="option-renta" name="purchase_option" value="renta" checked>
-                    <label for="option-renta">Renta</label>
-                </div>
-
                 <button type="submit" class="btn-buy">Pedir</button>
             </form>
-
-
 
             <i class='bx bx-x' id="close-cart"></i>
         </div>
@@ -90,28 +93,36 @@
     <h2 class="section-title">Productos</h2>
     <h2>Bienvenid@, {{current_user.fullname}}</h2>
 
+    <div class="user-options">
+        <select id="purchase-option">
+            <option value="renta" selected>Renta</option>
+            <option value="compra">Compra</option>
+        </select>
+    </div>
+
     <div class="shop-content">
         {% for product in products %}
         <div class="product-box" data-machine-id="{{ product.id }}">
             <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="" class="product-img">
+
             <h4 class="machine-id" style="display: none;">{{ product.id_Machine }}</h4>
 
             <h2 class="product-title">{{ product.name }}</h2>
+
             <span class="">Rentas <br> desde: </span>
-            <span class="price">${{ product.price }} MXN</span>
+            <span class="price" data-price-renta="{{ product.price }}">${{ product.price }} MXN</span>
+
+            <span class=""><br>Precio de venta: <br></span>
+            <span class="sell_price" data-price-compra="${product.sell_price}">${{ product.sell_price }} MXN</span>
+
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>
-
         {% endfor %}
     </div>
 
 </section>
 
-
-
-
 <script src="{{ url_for('static', filename='js/clientuser/products.js') }}"></script>
-
 <script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
 {% endblock %}

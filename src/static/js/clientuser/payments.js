@@ -7,6 +7,7 @@ orderSelect.addEventListener('change', function () {
 });
 
 
+
 function mostrarFormulario(tipoPago) {
     var formularios = document.getElementsByClassName('formulario');
     for (var i = 0; i < formularios.length; i++) {
@@ -16,6 +17,7 @@ function mostrarFormulario(tipoPago) {
     var formularioSeleccionado = document.getElementById(tipoPago);
     formularioSeleccionado.style.display = 'block';
 }
+
 
 
 
@@ -30,17 +32,6 @@ function generarOrdenPago() {
     // Actualiza el campo oculto con la información necesaria para el PDF
     var pdfInfo = `Banco de destino: ${bancoDestino}, Número de cuenta: ${numeroCuenta}, Nombre del titular: ${nombreTitular}, Monto: ${monto}, Concepto: ${concepto}`;
     document.getElementById("pdf_info").value = pdfInfo;
-
-    // // Muestra los datos en el elemento "orden_pago"
-    // var ordenPagoInfo = document.getElementById("orden_pago");
-    // ordenPagoInfo.innerHTML = ""; // Borra el contenido existente
-    // ordenPagoInfo.innerHTML += "Orden de Pago Generada:<br>";
-    // ordenPagoInfo.innerHTML += `Banco de destino: ${bancoDestino}<br>`;
-    // ordenPagoInfo.innerHTML += `Número de cuenta: ${numeroCuenta}<br>`;
-    // ordenPagoInfo.innerHTML += `Nombre del titular: ${nombreTitular}<br>`;
-    // ordenPagoInfo.innerHTML += `Monto a transferir: $${monto}<br>`;
-    // ordenPagoInfo.innerHTML += `Concepto: ${concepto}`;
-    // ordenPagoInfo.style.display = "block";
 
     // Envía el formulario para generar el PDF
     document.querySelector('form').submit();
@@ -78,3 +69,5 @@ orderSelect.addEventListener('change', function () {
         tipoPagoSelect.setAttribute('disabled', 'disabled');
     }
 });
+
+
