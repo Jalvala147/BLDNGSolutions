@@ -7,9 +7,8 @@ let closeCart = document.querySelector("#close-cart");
 let purchaseOption = document.getElementById("purchase-option");
 
 // Agregar evento de cambio al select
-purchaseOption.addEventListener("change", function() {
+purchaseOption.addEventListener("change", function () {
     updateCartPrices(); // Llamar a una función para actualizar los precios en el carrito
-    console.log(purchaseOption);
 });
 
 //Abrir carrito
@@ -111,32 +110,49 @@ function weeksChanged(event) {
     updateTotal();
 }
 
+// Variable para almacenar la opción de compra del primer producto agregado
+var firstProductOption = null;
+
 //Función para agregar al carrito
 function addCartClicked(event) {
     var button = event.target;
     var shopProducts = button.parentElement;
     var title = shopProducts.getElementsByClassName("product-title")[0].innerText;
-    var price = shopProducts.getElementsByClassName("price")[0].innerText;
     var productImg = shopProducts.getElementsByClassName("product-img")[0].src;
-    var machineId = shopProducts.getElementsByClassName("machine-id")[0].innerText; // Cambio aquí
-
-    // Verificar si el producto ya está en el carrito
-    var cartItemsNames = document.getElementsByClassName("cart-product-title");
-    for (var i = 0; i < cartItemsNames.length; i++) {
-        if (cartItemsNames[i].innerText === title) {
-            alert("Ya has agregado esta máquina");
-            return; // Salir de la función si el producto está duplicado
+    var machineId = shopProducts.getElementsByClassName("machine-id")[0].innerText;
+    var selectedOption = purchaseOption.value; // Obtener la opción de compra seleccionada
+    
+    // Verificar si el carrito está vacío
+    var cartContent = document.getElementsByClassName("cart-content")[0];
+    if (cartContent.children.length === 0) {
+        firstProductOption = null; // Reiniciar la variable si el carrito está vacío
+    }
+    
+    // Verificar si es el primer producto agregado
+    if (firstProductOption === null) {
+        // Almacena la opción de compra del primer producto
+        firstProductOption = selectedOption;
+    } else {
+        // Si no es el primer producto, verifica si la opción coincide con la del primer producto
+        if (selectedOption !== firstProductOption) {
+            alert("No puedes mezclar compras con rentas en el carrito.");
+            return;
         }
     }
 
-    // Obtener la opción de compra seleccionada
-    var selectedOption = purchaseOption.value;
+    
 
-    // Elegir el precio correcto según la opción de compra
-    var chosenPrice = selectedOption === "renta" ? price : sell_price;
+    var type = selectedOption === "renta" ? 1 : 0;
 
-    // Si el producto no está duplicado, agregarlo al carrito
-    addProductToCart(title, chosenPrice, productImg, machineId);
+    if (selectedOption === "renta") {
+        // En la opción de "renta," utiliza la función addProductToCart
+        var price = shopProducts.getElementsByClassName("price")[0].innerText;
+        addProductToCart(title, price, productImg, machineId, type);
+    } else if (selectedOption === "compra") {
+        // En la opción de "compra," utiliza la función updateCartForBuy
+        updateCartForBuy(title, productImg, machineId, type);
+    }
+
     updateTotal();
 
     // Mostrar mensaje flash
@@ -161,7 +177,7 @@ function addCartClicked(event) {
 
 
 //Función para agregar un producto al carrito
-function addProductToCart(title, price, productImg, machineId) {
+function addProductToCart(title, price, productImg, machineId, type) {
     var cartShopBox = document.createElement("div");
     cartShopBox.classList.add("cart-box");
     var cartItems = document.getElementsByClassName("cart-content")[0];
@@ -181,12 +197,53 @@ function addProductToCart(title, price, productImg, machineId) {
         <img src="${productImg}" alt="" class="cart-img">
         <!-- Contenido de la caja -->
         <input type="hidden" class="cart-machine-id" value="${machineId}">
+        <input type="hidden" class="cart-type" value="${type}">
         <div class="detail-box">
             <div class="cart-product-title">${title}</div>
             <div class="cart-product-id">ID: ${machineId}</div> 
             <div class="cart-price">${chosenPrice}</div>
             <input type="number" value="1" min="1" max="4" class="cart-weeks" id="cart-weeks">
             <span>semanas</span>
+        </div>
+        <!--borrar carrito-->
+        <i class="bx bxs-trash-alt cart-remove"></i>`;
+    cartShopBox.innerHTML = cartBoxContent;
+    cartItems.appendChild(cartShopBox);
+    cartShopBox.getElementsByClassName("cart-remove")[0].addEventListener("click", removeCartItem);
+    cartShopBox.getElementsByClassName("cart-weeks")[0].addEventListener("change", weeksChanged);
+}
+
+
+
+function updateCartForBuy(title, productImg, machineId, type) {
+    var sellPriceElement = document.querySelector(`.product-box[data-machine-id="${machineId}"] .sell_price`);
+    var sellPrice = parseFloat(sellPriceElement.getAttribute("data-price-compra"));
+
+    var cartShopBox = document.createElement("div");
+    cartShopBox.classList.add("cart-box");
+    var cartItems = document.getElementsByClassName("cart-content")[0];
+    var cartItemsNames = cartItems.getElementsByClassName("cart-product-title");
+    for (var i = 0; i < cartItemsNames.length; i++) {
+        if (cartItemsNames[i].innerText === title) {
+            alert("Ya has agregado esta máquina");
+            return;
+        }
+    }
+
+    // Para "Compra," establece el precio en sellPrice y deja el campo de semanas en blanco (null)
+    var chosenPrice = sellPrice;
+    var weeksDisabled = true;
+
+    var cartBoxContent = `
+        <img src="${productImg}" alt="" class="cart-img">
+        <!-- Contenido de la caja -->
+        <input type="hidden" class="cart-machine-id" value="${machineId}">
+        <input type="hidden" class="cart-type" value="${type}">
+        <div class="detail-box">
+            <div class="cart-product-title">${title}</div>
+            <div class="cart-product-id">ID: ${machineId}</div> 
+            <div class="cart-price">$${chosenPrice}.00 MXN</div>
+            <input type="number" value="0" class="cart-weeks" id="cart-weeks" ${weeksDisabled ? "disabled" : ""}>
         </div>
         <!--borrar carrito-->
         <i class="bx bxs-trash-alt cart-remove"></i>`;
@@ -213,15 +270,20 @@ function updateTotal() {
         var weeksElement = cartBox.getElementsByClassName("cart-weeks")[0];
         var machineIdElement = cartBox.getElementsByClassName("cart-machine-id")[0];
         var titleElement = cartBox.getElementsByClassName("cart-product-title")[0];
+        var typeElement = cartBox.getElementsByClassName("cart-type")[0];
         var price = parseFloat(priceElement.innerText.replace("$", "").replace("MXN", ""));
         var weeks = parseInt(weeksElement.value); // Convierte la cantidad de semanas a un número entero
         var machineId = machineIdElement.value;
+        var type = typeElement.value; 
         var title = titleElement.innerText;
 
         // Calcular el precio total para esta máquina y semanas
         var machinePrice = 0;
 
-        if (weeks === 1) {
+        if (weeks === 0) {
+            // Si semanas es 0, simplemente tomar el precio sin descuento, para compra
+            machinePrice = price;
+        } else if (weeks === 1) {
             machinePrice = price;
         } else if (weeks === 2) {
             machinePrice = (price * 2) - ((price * 2) * 0.04);
@@ -235,7 +297,8 @@ function updateTotal() {
         machineInfo[machineId] = {
             title: title,
             weeks: weeks,
-            price: machinePrice
+            price: machinePrice,
+            type: type
         };
 
         // Agregar el precio de esta máquina al total
@@ -254,6 +317,7 @@ function updateTotal() {
         console.log("Producto:", machineData.title);
         console.log("Semanas:", machineData.weeks);
         console.log("Precio:", machineData.price);
+        console.log("Tipo:", machineData.type);
     }
 
     // Actualizar el valor del campo oculto
@@ -286,7 +350,7 @@ function weeksChanged(event) {
 function updateCartPrices() {
     // Obtener la opción de compra seleccionada
     var selectedOption = purchaseOption.value;
-    
+
     // Obtener todos los elementos de precio en el carrito
     var cartPrices = document.getElementsByClassName("cart-price");
 

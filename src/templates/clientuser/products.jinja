@@ -76,6 +76,8 @@
                 <input type="hidden" id="cart-machine-ids" name="cart_machine_ids" value="">
                 <input type="hidden" name="cart_weeks" id="cart_weeks" value="">
                 <input type="hidden" name="cart_total" id="cart_total" value="">
+                <input type="hidden" name="cart-type" id="cart-type" value="">
+
 
                 <button type="submit" class="btn-buy">Pedir</button>
             </form>
@@ -94,7 +96,7 @@
     <h2>Bienvenid@, {{current_user.fullname}}</h2>
 
     <div class="user-options">
-        <select id="purchase-option">
+        <select id="purchase-option" name="purchase-option">
             <option value="renta" selected>Renta</option>
             <option value="compra">Compra</option>
         </select>
@@ -113,7 +115,7 @@
             <span class="price" data-price-renta="{{ product.price }}">${{ product.price }} MXN</span>
 
             <span class=""><br>Precio de venta: <br></span>
-            <span class="sell_price" data-price-compra="${product.sell_price}">${{ product.sell_price }} MXN</span>
+            <span class="sell_price" data-price-compra="{{ product.sell_price }}">{{ product.sell_price }} MXN</span>
 
             <i class='bx bx-shopping-bag add-cart'></i>
         </div>

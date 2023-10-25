@@ -451,12 +451,14 @@ def place_order():
         cart_machine_ids_str = request.form['cart_machine_ids']
         cart_total = request.form['cart_total']
         cart_weeks_str = request.form['cart_weeks']
+        cart_type = request.form['cart-type']
 
         #Bloque de pruebas de recepcion de informacion desde el form input type hidden de products.jinja
         print(f'client_user_id: {client_user_id}')
         print(f'cart_machine_ids_str: {cart_machine_ids_str}') 
         print(f'cart_total: {cart_total}')
         print(f'cart_weeks: {cart_weeks_str}')
+        print(f'cart_type: {cart_type}')
 
         # Convertir la cadena JSON en un diccionario
         cart_weeks = json.loads(cart_weeks_str)
@@ -477,8 +479,9 @@ def place_order():
             machine_data = cart_weeks.get(machine_id)
             weeks = machine_data['weeks']
             price = machine_data['price']
-            cur.execute("INSERT INTO machineorders (order_id, machine_id, weeks, price) VALUES (%s, %s, %s, %s)",
-                        (order_id, machine_id, weeks, price))
+            type = machine_data['type']
+            cur.execute("INSERT INTO machineorders (order_id, machine_id, weeks, price, type) VALUES (%s, %s, %s, %s, %s)",
+                        (order_id, machine_id, weeks, price, type))
             mysql.connection.commit()
 
         cur.close()
@@ -486,6 +489,3 @@ def place_order():
         return redirect(url_for('clients.products'))
 
     return redirect(url_for('clients.products'))
-
-
-
