@@ -50,7 +50,7 @@ def sales_required(func):
 def salesList():
     
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL)")
+    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL) AND type = 0")
 
     orders_ids = cur.fetchall()
     cur.close
@@ -62,13 +62,13 @@ def salesList():
 @sales_required
 def rentsList():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL)")
+    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL) AND type = 1")
 
     orders_ids = cur.fetchall()
     cur.close
     return render_template('/salesEmpArea/rentsList.jinja', order_ids=orders_ids)
 
-#-------------Aceptar solicitudes de cancelacion de rentas
+#-------------Aceptar solicitudes de cancelacion de pedidos
 @salesemp.route('/salesEmpArea/acceptCancelRequest/<int:order_id>', methods=['POST'])
 def acceptCancelRequest(order_id):
     if request.method == 'POST':
@@ -78,18 +78,29 @@ def acceptCancelRequest(order_id):
         mysql.connection.commit()
         cur.close()
         flash('Solicitud de cancelación aceptada', 'success')
-        return redirect(url_for('salesemp.rentsList'))
+        return '', 204
 
 #Listado de rentas canceladas
 @salesemp.route('/salesEmpArea/canceledRentsList')   
 @sales_required
 def canceledRentsList():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND cancel_status = 0 ")
+    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND cancel_status = 0 AND type = 1")
 
     orders_ids = cur.fetchall()
     cur.close
     return render_template('/salesEmpArea/canceledRentsList.jinja', order_ids=orders_ids)
+
+#Listado de ventas canceladas
+@salesemp.route('/salesEmpArea/canceledSalesList')   
+@sales_required
+def canceledSalesList():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND cancel_status = 0 AND type = 0")
+
+    orders_ids = cur.fetchall()
+    cur.close
+    return render_template('/salesEmpArea/canceledSalesList.jinja', order_ids=orders_ids)
 
 #Funcion para actualizar el campo verifiedDocs cuando el empleado haya verificado los documentos
 @salesemp.route('/salesEmpArea/updateVerifiedDocs/<int:order_id>')
@@ -124,7 +135,7 @@ def update_payment_made(order_id):
         return redirect(url_for('salesemp.rentsList'))
 
 
-#---------------Mostrar toda la informacion de las tablas orders y machineorders---------
+#---------------Mostrar toda la informacion de las tablas orders y machineorders para rentas---------
 @salesemp.route('/salesEmpArea/rentsDetails/<int:order_id>')
 @sales_required
 def orderDetails(order_id):
@@ -162,6 +173,46 @@ def orderDetails(order_id):
     else:
         # Manejo el caso en el que no se encuentre ningún pedido con el order_id
         return redirect(url_for('salesemp.rentsList'))
+    
+
+#---------------Mostrar toda la informacion de las tablas orders y machineorders para ventas---------
+@salesemp.route('/salesEmpArea/salesDetails/<int:order_id>')
+@sales_required
+def salesDetails(order_id):
+    cur = mysql.connection.cursor()
+
+    # Consulta para obtener los detalles del pedido, las máquinas, semanas, precios y el total correspondiente al order_id en la tabla machineorders
+    query = """
+    SELECT o.clientUser_id, GROUP_CONCAT(CONCAT(m.brand, ' ', m.model)) AS machines, o.order_date, u.fullname, GROUP_CONCAT(mo.weeks) AS weeks, GROUP_CONCAT(mo.price) AS prices, SUM(mo.price) AS order_total
+    FROM orders o
+    INNER JOIN machineorders mo ON o.id = mo.order_id
+    INNER JOIN machines m ON mo.machine_id = m.id_machine
+    INNER JOIN user u ON o.clientUser_id = u.id
+    WHERE o.id = %s
+    GROUP BY o.clientUser_id, o.order_date, u.fullname
+    """
+    cur.execute(query, (order_id,))
+    order_details = cur.fetchone()
+
+    if order_details is not None:
+        # Consulta para obtener la información de la tabla "orders" relacionada con el order_id
+        order_info_query = """
+        SELECT address, postalCode, rfc, phoneNumber, paymentMethod
+        FROM orders
+        WHERE id = %s
+        """
+        cur.execute(order_info_query, (order_id,))
+        order_info = cur.fetchone()
+        cur.close()
+
+        # Separar las semanas y precios en listas
+        weeks = order_details[4].split(',')
+        prices = order_details[5].split(',')
+
+        return render_template('/salesEmpArea/salesDetails.jinja', order_id=order_id, order_details=order_details, weeks=weeks, prices=prices, order_info=order_info)
+    else:
+        # Manejo el caso en el que no se encuentre ningún pedido con el order_id
+        return redirect(url_for('salesemp.salesList'))
 
 
 #---------------Detalles editables--------------------
@@ -187,8 +238,8 @@ def actualizarOrden(order_id):
         mysql.connection.commit()
         cur.close()
 
-        # Redirecciona a la página de detalles actualizada
-        return redirect(url_for('salesemp.orderDetails', order_id=order_id))
+        # no se hace redirección para que no se cambie de ventana
+        return '', 204
 
 
 

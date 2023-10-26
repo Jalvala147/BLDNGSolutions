@@ -170,15 +170,20 @@ body
 }
 
 .navigation ul li:nth-child(1).active ~ .indicator {
-    transform: translateX(calc(-100px));
+    transform: translateX(calc(-150px));
 }
 
 .navigation ul li:nth-child(2).active ~ .indicator {
-    transform: translateX(calc(0px * 1));
+    transform: translateX(calc(-50px * 1));
 }
 
 .navigation ul li:nth-child(3).active ~ .indicator {
-    transform: translateX(calc(50px * 2));
+    transform: translateX(calc(50px));
 }
+
+.navigation ul li:nth-child(4).active ~ .indicator {
+    transform: translateX(calc(150px));
+}
+
 
 

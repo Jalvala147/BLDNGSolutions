@@ -1,13 +1,13 @@
 {% extends './base.html' %}
 
-{% block title %}Detalles de Rentas{% endblock %}
+{% block title %}Detalles de ventas{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
 {% endblock %}
 
 {% block body %}
-<a href="{{ url_for('salesemp.rentsList') }}" class="btn">Atrás</a>
+<a href="{{ url_for('salesemp.salesList') }}" class="btn">Atrás</a>
 
 <h1>Detalles del pedido {{ order_id }}</h1>
 
@@ -31,12 +31,11 @@
     </tr>
 </table>
 
-<h1>Máquinas alquiladas</h1>
+<h1>Máquinas a comprar</h1>
 
 <table class="table1">
     <tr>
         <th>Máquina</th>
-        <th>Semanas</th>
         <th>Precio</th>
     </tr>
     {% set machines = order_details[1].split(',') %}
@@ -44,9 +43,6 @@
     <tr>
         <td>
             {{ machines[i] | upper }}<br>
-        </td>
-        <td>
-            {{ weeks[i] }}<br>
         </td>
         <td>
             ${{ prices[i] }}<br>

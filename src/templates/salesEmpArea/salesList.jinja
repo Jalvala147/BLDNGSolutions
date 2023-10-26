@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Ventas{% endblock %}
+{% block title %}Listado de Ventas{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
@@ -51,7 +51,7 @@
     {% for order_id in order_ids %}
     <tr>
         <td>{{ order_id[0] }}</td>
-        <td><a href="{{ url_for('salesemp.orderDetails', order_id=order_id[0]) }}"><button><span
+        <td><a href="{{ url_for('salesemp.salesDetails', order_id=order_id[0]) }}"><button><span
                         class="material-symbols-rounded">
                         info
                     </span></button>
@@ -64,15 +64,12 @@
             </a>
         </td>
 
-
         <td>
             <a href="{{ url_for('salesemp.update_payment_made', order_id=order_id[0]) }}"
                 onclick="return confirm('¿Estás seguro de registrar el pago?, el cliente podrá ver que el pago ya ha sido recibido y verificado');">
                 <button><span class="material-symbols-rounded">attach_money</span></button>
             </a>
         </td>
-
-
 
         <td>
             <a class="mark-as-completed" href="#"
@@ -83,9 +80,11 @@
 
         <td>
             {% if order_id[1] == 1 %}
-            <form method="POST" action="{{ url_for('salesemp.acceptCancelRequest', order_id=order_id[0]) }}">
+            <form id="cancel-form" method="POST"
+                action="{{ url_for('salesemp.acceptCancelRequest', order_id=order_id[0]) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit"><span class="material-symbols-rounded">check_circle</span></button>
+                <button type="button" id="cancel-button"><span
+                        class="material-symbols-rounded">check_circle</span></button>
             </form>
             {% else %}
             Sin solicitud
@@ -93,8 +92,9 @@
         </td>
 
 
+
         {% endfor %}
-        <a href="{{ url_for('salesemp.canceledRentsList') }}" class="btn btn-primary">Pedidos cancelados</a>
+        <a href="{{ url_for('salesemp.canceledSalesList') }}" class="btn btn-primary">Pedidos cancelados</a>
 </table>
 
 
@@ -118,6 +118,24 @@
             }, 1500); // Ocultar después de 1.5 segundos (1500 milisegundos)
         }
     });
+
+    $(document).ready(function() {
+        $("#cancel-button").click(function() {
+            $.ajax({
+                type: 'POST',
+                url: $("#cancel-form").attr("action"),
+                data: $("#cancel-form").serialize(),
+                success: function(response) {
+                    // Hacer algo con la respuesta si es necesario
+                    location.reload(); // Recarga la página
+                },
+                error: function() {
+                    // Manejar errores si es necesario
+                }
+            });
+        });
+    });
+    
 </script>
 
 {% endblock %}
