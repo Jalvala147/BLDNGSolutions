@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Rentas{% endblock %}
+{% block title %}Ordenes completadas{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block body %}
-<a href="{{ url_for('salesemp.rentsList') }}" class="btn">Atras</a>
+<a href="{{ url_for('salesemp.salesHome') }}" class="btn">Atras</a>
 
 <h1>Pedidos completados</h1>
 

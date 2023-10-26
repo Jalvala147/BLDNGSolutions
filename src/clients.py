@@ -340,7 +340,7 @@ def cancel_order_request(order_id):
         mysql.connection.commit()
         cur.close()
         
-        flash('Order canceled successfully', 'success')
+        #flash('Order canceled successfully', 'success')
     
     # Redirect back to the list of orders
     return redirect(url_for('clients.orders'))
@@ -463,9 +463,20 @@ def place_order():
         # Convertir la cadena JSON en un diccionario
         cart_weeks = json.loads(cart_weeks_str)
 
+        # Variable para almacenar el tipo del pedido
+        order_type = 1  # Inicialmente, establecemos el tipo en 1 (renta)
+
+        # Verificar si al menos una máquina es de compra (cart_type contiene al menos un "0")
+        for machine_data in cart_weeks.values():
+            machine_type = machine_data['type']
+            if machine_type == "0":
+                order_type = 0
+                break  # Si encontramos al menos una máquina de compra, no necesitamos seguir buscando
+
+
         # Insertar el pedido en la tabla "orders"
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO orders (clientUser_id, total) VALUES (%s, %s)", (client_user_id, cart_total))
+        cur.execute("INSERT INTO orders (clientUser_id, total, type) VALUES (%s, %s, %s)", (client_user_id, cart_total, order_type))
         mysql.connection.commit()
 
         # Obtener el ID del pedido recién insertado

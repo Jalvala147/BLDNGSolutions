@@ -275,3 +275,30 @@ def add_machine():
         return redirect(url_for('storageemp.stoMachines'))
     return render_template('storage/add_machine.jinja')
 
+#------------Listado de las ordenes que estan listas para salir del almacen y ser enviadas
+@storageemp.route('/storage/readyMachines')
+@storage_required
+def readyMachines():
+    try:
+        # Realiza la consulta SQL con JOIN y condiciones, ordenando por número de pedido
+        cursor = mysql.connection.cursor()
+        query = """
+        SELECT orders.id AS numero_pedido, machines.id_Machine, machines.model, machines.brand
+        FROM machineorders
+        JOIN machines ON machineorders.machine_id = machines.id_Machine
+        JOIN orders ON machineorders.order_id = orders.id
+        WHERE orders.paymentMade = 1 AND orders.verifiedDocs = 1 AND shipmentMade = 0
+        ORDER BY numero_pedido ASC
+        """
+        cursor.execute(query)
+        machines = cursor.fetchall()
+        cursor.close()
+
+        # Renderiza la plantilla y pasa los resultados a la misma
+        return render_template('storage/readyMachines.jinja', machines=machines)
+    except Exception as e:
+        # Manejo de errores
+        return "Error al obtener las órdenes listas para enviar: " + str(e)
+
+
+
