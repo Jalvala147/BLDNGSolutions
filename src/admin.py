@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 import plotly.express as px
 from sklearn.linear_model import LinearRegression
-
+from sklearn.model_selection import train_test_split
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -30,7 +30,7 @@ csrf = CSRFProtect()
 
 admin = Blueprint('admin', __name__)
 
-locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8') #indicamos a locale que se está usando el sistema en español
+locale.setlocale(locale.LC_TIME, 'es_ES.utf8') #indicamos a locale que se está usando el sistema en español
 
 #Decorador para que solo los administradores puedan acceder a sus rutas
 def admin_required(func):
@@ -162,7 +162,7 @@ def employeeResults(id, name):
 
     return render_template('administration/empAccessControl/employeeResults.jinja', id=id, name=name, resultados_puntualidad=resultados_puntualidad, months=months)
 
-#-------------------------------------------------
+#---------------------------------------------------------------------------
 
 @admin.route('/administration/projectionsResults')
 @admin_required
@@ -170,7 +170,12 @@ def projectionsResults():
 
     return render_template('administration/stats/projectionsResults.jinja')
 
-#Ruta para mostrar las gráficas de los resultados de las ganancias
+
+#----------------------------------------------------------------------------
+#------------------Bloque de funciones para las ganancias--------------------
+#----------------------------------------------------------------------------
+
+#-------Ruta para mostrar las gráficas de los resultados de las ganancias----
 @admin.route('/administration/profitsResults', methods=['GET', 'POST'])
 @admin_required
 def profitsResults():
@@ -255,8 +260,191 @@ def profitsResults():
 
     except Exception as e:
         return f"Error al calcular las ganancias: {str(e)}"
+    
 
-#Ruta para mostrar los resultados de las perdidas
+# Ruta para mostrar gráficas de resultados para diferentes períodos
+@admin.route('/administration/monthlyResults', methods=['GET', 'POST'])
+@admin_required
+def generateTimeGraphs():
+    try:
+        # Establecer una conexión a la base de datos
+        cur = mysql.connection.cursor()
+
+        end_date = datetime.now()
+
+        selected_time_period = None
+
+        if request.method == 'POST':
+            time_period = request.form['time_period']
+
+            # Determina el rango de fechas según el período seleccionado
+            if time_period == 'last_month':
+                start_date = end_date - timedelta(days=30)
+                label = 'Último Mes'
+            elif time_period == 'last_15_days':
+                start_date = end_date - timedelta(days=15)
+                label = 'Últimos 15 Días'
+            elif time_period == 'last_3_months':
+                start_date = end_date - timedelta(days=90)
+                label = 'Últimos 3 Meses'
+            elif time_period == 'last_6_months':
+                start_date = end_date - timedelta(days=180)
+                label = 'Últimos 6 Meses'
+
+            # Consulta SQL para obtener las ganancias para el período seleccionado
+            sql_query = """
+                SELECT id, total as ganancias
+                FROM orders
+                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                AND order_date >= %s AND order_date <= %s
+            """
+            cur.execute(sql_query, [start_date, end_date])
+            ganancias = cur.fetchall()
+
+            # Calcular la suma total de las ganancias para el período seleccionado
+            ganancias_totales = sum(g[1] for g in ganancias)
+
+            # Crear un DataFrame de pandas con las ganancias
+            df_ganancias = pd.DataFrame(ganancias, columns=['No. Orden', 'ganancias']).set_index('No. Orden')
+
+            # Crear una gráfica de puntos unidos por líneas para las ganancias
+            fig_ganancias = go.Figure(data=go.Scatter(
+                x=df_ganancias.index,
+                y=df_ganancias['ganancias'],
+                mode='lines+markers'
+            ))
+
+            # Configurar etiquetas y título
+            fig_ganancias.update_layout(
+                xaxis_title='No. Orden',
+                yaxis_title='$ Ganancias',
+                title=f'Ganancias de {label}'
+            )
+
+            # Configurar los ticks del eje x como números enteros
+            fig_ganancias.update_xaxes(
+                tickvals=df_ganancias.index,
+                tickmode='array',
+                ticktext=[str(int(val)) for val in df_ganancias.index]
+            )
+
+            # Formatear el eje y como valores de dinero
+            fig_ganancias.update_yaxes(
+                tickformat='$,.2f',
+            )
+
+            # Convertir la figura de Plotly a HTML
+            graph_html_ganancias = fig_ganancias.to_html(full_html=False)
+
+            selected_time_period = {
+                'label': label,
+                'ganancias_totales': ganancias_totales,
+                'graph_html_ganancias': graph_html_ganancias
+            }
+
+        return render_template(
+            'administration/stats/monthlyResults.jinja',
+            selected_time_period=selected_time_period
+        )
+
+    except Exception as e:
+        return f"Error al calcular las ganancias: {str(e)}"
+    
+
+# Ruta para mostrar las proyecciones de ganancias con temporalidad seleccionada📈
+@admin.route('/administration/profitsProjections', methods=['GET', 'POST'])
+@admin_required
+def profitsProjections():
+    if request.method == 'POST':
+        temporalidad = request.form.get('temporalidad')
+        if temporalidad:
+            try:
+                # Establecer una conexión a la base de datos
+                cur = mysql.connection.cursor()
+
+                # Determina la fecha actual
+                current_date = datetime.now()
+
+                # Determina la fecha de inicio basada en la temporalidad seleccionada
+                if temporalidad == '15_dias':
+                    start_date = current_date - timedelta(days=15)
+                    label = 'Próximos 15 Días'
+                elif temporalidad == '1_mes':
+                    start_date = current_date - timedelta(days=30)
+                    label = 'Próximo Mes'
+                elif temporalidad == '3_meses':
+                    start_date = current_date - timedelta(days=90)
+                    label = 'Próximos 3 Meses'
+                elif temporalidad == '6_meses':
+                    start_date = current_date - timedelta(days=180)
+                    label = 'Próximos 6 Meses'
+                elif temporalidad == '1_ano':
+                    start_date = current_date - timedelta(days=365)
+                    label = 'Próximo Año'
+                else:
+                    return "Temporalidad no válida"
+
+                # Consulta SQL para obtener los datos históricos de ID de pedido y montos totales
+                sql_query = """
+                    SELECT id, total
+                    FROM orders
+                    WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1 AND type = 1
+                    AND order_date >= %s AND order_date <= %s
+                """
+                cur.execute(sql_query, [start_date, current_date])
+                data = cur.fetchall()
+
+                # Crear un DataFrame de pandas con los ID de pedido y montos totales
+                df = pd.DataFrame(data, columns=['id', 'ganancias'])
+
+                # Separar las características (ID de pedido) y el objetivo (montos totales)
+                X = df[['id']]
+                y = df['ganancias']
+
+                # Crear y entrenar un modelo de regresión lineal
+                model = LinearRegression()
+                model.fit(X, y)
+
+                # Generar ID de pedido para los días futuros
+                future_ids = pd.DataFrame({'id': range(df['id'].max() + 1, df['id'].max() + 50)})
+
+                # Realizar la predicción de ganancias para los ID de pedido futuros
+                projected_ganancias = model.predict(future_ids)
+
+                # Crear una gráfica de dispersión con la línea de regresión
+                plt.figure(figsize=(10, 6))
+                plt.scatter(X, y, label='Ganancias Pasadas')
+                plt.plot(future_ids, projected_ganancias, color='red', label='Línea de Regresión, (proyeccion de ganancias)')
+                plt.xlabel('ID de Pedido')
+                plt.ylabel('Ganancias')
+                plt.title(f'Predicción de Ganancias en {label} con Regresión Lineal')
+                plt.legend()
+
+                # Crear una gráfica de dispersión interactiva con la línea de regresión utilizando Plotly
+                fig = px.scatter(df, x='id', y='ganancias', title=f'Predicción de Ganancias en {label} con Regresión Lineal')
+                fig.add_scatter(x=future_ids['id'], y=projected_ganancias, mode='lines', name='Línea de Regresión', line=dict(color='red'))
+
+                # Generar HTML con la gráfica de Plotly
+                graph_html = fig.to_html(full_html=False)
+
+                # Renderizar la plantilla con la proyección de ganancias
+                return render_template(
+                    'administration/stats/profitsProjections.jinja',
+                    projected_ganancias=projected_ganancias[0],
+                    graph_html=graph_html
+                )
+
+            except Exception as e:
+                return f"Error al realizar la predicción de ganancias: {str(e)}"
+
+    return render_template('administration/stats/profitsProjections.jinja')
+
+
+#----------------------------------------------------------------------------
+#-------------------Bloque de funciones para las pérdidas--------------------
+#----------------------------------------------------------------------------
+
+#-----------Ruta para mostrar los resultados de las perdidas-----------------
 @admin.route('/administration/lossResults', methods=['GET', 'POST'])
 @admin_required
 def lossResults():
@@ -359,8 +547,11 @@ def lossResults():
         return f"Error al calcular las pérdidas: {str(e)}"
 
 
+#----------------------------------------------------------------------------
+#------------------Bloque de funciones para rentabilidad---------------------
+#----------------------------------------------------------------------------
 
-# Ruta para mostrar los resultados de la rentabilidad de la empresa
+#----Ruta para mostrar los resultados de la rentabilidad de la empresa-------
 @admin.route('/administration/profitabilityResults', methods=['GET', 'POST'])
 @admin_required
 def profitabilityResults():
@@ -446,73 +637,6 @@ def profitabilityResults():
     except Exception as e:
         return f"Error al calcular la rentabilidad: {str(e)}"
 
-
-
-
-#-----------------------Proyecciones de resultados-------------
-
-# Ruta para mostrar las proyecciones de ganancias, haciendo uso de regresion lineal simple
-@admin.route('/administration/profitsProjections')
-@admin_required  
-def profitsProjections():
-    try:
-        # Establecer una conexión a la base de datos
-        cur = mysql.connection.cursor()
-
-        # Consulta SQL para obtener datos históricos de ganancias
-        cur.execute("SELECT DATE_FORMAT(order_date, '%Y-%m') as month, SUM(total) as total_monthly FROM orders GROUP BY month")
-        data = cur.fetchall()
-
-        if len(data) < 2:
-            # No hay suficientes datos para hacer proyecciones
-            return render_template('administration/stats/no_projections.jinja')
-
-        # Crear un DataFrame de Pandas con los datos históricos
-        df = pd.DataFrame(data, columns=['Month', 'Total'])
-
-        # Convertir la columna 'Month' a tipo datetime
-        df['Month'] = pd.to_datetime(df['Month'])
-
-        # Dividir los datos en conjuntos de entrenamiento y prueba
-        train_data = df.iloc[:-1]
-        test_data = df.iloc[-1:]
-
-        # Preparar los datos para la regresión lineal
-        X_train = train_data['Month'].map(lambda x: x.toordinal()).values.reshape(-1, 1)
-        y_train = train_data['Total'].values
-        X_test = test_data['Month'].map(lambda x: x.toordinal()).values.reshape(-1, 1)
-
-        # Crear y entrenar el modelo de regresión lineal
-        model = LinearRegression()
-        model.fit(X_train, y_train)
-
-        # Realizar proyecciones
-        projected_month = df['Month'].max() + pd.DateOffset(months=1)
-        X_projected = np.array(projected_month.toordinal()).reshape(-1, 1)
-        projected_total = model.predict(X_projected)
-
-        # Crear un nuevo DataFrame con la proyección
-        projected_data = pd.DataFrame({'Month': [projected_month], 'Total': [projected_total[0]]})
-
-        # Concatenar el nuevo DataFrame con el original
-        df = pd.concat([df, projected_data], ignore_index=True)
-
-        # Crear una gráfica de proyección
-        fig_projection = px.line(df, x='Month', y='Total', title='Proyección de Ganancias')
-
-        # Convertir la figura de Plotly a HTML
-        graph_html_projection = fig_projection.to_html(full_html=False)
-
-        # Cerrar la conexión a la base de datos
-        cur.close()
-
-        return render_template(
-            'administration/stats/profitsProjections.jinja',
-            graph_html_projection=graph_html_projection
-        )
-
-    except Exception as e:
-        return f"Error al generar proyecciones: {str(e)}"
 
 #Estimacion o proyecion de las perdidas a meses futuros, tomando los resultados de los meses previos, mediante la regresión lineal simple
 @admin.route('/administration/lossProjections', methods=['GET', 'POST'])

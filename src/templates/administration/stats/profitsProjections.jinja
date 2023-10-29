@@ -11,9 +11,23 @@
 
 <h1>Regresión de proyecciones de resultados</h1>
 
+<a href="#" class="btn">Comparar con resultados de ganancias</a>
+
+<form method="post" action="{{ url_for('admin.profitsProjections') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select name="temporalidad" id="temporalidad">
+        <option value="15_dias">Próximos 15 Días</option>
+        <option value="1_mes">Próximo Mes</option>
+        <option value="3_meses">Próximos 3 Meses</option>
+        <option value="6_meses">Próximos 6 Meses</option>
+        <option value="1_ano">Próximo Año</option>
+    </select>
+    <input type="submit" value="Proyectar Ganancias">
+</form>
+
 <!-- Mostrar la gráfica de proyección -->
 <div>
-    {{ graph_html_projection | safe }}
+    {{ graph_html | safe }}
 </div>
 
 {% endblock %}
