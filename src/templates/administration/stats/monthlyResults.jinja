@@ -1,0 +1,39 @@
+{% extends './base.html' %}
+
+{% block title %}Rentas{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+{% endblock %}
+
+{% block body %}
+<a href="{{ url_for('admin.projectionsResults') }}" class="btn">Atrás</a>
+
+<h1>Resultados de ganancias brutas</h1>
+<a href="{{ url_for('admin.profitsResults') }}" class="btn">Ver Resultados Mensuales</a>
+
+<div class="container">
+    <h1>Resultados en periodos de tiempo</h1>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <select name="time_period">
+            <option value="last_month">Último Mes</option>
+            <option value="last_15_days">Últimos 15 Días</option>
+            <option value="last_3_months">Últimos 3 Meses</option>
+            <option value="last_6_months">Últimos 6 Meses</option>
+        </select>
+        <input type="submit" value="Mostrar">
+    </form>
+
+    {% if selected_time_period %}
+        <h2>{{ selected_time_period.label }}</h2>
+        <h3>Ganancias Totales Brutas: ${{ selected_time_period.ganancias_totales }}</h3>
+        <div>
+            {{ selected_time_period.graph_html_ganancias | safe }}
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -552,15 +552,3 @@ def contactedProspects():
     cur.close()
 
     return render_template('salesEmpArea/prospects/contactedProspects.jinja', prospects=prospects)
-
-# @salesemp.route('/salesEmpArea/prospects/delete/<int:prospect_id>', methods=['POST'])
-# @sales_required
-# def delete_prospect(prospect_id):
-#     # Eliminar el prospecto de la base de datos
-#     cur = mysql.connection.cursor()
-#     cur.execute("DELETE FROM prospects WHERE id_Prospect = %s", (prospect_id,))
-#     mysql.connection.commit()
-#     cur.close()
-
-#     # Redirigir a la página de prospectos después de eliminar el prospecto
-#     return redirect(url_for('salesemp.prospects'))

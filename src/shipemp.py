@@ -14,7 +14,7 @@ import os
 
 shipemp = Blueprint('shipemp', __name__)
 
-GOOGLE_MAPS_API_KEY = "AIzaSyAJzmmel__k7beEoyd-LhonGRhMrR2mEJE"
+GOOGLE_MAPS_API_KEY = "AIzaSyCiYij4rKyNlM9uXBUDjhlnfGxSzm_xi9M"
 
 
 # Decorador para envíos (tipoUsuario = 2 y areaUsuario = 6 o tipoUsuario = 1 y areaUsuario = 1)
@@ -41,7 +41,7 @@ def shipping_home():
 @shipemp.route('/shipping/newOrders')
 @shipping_required
 def newOrders():
-    # Establish a cursor to execute SQL queries
+    # cursor
     cursor = mysql.connection.cursor()
     query = '''
     SELECT orders.id, GROUP_CONCAT(machineorders.machine_id) AS machine_ids, 
@@ -52,19 +52,19 @@ def newOrders():
     GROUP BY orders.id
     '''
     cursor.execute(query)
-    # Fetch all the results
+
     data = cursor.fetchall()
-    # Close the cursor and MySQL connection
+
     cursor.close()
-    # Render the template with the data
+    # Renderizar la plantilla con la informacion obtenida de la bd
     return render_template('/shipping/newOrders.jinja', data=data)
 
 
-#--------------------ordenes-----------------------
+#--------------------Órdenes-----------------------
 @shipemp.route('/shipping/orders')
 @shipping_required
 def orders():
-    # Establish a cursor to execute SQL queries
+    # Establecer un cursor para ejecutar consultas SQL
     cursor = mysql.connection.cursor()
     query = '''
     SELECT orders.id, GROUP_CONCAT(machineorders.machine_id) AS machine_ids, orders.address, orders.postalCode, orders.phoneNumber
@@ -74,18 +74,18 @@ def orders():
     GROUP BY orders.id, orders.address, orders.postalCode, orders.phoneNumber
     '''
     cursor.execute(query)
-    # Fetch all the results
+    # Obtener todos los resultados
     data = cursor.fetchall()
-    # Close the cursor and MySQL connection
+    # Cerrar el cursor y la conexión a MySQL
     cursor.close()
-    # Render the template with the data
+    # Renderizar la plantilla con los datos
     return render_template('/shipping/orders.jinja', data=data)
 
 
 @shipemp.route('/shipping/completedOrders')
 @shipping_required
 def completedOrders():
-    # Establish a cursor to execute SQL queries
+    # Establecer un cursor para ejecutar consultas SQL
     cursor = mysql.connection.cursor()
     query = '''
     SELECT orders.id, GROUP_CONCAT(machineorders.machine_id) AS machine_ids, orders.address, orders.postalCode, orders.phoneNumber
@@ -95,71 +95,71 @@ def completedOrders():
     GROUP BY orders.id, orders.address, orders.postalCode, orders.phoneNumber
     '''
     cursor.execute(query)
-    # Fetch all the results
+    # Obtener todos los resultados
     data = cursor.fetchall()
-    # Close the cursor and MySQL connection
+    # Cerrar el cursor y la conexión a MySQL
     cursor.close()
-    # Render the template with the data
+    # Renderizar la plantilla con los datos
     return render_template('/shipping/completedOrders.jinja', data=data)
 
 
-#---------Cambiar estado de pedido a enviado------------
 
+#---------Cambiar el Estado del Pedido a Enviado------------
 @shipemp.route('/shipping/markShipped/<int:order_id>', methods=['GET', 'POST'])
 @shipping_required
 def markShipped(order_id):
-    # Establish a cursor to execute SQL queries
+    # Establecer un cursor para ejecutar consultas SQL
     cursor = mysql.connection.cursor()
 
-    # Update the shipmentMade field to 1 for the specified order ID
+    # Actualizar el campo shipmentMade a 1 para el ID de orden especificado
     update_query = "UPDATE orders SET shipmentMade = 1 WHERE id = %s"
     cursor.execute(update_query, (order_id,))
 
-    # Commit the changes to the database
+    # Confirmar los cambios en la base de datos
     mysql.connection.commit()
 
-    # Close the cursor and MySQL connection
+    # Cerrar el cursor y la conexión a MySQL
     cursor.close()
 
-    # Redirect back to the newOrders page
+    # Redirigir de nuevo a la página de newOrders
     return redirect(url_for('shipemp.orders'))
 
-#---------Cambiar estado de pedido a no enviado------------
 
+#---------Cambiar el Estado del Pedido a No Enviado------------
 @shipemp.route('/shipping/unmarkShipped/<int:order_id>', methods=['GET', 'POST'])
 @shipping_required
 def unmarkShipped(order_id):
-    # Establish a cursor to execute SQL queries
+    # Establecer un cursor para ejecutar consultas SQL
     cursor = mysql.connection.cursor()
 
-    # Update the shipmentMade field to 1 for the specified order ID
+    # Actualizar el campo shipmentMade a 0 para el ID de orden especificado
     update_query = "UPDATE orders SET shipmentMade = 0 WHERE id = %s"
     cursor.execute(update_query, (order_id,))
 
-    # Commit the changes to the database
+    # Confirmar los cambios en la base de datos
     mysql.connection.commit()
 
-    # Close the cursor and MySQL connection
+    # Cerrar el cursor y la conexión a MySQL
     cursor.close()
 
-    # Redirect back to the newOrders page
+    # Redirigir de nuevo a la página de newOrders
     return redirect(url_for('shipemp.orders'))
 
-#--------------------------------------------------------
+#-------------------Información de las Órdenes-------------------
 @shipemp.route('/shipping/ordersInfo/<int:order_id>')
 @shipping_required
 def ordersInfo(order_id):
-    # Establish a cursor to execute SQL queries
+    # Establecer un cursor para ejecutar consultas SQL
     cursor = mysql.connection.cursor()
 
-    # Query to retrieve order information, machine details, and user fullname
+    # Consulta para recuperar la información de la orden, detalles de la máquina y el nombre completo del usuario
     query = '''
     SELECT orders.id, 
            machineorders.id AS machine_order_id, 
            machineorders.machine_id, 
            machines.model, 
            machines.brand, 
-           user.fullname,  -- Use 'user' for the table name
+           user.fullname, 
            orders.address, 
            orders.postalCode, 
            orders.phoneNumber
@@ -172,27 +172,29 @@ def ordersInfo(order_id):
 
     cursor.execute(query, (order_id,))
 
-    # Fetch the result
+    # Obtener el resultado
     order_info = cursor.fetchone()
 
-    # Close the cursor and MySQL connection
+    # Cerrar el cursor y la conexión a MySQL
     cursor.close()
 
-    # Render the template with the retrieved data
+    # Renderizar la plantilla con los datos recuperados
     return render_template('shipping/ordersInfo.jinja', order_info=order_info)
 
-#-------Rutas con google maps
+
+#-------Rutas con Google Maps
 
 @shipemp.route('/shipping/routes')
 @shipping_required
 def routes():
-    # Retrieve the URL-encoded startLocation and endLocation parameters
+    # Recuperar los parámetros startLocation y endLocation codificados en URL
     start_location = request.args.get('startLocation')
     end_location = request.args.get('endLocation')
 
-    # Decode the URL-encoded parameters
+    # Decodificar los parámetros codificados en URL
     start_location_decoded = unquote(start_location)
     end_location_decoded = unquote(end_location)
 
     return render_template('/shipping/routes.jinja', start_location=start_location_decoded, end_location=end_location_decoded, api_key=GOOGLE_MAPS_API_KEY)
+
 
