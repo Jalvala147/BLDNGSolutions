@@ -6,39 +6,12 @@ Inicio
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename = 'css/startdesign.css') }}" />
-<link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
-
-
-
-
-
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 {% endblock %}
-
 
 {% block body %}
 <div id="particles-js"></div>
-<style>
-    body {
-        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-
-    .logo {
-        height: 50px;
-        margin-right: 20px;
-    }
-
-    #particles-js {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        
-    }
-</style>
 
 <nav>
     <div class="navbar">
@@ -71,13 +44,78 @@ Inicio
         </div>
     </div>
 </nav>
+<br><br>
 
-<div class="bienvenido-text">
-    ¡Bienvenido a BLDNGSolutions!
-</div>
+<!-- Swiper Slider -->
+<swiper-container class="mySwiper" effect="cards" grab-cursor="true" autoplay="true" data-autoplay="5000" loop>
+    <swiper-slide>
+        <h1>
+            ¡Bienvenido a <br><img src="static/images/logo.png" alt="Logo BLDNGSolutions" class="logo-image">LDNGSolutions!<br>
+            Plataforma de administración enfocada a PyMEs dedicadas a la venta y renta de maquinaria de
+            construcción.
+        </h1>
+    </swiper-slide>
+    <swiper-slide>
+        <img src="static/images/logo.png" alt="Logo BLDNGSolutions" class="logo-image">
+        Apartado para clientes con las herramientas necesarias para realizar pedidos y llevar un seguimiento de los
+        mismos
+        <span class="material-symbols-outlined icon">
+            person
+        </span>
+    </swiper-slide>
+    <swiper-slide>
+        Apartado para empleados de Ventas con herramientas necesarias para procesar pedidos y contactar con
+        clientes
+        <span class="material-symbols-outlined icon">
+            storefront
+        </span>
+    </swiper-slide>
+    <swiper-slide>
+        Apartado para empleados de Almacén con herramientas necesarias para llevar el control sobre las máquinas de
+        la empresa
+        <span class="material-symbols-outlined icon">
+            warehouse
+        </span>
+    </swiper-slide>
+    <swiper-slide>
+        Apartado para empleados de Mantenimiento con herramientas necesarias para llevar el control sobre los
+        mantenimientos realizados, así como la programación de los mismos
+        <span class="material-symbols-outlined icon">
+            engineering
+        </span>
+    </swiper-slide>
+    <swiper-slide>
+        Apartado para empleados de Envíos con herramientas necesarias para hacer llegar el pedido al usuario
+        final
+        <span class="material-symbols-outlined icon">
+            local_shipping
+        </span>
+    </swiper-slide>
+    <swiper-slide>
+        Apartado para administradores con herramientas para realizar todas las tareas de la empresa, llevar control
+        sobre empleados y monitorear los resultados financieros de la empresa
+        <span class="material-symbols-outlined icon">
+            admin_panel_settings
+        </span>
+    </swiper-slide>
+
+</swiper-container>
+
+<style>
+    .icon {
+        font-size: 150px;
+    }
+
+    body {
+        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
+        background-size: 100% 100vh;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+</style>
 
 <script src="{{ url_for('static', filename='js/startpage/startpage.js') }}"></script>
-
 <script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
 {% endblock %}
