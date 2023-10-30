@@ -11,6 +11,25 @@
 <a href="{{ url_for('administrationindex') }}" class="btn">Atrás</a>
 
 <div class="container">
+    <h1>Proyecciones y estimaciones de resultados</h1>
+
+    <div class="button-section">
+        <a href="{{ url_for('admin.profitsProjections') }}">
+            <button class="inline-button">
+                Proyecciones
+            </button>
+        </a>
+    </div>
+    <div class="button-section">
+        <a href="{{ url_for('admin.compareGraphs') }}">
+            <button class="inline-button">
+                Comparación de proyecciones con resultados
+            </button>
+        </a>
+    </div>
+</div>
+
+<div class="container">
     <h1>Ganancias</h1>
 
     <div class="button-section">
@@ -20,11 +39,11 @@
             </button>
         </a>
 
-        <a href="{{ url_for('admin.profitsProjections') }}">
+        {# <a href="{{ url_for('admin.profitsProjections') }}">
             <button class="inline-button">
                 Proyecciones
             </button>
-        </a>
+        </a> #}
     </div>
 </div>
 
@@ -38,11 +57,11 @@
             </button>
         </a>
 
-        <a href="{{ url_for('admin.lossProjections') }}">
+        {# <a href="{{ url_for('admin.lossProjections') }}">
             <button class="inline-button">
                 Proyecciones
             </button>
-        </a>
+        </a> #}
     </div>
 </div>
 
@@ -52,28 +71,31 @@
     <div class="button-section">
         <a href="{{ url_for('admin.profitabilityResults') }}">
             <button class="inline-button">
-                Resultados  
+                Resultados
             </button>
         </a>
 
-        <a href="{{ url_for('admin.profitabilityProjections') }}">
+        {# <a href="{{ url_for('admin.profitabilityProjections') }}">
             <button class="inline-button">
                 Proyecciones
             </button>
-        </a>
+        </a> #}
     </div>
 </div>
 
 <style>
     .inline-button {
         display: inline-block;
-        margin: 0 30px; /* Ajusta el espacio horizontal entre botones según sea necesario */
-        padding: 10px 20px; /* Ajusta el espaciado interior según sea necesario */
+        margin: 0 30px;
+        /* Ajusta el espacio horizontal entre botones según sea necesario */
+        padding: 10px 20px;
+        /* Ajusta el espaciado interior según sea necesario */
     }
 
     .button-section {
         text-align: center;
-        margin-top: 20px; /* Ajusta el espacio entre las secciones de botones según sea necesario */
+        margin-top: 20px;
+        /* Ajusta el espacio entre las secciones de botones según sea necesario */
     }
 
     h1 {

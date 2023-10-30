@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Rentas{% endblock %}
+{% block title %}Resultados ganancias{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
@@ -17,13 +17,14 @@
 
     <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <select name="time_period">
+        <select name="time_period" class="custom-select">
             <option value="last_month">Último Mes</option>
             <option value="last_15_days">Últimos 15 Días</option>
             <option value="last_3_months">Últimos 3 Meses</option>
             <option value="last_6_months">Últimos 6 Meses</option>
+            <option value="last_year">Último año</option>
         </select>
-        <input type="submit" value="Mostrar">
+        <input type="submit" value="Mostrar" class="btn btn-primary">
     </form>
 
     {% if selected_time_period %}

@@ -1,9 +1,9 @@
 {% extends './base.html' %}
 
-{% block title %}Rentas{% endblock %}
+{% block title %}Proyección de resultados{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css')}}">
 {% endblock %}
 
 {% block body %}
@@ -11,23 +11,35 @@
 
 <h1>Regresión de proyecciones de resultados</h1>
 
-<a href="#" class="btn">Comparar con resultados de ganancias</a>
+<div>
+    <form method="post" action="{{ url_for('admin.profitsProjections') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <select name="temporalidad" id="temporalidad" class="custom-select" required>
+            <option disabled selected>Selecciona una opción</option>
+            <option value="15_dias">Próximos 15 Días</option>
+            <option value="1_mes">Próximo Mes</option>
+            <option value="3_meses">Próximos 3 Meses</option>
+            <option value="6_meses">Próximos 6 Meses</option>
+            <option value="1_ano">Próximo Año</option>
+        </select>
+        <input type="submit" value="Proyectar Ganancias" class="btn btn-primary">
+    </form>
+</div>
+<br>
+<h1>Ingresos estimados para {{label}}*: <br> ${{estimacion}} MXN</h1>
+{# estimacion es la variable de las sumatorias de las ganancias dadas por la regresion lineal formateada a 2 decimales#}
 
-<form method="post" action="{{ url_for('admin.profitsProjections') }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <select name="temporalidad" id="temporalidad">
-        <option value="15_dias">Próximos 15 Días</option>
-        <option value="1_mes">Próximo Mes</option>
-        <option value="3_meses">Próximos 3 Meses</option>
-        <option value="6_meses">Próximos 6 Meses</option>
-        <option value="1_ano">Próximo Año</option>
-    </select>
-    <input type="submit" value="Proyectar Ganancias">
-</form>
-
+<h3>Número de muestras utilizadas: {{ num_samples }}</h3>
+<h3>Sumatoria de las primeras {{ num_samples }} ganancias proyectadas: {{ sum_of_ganancias }}</h3>
+<br>
 <!-- Mostrar la gráfica de proyección -->
 <div>
     {{ graph_html | safe }}
 </div>
+<br>
+<p>* Los ingresos estimados se obtienen en base</p>
+<p>al numero de pedidos historicos realizados en</p>
+<p>el periodo de tiempo seleccionado, así como </p>
+<p>sus totales.</p>
 
 {% endblock %}

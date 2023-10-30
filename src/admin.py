@@ -16,6 +16,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 import plotly.express as px
+import plotly.subplots as sp
+from plotly.subplots import make_subplots
+from plotly.offline import plot
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
@@ -260,12 +263,16 @@ def profitsResults():
 
     except Exception as e:
         return f"Error al calcular las ganancias: {str(e)}"
-    
+
+#Variable de alcance superior
+fig_ganancias  = None
 
 # Ruta para mostrar gráficas de resultados para diferentes períodos
 @admin.route('/administration/monthlyResults', methods=['GET', 'POST'])
 @admin_required
 def generateTimeGraphs():
+    global fig_ganancias
+    
     try:
         # Establecer una conexión a la base de datos
         cur = mysql.connection.cursor()
@@ -290,12 +297,18 @@ def generateTimeGraphs():
             elif time_period == 'last_6_months':
                 start_date = end_date - timedelta(days=180)
                 label = 'Últimos 6 Meses'
+            elif time_period == 'last_year':
+                start_date = end_date - timedelta(days=365)
+                label = 'Ultimo Año'
+            else:
+                    return "Temporalidad no válida"
+            
 
             # Consulta SQL para obtener las ganancias para el período seleccionado
             sql_query = """
                 SELECT id, total as ganancias
                 FROM orders
-                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1 AND type = 1
                 AND order_date >= %s AND order_date <= %s
             """
             cur.execute(sql_query, [start_date, end_date])
@@ -349,12 +362,16 @@ def generateTimeGraphs():
 
     except Exception as e:
         return f"Error al calcular las ganancias: {str(e)}"
-    
+
+#Variable en alcance superior para que pueda ser accedida desde otras funciones
+fig_projections = None
 
 # Ruta para mostrar las proyecciones de ganancias con temporalidad seleccionada📈
 @admin.route('/administration/profitsProjections', methods=['GET', 'POST'])
 @admin_required
 def profitsProjections():
+    global fig_projections
+
     if request.method == 'POST':
         temporalidad = request.form.get('temporalidad')
         if temporalidad:
@@ -397,6 +414,9 @@ def profitsProjections():
                 # Crear un DataFrame de pandas con los ID de pedido y montos totales
                 df = pd.DataFrame(data, columns=['id', 'ganancias'])
 
+                # Guardar el número de muestras utilizadas en una variable
+                num_samples = df.shape[0]
+
                 # Separar las características (ID de pedido) y el objetivo (montos totales)
                 X = df[['id']]
                 y = df['ganancias']
@@ -411,33 +431,262 @@ def profitsProjections():
                 # Realizar la predicción de ganancias para los ID de pedido futuros
                 projected_ganancias = model.predict(future_ids)
 
+                # Sumar los primeros 'num_samples' valores de ganancias proyectadas
+                sum_of_ganancias = sum(projected_ganancias[:num_samples])
+
+                # Formatear la estimación a dos decimales
+                estimacion = "{:.2f}".format(sum_of_ganancias)
+
                 # Crear una gráfica de dispersión con la línea de regresión
                 plt.figure(figsize=(10, 6))
                 plt.scatter(X, y, label='Ganancias Pasadas')
                 plt.plot(future_ids, projected_ganancias, color='red', label='Línea de Regresión, (proyeccion de ganancias)')
                 plt.xlabel('ID de Pedido')
                 plt.ylabel('Ganancias')
-                plt.title(f'Predicción de Ganancias en {label} con Regresión Lineal')
+                plt.title(f'Proyeccion de resultados en {label} con Regresión Lineal')
                 plt.legend()
 
                 # Crear una gráfica de dispersión interactiva con la línea de regresión utilizando Plotly
-                fig = px.scatter(df, x='id', y='ganancias', title=f'Predicción de Ganancias en {label} con Regresión Lineal')
-                fig.add_scatter(x=future_ids['id'], y=projected_ganancias, mode='lines', name='Línea de Regresión', line=dict(color='red'))
+                fig_projections  = px.scatter(df, x='id', y='ganancias', title=f'Proyeccion de resultados en {label} con Regresión Lineal')
+                fig_projections .add_scatter(x=future_ids['id'], y=projected_ganancias, mode='lines', name='Línea de Regresión', line=dict(color='red'))
 
                 # Generar HTML con la gráfica de Plotly
-                graph_html = fig.to_html(full_html=False)
+                graph_html = fig_projections .to_html(full_html=False)
 
                 # Renderizar la plantilla con la proyección de ganancias
                 return render_template(
                     'administration/stats/profitsProjections.jinja',
                     projected_ganancias=projected_ganancias[0],
-                    graph_html=graph_html
+                    graph_html=graph_html,
+                    num_samples=num_samples,
+                    sum_of_ganancias=sum_of_ganancias,
+                    estimacion=estimacion, 
+                    label=label
                 )
 
             except Exception as e:
                 return f"Error al realizar la predicción de ganancias: {str(e)}"
 
     return render_template('administration/stats/profitsProjections.jinja')
+
+
+
+# Ruta para comparar las gráficas generadas en ambas funciones
+@admin.route('/administration/compareGraphs', methods=['GET', 'POST'])
+@admin_required
+def compareGraphs():
+    global fig_ganancias, fig_projections
+
+    fig_ganancias = None  # Reiniciar las figuras en cada solicitud
+    fig_projections = None
+
+    if request.method == 'POST':
+        # Obtiene el período de tiempo seleccionado desde el formulario
+        temporalidad = request.form.get('temporalidad')
+
+        try:
+            # Genera la gráfica de ganancias si no está disponible
+            if fig_ganancias is None:
+                end_date = datetime.now()
+                
+                # Coloca aquí la generación de fig_ganancias
+                cur = mysql.connection.cursor()
+                
+                # Determina el rango de fechas según el período seleccionado
+                if temporalidad == '1_mes':
+                    start_date = end_date - timedelta(days=30)
+                    label = 'Último Mes'
+                elif temporalidad == '15_dias':
+                    start_date = end_date - timedelta(days=15)
+                    label = 'Últimos 15 Días'
+                elif temporalidad == '3_meses':
+                    start_date = end_date - timedelta(days=90)
+                    label = 'Últimos 3 Meses'
+                elif temporalidad == '6_meses':
+                    start_date = end_date - timedelta(days=180)
+                    label = 'Últimos 6 Meses'
+                elif temporalidad == '1_ano':
+                    start_date = end_date - timedelta(days=365)
+                    label = 'Ultimo Año'
+                else:
+                    return "Temporalidad no válida"
+                
+                # Consulta SQL para obtener las ganancias para el período seleccionado
+                sql_query = """
+                    SELECT id, total as ganancias
+                    FROM orders
+                    WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1 AND type = 1
+                    AND order_date >= %s AND order_date <= %s
+                """
+                cur.execute(sql_query, [start_date, end_date])
+                ganancias = cur.fetchall()
+
+                # Calcular la suma total de las ganancias para el período seleccionado
+                ganancias_totales = sum(g[1] for g in ganancias)
+
+                # Crear un DataFrame de pandas con las ganancias
+                df_ganancias = pd.DataFrame(ganancias, columns=['No. Orden', 'ganancias']).set_index('No. Orden')
+
+                # Crear una gráfica de puntos unidos por líneas para las ganancias
+                fig_ganancias = go.Figure(data=go.Scatter(
+                    x=df_ganancias.index,
+                    y=df_ganancias['ganancias'],
+                    mode='lines+markers'
+                ))
+
+                # Configurar etiquetas y título
+                fig_ganancias.update_layout(
+                    xaxis_title='No. Orden',
+                    yaxis_title='$ Ganancias',
+                    title=f'Ganancias de {label}'
+                )
+
+                # Configurar los ticks del eje x como números enteros
+                fig_ganancias.update_xaxes(
+                    tickvals=df_ganancias.index,
+                    tickmode='array',
+                    ticktext=[str(int(val)) for val in df_ganancias.index]
+                )
+
+                # Formatear el eje y como valores de dinero
+                fig_ganancias.update_yaxes(
+                    tickformat='$,.2f',
+                )
+
+                # Convertir la figura de Plotly a HTML
+                graph_html_ganancias = fig_ganancias.to_html(full_html=False)
+
+                selected_time_period = {
+                    'label': label,
+                    'ganancias_totales': ganancias_totales,
+                    'graph_html_ganancias': graph_html_ganancias
+                }
+
+            # Genera la gráfica de proyecciones si no está disponible
+            if fig_projections is None:
+
+                cur = mysql.connection.cursor()
+
+                # Determina la fecha actual
+                current_date = datetime.now()
+
+                # Determina la fecha de inicio basada en la temporalidad seleccionada
+                if temporalidad == '15_dias':
+                    start_date = current_date - timedelta(days=15)
+                    label = 'Próximos 15 Días'
+                elif temporalidad == '1_mes':
+                    start_date = current_date - timedelta(days=30)
+                    label = 'Próximo Mes'
+                elif temporalidad == '3_meses':
+                    start_date = current_date - timedelta(days=90)
+                    label = 'Próximos 3 Meses'
+                elif temporalidad == '6_meses':
+                    start_date = current_date - timedelta(days=180)
+                    label = 'Próximos 6 Meses'
+                elif temporalidad == '1_ano':
+                    start_date = current_date - timedelta(days=365)
+                    label = 'Próximo Año'
+                else:
+                    return "Temporalidad no válida"
+
+                # Consulta SQL para obtener los datos históricos de ID de pedido y montos totales
+                sql_query = """
+                    SELECT id, total
+                    FROM orders
+                    WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1 AND type = 1
+                    AND order_date >= %s AND order_date <= %s
+                """
+                cur.execute(sql_query, [start_date, current_date])
+                data = cur.fetchall()
+
+                # Crear un DataFrame de pandas con los ID de pedido y montos totales
+                df = pd.DataFrame(data, columns=['id', 'ganancias'])
+
+                # Guardar el número de muestras utilizadas en una variable
+                num_samples = df.shape[0]
+
+                # Separar las características (ID de pedido) y el objetivo (montos totales)
+                X = df[['id']]
+                y = df['ganancias']
+
+                # Crear y entrenar un modelo de regresión lineal
+                model = LinearRegression()
+                model.fit(X, y)
+
+                # Generar ID de pedido para los días futuros
+                future_ids = pd.DataFrame({'id': range(df['id'].max() + 1, df['id'].max() + 50)})
+
+                # Realizar la predicción de ganancias para los ID de pedido futuros
+                projected_ganancias = model.predict(future_ids)
+
+                # Sumar los primeros 'num_samples' valores de ganancias proyectadas
+                sum_of_ganancias = sum(projected_ganancias[:num_samples])
+
+                # Formatear la estimación a dos decimales
+                estimacion = "{:.2f}".format(sum_of_ganancias)
+
+                # Crear una gráfica de dispersión con la línea de regresión
+                plt.figure(figsize=(10, 6))
+                plt.scatter(X, y, label='Ganancias Pasadas')
+                plt.plot(future_ids, projected_ganancias, color='red', label='Línea de Regresión, (proyeccion de ganancias)')
+                plt.xlabel('ID de Pedido')
+                plt.ylabel('Ganancias')
+                plt.title(f'Proyeccion de resultados en {label} con Regresión Lineal')
+                plt.legend()
+
+                # Crear una gráfica de dispersión interactiva utilizando Plotly
+                fig_projections = px.scatter(df, x='id', y='ganancias', title=f'Proyeccion de resultados en {label} con Regresión Lineal')
+
+                # Configurar la traza de dispersión para que los puntos estén unidos por líneas
+                fig_projections.update_traces(mode='lines+markers', line=dict(color='blue'))
+
+                # Añadir la línea de regresión
+                fig_projections.add_scatter(x=future_ids['id'], y=projected_ganancias, mode='lines', name='Línea de Regresión', line=dict(color='red'))
+
+
+                # Generar HTML con la gráfica de Plotly
+                graph_html = fig_projections.to_html(full_html=False)
+
+                selected_time_period = {
+                    'label': label,
+                    'ganancias_totales': ganancias_totales,
+                    'graph_html_ganancias': graph_html_ganancias
+                }
+
+            # Crear subplots para mostrar ambas gráficas en una sola figura
+            subplot = make_subplots(rows=1, cols=2)
+
+            # Añadir la gráfica de ganancias al primer subplot
+            subplot.add_trace(fig_ganancias.data[0], row=1, col=1)
+
+            # Añadir la gráfica de proyecciones al segundo subplot
+            for trace in fig_projections.data:
+                subplot.add_trace(trace, row=1, col=2)
+
+            # Actualizar diseño y títulos
+            subplot.update_layout(
+                title_text="Comparación de Gráficas de Resultados y Proyecciones",
+                xaxis_title="No. Orden",
+                yaxis_title="$ Ganancias",
+            )
+
+            # Convertir el subplot en HTML
+            graph_html_combined = plot(subplot, output_type='div')
+
+            # Renderiza la plantilla compareGraphs.jinja con las gráficas combinadas
+            return render_template(
+                'administration/stats/compareGraphs.jinja',
+                graph_html_combined=graph_html_combined
+            )
+
+        except Exception as e:
+            return f"Error al comparar las gráficas: {str(e)}"
+    
+    # Si es una solicitud GET, simplemente muestra el formulario
+    return render_template('administration/stats/compareGraphs.jinja')
+
+
+
 
 
 #----------------------------------------------------------------------------
