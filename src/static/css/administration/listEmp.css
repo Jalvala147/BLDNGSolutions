@@ -32,10 +32,21 @@
         color: rgb(0, 0, 0);
         font-size: 1.5rem;
         font-weight: 600;
-        margin-bottom: .2rem;
+        margin-bottom: .1rem;
         text-align: center;
         margin-top: 15px;
     }
+
+    h3 {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        color: rgb(0, 0, 0);
+        font-size: 1.2rem;
+        margin-bottom: .2rem;
+        margin-top: 15px;
+    }
+
 
     p{
         margin: 0;

@@ -1,0 +1,49 @@
+{% extends './base.html' %}
+
+{% block title %}Comparación de gráficas{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/rentsList.css')}}">
+{% endblock %}
+
+{% block body %}
+<a href="{{ url_for('admin.projectionsResults') }}" class="btn">Atrás</a>
+
+<div class="container">
+    <h1>Comparación de Gráficas de resultados con proyecciones</h1>
+
+    <!-- Formulario para seleccionar el período de tiempo -->
+    <form method="POST" action="/administration/compareGraphs" onsubmit="return validarSeleccion()">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="temporalidad">Seleccione el período de tiempo:</label>
+        <select name="temporalidad" id="temporalidad" class="custom-select">
+            <option disabled selected>Selecciona una opción</option>
+            <option value="15_dias">15 días</option>
+            <option value="1_mes">1 mes</option>
+            <option value="3_meses">3 meses</option>
+            <option value="6_meses">6 meses</option>
+            <option value="1_ano">1 año</option>
+        </select>
+        <input type="submit" value="Comparar Gráficas" class="btn btn-primary">
+    </form>
+    <br>
+    {{ graph_html_combined | safe }}
+
+    <p>La primer gráfica corresponde a los resultados en la temporalidad seleccionada.</p>
+    <p>La segunda gráfica corresponde a la proyección dada por la regresion lineal.</p>
+</div>
+
+<script>
+    function validarSeleccion() {
+        var select = document.getElementById("temporalidad");
+        var selectedValue = select.options[select.selectedIndex].value;
+        if (selectedValue === "Selecciona una opción") {
+            alert("Por favor, seleccione una opción válida.");
+            return false; // Evita que el formulario se envíe
+        }
+        return true; // Permite que el formulario se envíe si se ha seleccionado una opción válida
+    }
+</script>
+
+{% endblock %}
+
