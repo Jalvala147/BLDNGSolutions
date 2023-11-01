@@ -5,9 +5,10 @@ from flask import request
 from flask import Flask, url_for
 from flask_login import current_user
 from datetime import datetime, timedelta
+from functools import wraps
 app = Flask(__name__)
 mysql = MySQL()
-from functools import wraps
+
 
 maintemp = Blueprint('maintemp', __name__)
 
@@ -24,17 +25,13 @@ def maintenance_required(func):
         return func(*args, **kwargs)
     return decorated_view
 
+
+#--------------------rutas mantenimiento-----------------------
 @maintemp.route('/maintenance_home')
 def maintenance_home():
     # Código necesario para la página "maintenance/mantHome.jinja"
     return render_template('maintenance/mantHome.jinja')
 
-#--------------------rutas mantenimiento-----------------------
-
-@maintemp.route('/maintenance/mantHome')   
-@maintenance_required
-def mantHome():
-    return render_template('/maintenance/mantHome.jinja')
 
 #listado de las maquinas con boton para ver historial de mantenimiento
 @maintemp.route('/maintenance/mantMachines')   

@@ -47,11 +47,14 @@ def admin_required(func):
 
 #--------------------rutas administracion-----------------------
 @admin.route('/administration/administrationindex')
+@admin_required
 def adminHome():
     return render_template('administration/administrationindex.jinja')
 
 
+#renderiza la Plantilla que muestra las areas de la empresa y dentro de ellas, sus empleados
 @admin.route('/administration/employeelist')
+@admin_required
 def employeelist():
     return render_template('administration/employeelist.jinja')
 
@@ -113,9 +116,9 @@ def calcular_puntualidad(access_records):
     resultados_puntualidad = []
 
     for access in access_records:
-        fecha_hora_registro = access[0]  # Suponemos que esta es la fecha y hora del registro en formato datetime
+        fecha_hora_registro = access[0] 
 
-        # Asegurémonos de que la fecha no afecte la comparación, considerando solo la hora
+        # Aseguramos de que la fecha no afecte la comparación, considerando solo la hora
         hora_registro = fecha_hora_registro.time()
 
         if hora_entrada_inicial.time() <= hora_registro <= hora_entrada_limite.time():
@@ -264,6 +267,7 @@ def profitsResults():
     except Exception as e:
         return f"Error al calcular las ganancias: {str(e)}"
 
+
 #Variable de alcance superior
 fig_ganancias  = None
 
@@ -362,6 +366,7 @@ def generateTimeGraphs():
 
     except Exception as e:
         return f"Error al calcular las ganancias: {str(e)}"
+
 
 #Variable en alcance superior para que pueda ser accedida desde otras funciones
 fig_projections = None
@@ -887,93 +892,93 @@ def profitabilityResults():
         return f"Error al calcular la rentabilidad: {str(e)}"
 
 
-#Estimacion o proyecion de las perdidas a meses futuros, tomando los resultados de los meses previos, mediante la regresión lineal simple
-@admin.route('/administration/lossProjections', methods=['GET', 'POST'])
-@admin_required
-def lossProjections():
-    try:
-        # Establecer una conexión a la base de datos
-        cur = mysql.connection.cursor()
+# #Estimacion o proyecion de las perdidas a meses futuros, tomando los resultados de los meses previos, mediante la regresión lineal simple
+# @admin.route('/administration/lossProjections', methods=['GET', 'POST'])
+# @admin_required
+# def lossProjections():
+#     try:
+#         # Establecer una conexión a la base de datos
+#         cur = mysql.connection.cursor()
 
-        # Obtener todos los meses disponibles en la base de datos
-        cur.execute("SELECT DISTINCT DATE_FORMAT(order_date, '%Y-%m') as month FROM orders")
-        months = [row[0] for row in cur.fetchall()]
+#         # Obtener todos los meses disponibles en la base de datos
+#         cur.execute("SELECT DISTINCT DATE_FORMAT(order_date, '%Y-%m') as month FROM orders")
+#         months = [row[0] for row in cur.fetchall()]
 
-        if request.method == 'POST':
-            # El usuario ha seleccionado meses futuros
-            selected_months = request.form.getlist('selected_months')
+#         if request.method == 'POST':
+#             # El usuario ha seleccionado meses futuros
+#             selected_months = request.form.getlist('selected_months')
 
-            # Obtener datos históricos de pérdidas para los meses seleccionados
-            loss_data = []
+#             # Obtener datos históricos de pérdidas para los meses seleccionados
+#             loss_data = []
 
-            for selected_month in selected_months:
-                sql_query = """
-                    SELECT id, total as perdidas
-                    FROM orders
-                    WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
-                    AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
-                """
-                cur.execute(sql_query, [selected_month])
-                perdidas = cur.fetchall()
+#             for selected_month in selected_months:
+#                 sql_query = """
+#                     SELECT id, total as perdidas
+#                     FROM orders
+#                     WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+#                     AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
+#                 """
+#                 cur.execute(sql_query, [selected_month])
+#                 perdidas = cur.fetchall()
 
-                # Calcular las pérdidas totales para el mes seleccionado
-                perdidas_mes = sum(p[1] for p in perdidas)
+#                 # Calcular las pérdidas totales para el mes seleccionado
+#                 perdidas_mes = sum(p[1] for p in perdidas)
 
-                loss_data.append({'month': selected_month, 'total_loss': perdidas_mes})
+#                 loss_data.append({'month': selected_month, 'total_loss': perdidas_mes})
 
-            # Cerrar la conexión a la base de datos
-            cur.close()
+#             # Cerrar la conexión a la base de datos
+#             cur.close()
 
-            # Crear un DataFrame de pandas con los datos de pérdidas
-            df_loss = pd.DataFrame(loss_data)
+#             # Crear un DataFrame de pandas con los datos de pérdidas
+#             df_loss = pd.DataFrame(loss_data)
 
-            # Utilizar la regresión lineal simple para estimar las pérdidas futuras
-            X_train = df_loss.index.values.reshape(-1, 1)
-            y_train = df_loss['total_loss'].values
+#             # Utilizar la regresión lineal simple para estimar las pérdidas futuras
+#             X_train = df_loss.index.values.reshape(-1, 1)
+#             y_train = df_loss['total_loss'].values
 
-            model = LinearRegression()
-            model.fit(X_train, y_train)
+#             model = LinearRegression()
+#             model.fit(X_train, y_train)
 
-            # Crear datos para la estimación de pérdidas
-            future_months = pd.date_range(start=df_loss['month'].max(), periods=6, freq='M')
-            X_future = np.array(range(len(df_loss), len(df_loss) + 6)).reshape(-1, 1)
-            estimated_losses = model.predict(X_future)
+#             # Crear datos para la estimación de pérdidas
+#             future_months = pd.date_range(start=df_loss['month'].max(), periods=6, freq='M')
+#             X_future = np.array(range(len(df_loss), len(df_loss) + 6)).reshape(-1, 1)
+#             estimated_losses = model.predict(X_future)
 
-            # Crear una gráfica de las estimaciones de pérdidas
-            fig_estimated_losses = go.Figure()
-            fig_estimated_losses.add_trace(go.Scatter(
-                x=future_months,
-                y=estimated_losses,
-                mode='lines+markers',
-                name='Estimaciones de Pérdidas'
-            ))
+#             # Crear una gráfica de las estimaciones de pérdidas
+#             fig_estimated_losses = go.Figure()
+#             fig_estimated_losses.add_trace(go.Scatter(
+#                 x=future_months,
+#                 y=estimated_losses,
+#                 mode='lines+markers',
+#                 name='Estimaciones de Pérdidas'
+#             ))
 
-            fig_estimated_losses.update_layout(
-                xaxis_title='Mes',
-                yaxis_title='$ Pérdidas',
-                title='Estimación de Pérdidas Futuras'
-            )
+#             fig_estimated_losses.update_layout(
+#                 xaxis_title='Mes',
+#                 yaxis_title='$ Pérdidas',
+#                 title='Estimación de Pérdidas Futuras'
+#             )
 
-            # Convertir la figura de Plotly a HTML
-            graph_html_estimated_losses = fig_estimated_losses.to_html(full_html=False)
-        else:
-            # No se han seleccionado meses futuros
-            graph_html_estimated_losses = None
+#             # Convertir la figura de Plotly a HTML
+#             graph_html_estimated_losses = fig_estimated_losses.to_html(full_html=False)
+#         else:
+#             # No se han seleccionado meses futuros
+#             graph_html_estimated_losses = None
 
-        return render_template(
-            'administration/stats/lossProjections.jinja',
-            months=months,
-            graph_html_estimated_losses=graph_html_estimated_losses
-        )
+#         return render_template(
+#             'administration/stats/lossProjections.jinja',
+#             months=months,
+#             graph_html_estimated_losses=graph_html_estimated_losses
+#         )
 
-    except Exception as e:
-        return f"Error al realizar estimaciones de pérdidas: {str(e)}"
+#     except Exception as e:
+#         return f"Error al realizar estimaciones de pérdidas: {str(e)}"
     
 
-@admin.route('/administration/profitabilityProjections')
-@admin_required
-def profitabilityProjections():
-    return render_template('administration/stats/profitabilityProjections.jinja')
+# @admin.route('/administration/profitabilityProjections')
+# @admin_required
+# def profitabilityProjections():
+#     return render_template('administration/stats/profitabilityProjections.jinja')
 
 
 #-----------------------------------------------------
@@ -992,7 +997,6 @@ def maintListEmp():
 
 
 # Vista para agregar un empleado✅
- 
 @admin.route('/administration/maintAddEmp', methods=['GET', 'POST'])
 @admin_required
 def maintAddEmp():
@@ -1159,7 +1163,6 @@ def storDeleteEmp(id):
 
 
 # Vista para actualizar un empleado
- 
 @admin.route('/administration/storUpdateEmp/<int:id>', methods=['GET', 'POST'])
 @admin_required
 def storUpdateEmp(id):
@@ -1374,5 +1377,3 @@ def deleteClient(id):
         
         # Redirige al listado de clientes después de la eliminación
         return redirect(url_for('admin.clientsList'))
-
-

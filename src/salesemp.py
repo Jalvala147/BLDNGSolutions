@@ -24,12 +24,6 @@ salesemp = Blueprint('salesemp', __name__)
 
 csrf = CSRFProtect()
 
-
-@salesemp.route('/logout')
-def logout():
-    logout_user()
-    session.pop('username', None)
-    return redirect(url_for('startpage'))
 #------------------------------------------------------------------------
 # Decorador para ventas (tipoUsuario = 2 y areaUsuario = 2 o tipoUsuario = 1 y areaUsuario = 1)
 def sales_required(func):
@@ -43,6 +37,19 @@ def sales_required(func):
             return redirect(url_for('loginemp'))
         return func(*args, **kwargs)
     return decorated_view
+
+
+@salesemp.route('/logout')
+def logout():
+    logout_user()
+    session.pop('username', None)
+    return redirect(url_for('startpage'))
+
+
+@salesemp.route('/salesEmpArea/salesHome')   
+@sales_required
+def salesHome():
+    return render_template('salesEmpArea/salesHome.jinja')
 
 #----------------------------Listado de ventas---------------------------
 @salesemp.route('/salesEmpArea/salesList')
@@ -397,14 +404,7 @@ def mark_as_incomplete(file_id, user_id):
     return redirect(url_for('salesemp.uploaded_documents', user_id=user_id))
 
 
-
-
 #----------------------------------------------------
-
-@salesemp.route('/salesEmpArea/salesHome')   
-@sales_required
-def salesHome():
-    return render_template('salesEmpArea/salesHome.jinja')
 
 
 # Definimos la función clientsList para la ruta '/salesEmpArea/clientsList'

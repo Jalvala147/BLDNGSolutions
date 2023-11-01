@@ -25,7 +25,7 @@ class ModelUser():
             cursor.execute(sql)
             row = cursor.fetchone()
             if row is not None:
-                return User(row[0], row[1], None, row[2], row[3], row[4])  # Agrega el tipoUsuario y el areaUsuario
+                return User(row[0], row[1], None, row[2], row[3], row[4])
             else:
                 return None
         except Exception as ex:
