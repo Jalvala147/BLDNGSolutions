@@ -10,7 +10,6 @@ from urllib.parse import urlencode, unquote
 
 app = Flask(__name__)
 mysql = MySQL()
-import os
 
 shipemp = Blueprint('shipemp', __name__)
 
@@ -183,7 +182,6 @@ def ordersInfo(order_id):
 
 
 #-------Rutas con Google Maps
-
 @shipemp.route('/shipping/routes')
 @shipping_required
 def routes():

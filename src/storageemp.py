@@ -32,19 +32,13 @@ def storage_required(func):
 
     return decorated_view
 
-
+#Manejador de logout para empleados de almacén
 @storageemp.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('startpage'))
 
-@app.route('/logout')
-def logout():
-    logout_user()
-    session.pop('username', None)
-    return redirect(url_for('startpage'))
-
-
+#Página de inicio de empleados de almacén
 @storageemp.route('/storage_home')
 @storage_required
 def storage_home():
@@ -73,7 +67,7 @@ def stoHistory():
 @storageemp.route('/storage/machineHistory/<int:machine_id>')
 @storage_required
 def machineHistory(machine_id):
-    # Get the UID, model, and brand associated with the provided machine_id
+    # toma uid, brand, model, del id asociado
     cursor = mysql.connection.cursor()
     cursor.execute("""
         SELECT machinesid.uid_Machine, machines.model, machines.brand

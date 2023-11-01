@@ -87,6 +87,17 @@ def logoutadm():
 
 
 #--------------------Pagina de inicio------------------
+
+#---------------Ruta por defecto /-------------------------
+
+@app.route('/')
+def index():
+    return redirect(url_for('startpage'))
+
+@app.route('/startpage')
+def startpage():
+    return render_template('startpage.jinja')
+
 #------------Listado de los productos(maquinas)---------------------
 @app.route('/productsList')   
 def productsList():
@@ -180,12 +191,6 @@ def signup():
         return redirect(url_for('login'))  # Redirecciona al login de los clientes para iniciar sesion
     return render_template('signup.jinja')
 
-#---------------Ruta por defecto /-------------------------
-
-@app.route('/')
-def index():
-    return redirect(url_for('startpage'))
-
 #----------------------------Login para clientes, tipo de usuario 3-----------------------------------------------
 @app.route('/loginclient', methods=['GET', 'POST'])
 def login():
@@ -240,7 +245,7 @@ def loginadm():
                 logged_user = User(user_id, username, password)
                 if tipoUsuario == 1:
                     login_user(logged_user)
-                    return redirect(url_for('administrationindex'))
+                    return redirect(url_for('admin.adminHome'))
 
                 flash("Tipo de usuario no válido...")
                 return render_template('auth/loginadm.jinja')
@@ -310,22 +315,18 @@ def loginemp():
 
 @app.route('/sales_emp_area')
 def sales_emp_area():
-    # Código necesario para la página "salesEmpArea/salesHome.jinja"
     return render_template('salesEmpArea/salesHome.jinja')
 
 @app.route('/storage_home')
 def storage_home():
-    # Código necesario para la página "storage/storageHome.jinja"
     return render_template('storage/storageHome.jinja')
 
 @app.route('/maintenance_home')
 def maintenance_home():
-    # Código necesario para la página "maintenance/mantHome.jinja"
     return render_template('maintenance/mantHome.jinja')
 
 @app.route('/shipping_home')
 def shipping_home():
-    # Código necesario para la página "shipping/shipHome.jinja"
     return render_template('shipping/shipHome.jinja')
 
 
@@ -469,33 +470,9 @@ def changepassword(token):
 #---------------Rutas para logout, paginas protegidas, pagina de start y home -----------------------------------
 
 
-@app.route('/startpage')
-def startpage():
-    return render_template('startpage.jinja')
-
 @app.route('/home')   
 def home():
     return render_template('home.jinja')
-
-@app.route('/protected')
-@login_required
-def protected():
-    return "<h1>Esta es una vista protegida, solo para usuarios autenticados.</h1>"
-
-
-
-
-
-
-#-----------------Rutas para paginas de Administradores---------------------------
-@app.route('/administration/administrationindex')   
-def administrationindex():
-    return render_template('/administration/administrationindex.jinja')
-
-@app.route('/administration/employeelist')   
-def employeelist():
-    return render_template('/administration/employeelist.jinja')
-
 
 #----------------------Rutas para error 401 y 404--------------------
 
@@ -513,35 +490,3 @@ if __name__ == '__main__':
     app.register_error_handler(404, status_404)
     app.run()
     
-     
-#--------------------rutas ventas-----------------------
-
-@app.route('/sales_Home')
-def salesHome():
-    return render_template('salesEmpArea/salesHome.jinja')
-
-@app.route('/salesEmpArea/clientsList')
-def clientsList():
-    return render_template('salesEmpArea/clientsList.jinja')
-
-@app.route('/newRequest')   
-def newRequest():
-    return render_template('/sales/newRequest.jinja')
-    
-
-    
-@app.route('/rents')   
-def rents():
-    return render_template('/sales/rents.jinja')
-
-@app.route('/sales/sales')   
-def sales():
-    return render_template('/sales/sales.jinja')
-
-#--------------------rutas envios-----------------------
-@app.route('/orders')
-def orders():
-    return render_template('/shipping/orders.jinja')
-
-
-

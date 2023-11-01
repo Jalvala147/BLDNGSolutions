@@ -17,37 +17,17 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfgen import canvas
-import os
 from io import BytesIO
-import stripe
-import paypalrestsdk
+# import stripe
 
 app = Flask(__name__)
 mysql = MySQL()
 mail = Mail(app)
 
-
-app.config['PAYPAL_MODE'] = 'sandbox' # 'sandbox' o 'live'
-app.config['PAYPAL_CLIENT_ID'] = 'TU_CLIENT_ID_DE_PAYPAL'
-app.config['PAYPAL_CLIENT_SECRET'] = 'TU_CLIENT_SECRET_DE_PAYPAL'
-app.config['PAYPAL_CURRENCY'] = 'MXN' # La moneda que utilizarás para los pagos
-
-
-paypalrestsdk.configure({
-    "mode": app.config['PAYPAL_MODE'],
-    "client_id": app.config['PAYPAL_CLIENT_ID'],
-    "client_secret": app.config['PAYPAL_CLIENT_SECRET']
-})
-
-
 clients = Blueprint('clients', __name__)
 
 csrf = CSRFProtect()
 
-app.config['STRIPE_PUBLIC_KEY'] = 'pk_test_51Ns9uVB0WRECsvw4RKybB3WRFOviaJea7AiDaHYrGoPLt08xWU7fS5Q8Dfyr6clI9SimSIsSNZclseD4Oq5Vsjur00L5NDp3cm'
-app.config['STRIPE_SECRET_KEY'] = 'sk_test_51Ns9uVB0WRECsvw4UN0P1pswEObrLOzD1XrNGDTFol3jUKfwJmctLxLBGvC356AScv0w4J86D0k6inGHFlLhj6nz00653AbSdX'
-
-stripe.api_key = "sk_test_51Ns9uVB0WRECsvw4UN0P1pswEObrLOzD1XrNGDTFol3jUKfwJmctLxLBGvC356AScv0w4J86D0k6inGHFlLhj6nz00653AbSdX"
 
 def client_required(func):
     @wraps(func)
@@ -58,13 +38,6 @@ def client_required(func):
             return redirect(url_for('login')) 
         return func(*args, **kwargs)
     return decorated_view
-
-
-@app.route('/logout')
-def logout():
-    logout_user()
-    session.pop('username', None)
-    return redirect(url_for('startpage'))
 
 #------------------------------------------------------------------------------------
 @clients.route('/logout')
