@@ -16,7 +16,6 @@
 
 <h1>Información de las maquinas</h1>
 
-<!-- Add the button to navigate to the page for adding new machines -->
 <a href="{{ url_for('storageemp.add_machine') }}" class="btn btn-primary">Agregar Nueva Maquina</a>
 
 <table class="table1">
@@ -36,7 +35,7 @@
         <td>{{ machine[3] | upper }}</td>
         <td>
             <!-- Update Button -->
-            <a href="{{ url_for('storageemp.update_machine', machine_id=machine[0]) }}" class="btn btn-primary"><span
+            <a href="{{ url_for('storageemp.update_machine', machine_id=machine[0]) }}" class="btnlight"><span
                     class="material-symbols-rounded">
                     edit
                 </span></a>

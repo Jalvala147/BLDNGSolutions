@@ -69,7 +69,7 @@ body {
     font-size: 2rem;
     font-weight: 600;
     margin-bottom: .5rem;
-    color: rgb(222, 229, 235);
+    color: rgb(201, 222, 240);
 }
 
 .login-card-header h1+div {
@@ -135,6 +135,10 @@ body {
     transition: background .5s;
 }
 
+.login-card input[type="password"]{
+    color: rgb(40, 0, 104);
+}
+
 .login-card input:focus {
     background: white;
 }
@@ -142,11 +146,11 @@ body {
 .login-card input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: rgb(46, 106, 236);
+    accent-color: #5884e2;
 }
 
 .login-card button {
-    background: rgb(191, 181, 221);
+    background: rgb(144, 127, 199);
     color: rgb(0, 0, 0);
     padding: 1rem;
     border-radius: 100px;

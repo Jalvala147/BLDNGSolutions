@@ -38,11 +38,21 @@
 <header class="header">
     <nav>
         <div class="logo">
-            <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo" /></a>
+            <a title="logo" href="/startpage"><img src="{{ url_for('static', filename='images/logo.png') }}" class="logo" /></a>
         </div>
 
     </nav>
 </header>
+
+<div class="notifications" style="position: absolute; top: 60px; right: 10px;">
+    <span class="material-symbols-rounded" style="font-size: 50px; color:white;" id="notification-icon">
+        notifications
+    </span>
+    <span id="notification-count-badge" class="notification-badge">0</span>
+    <div id="notification-popup" class="notification-popup">
+        <!-- Contenido de las notificaciones -->
+    </div>
+</div>
 
 <div class="user">
     <h1>Bienvenido, {{current_user.fullname}}</h1>
@@ -88,6 +98,15 @@
                 <span class="text">Maquinas en espera de salida</span>
             </a>
         </li>
+
+        <li class="list">
+            <a href="/storage/readyMaintMachines">
+                <span class="icon">
+                    <span class="material-symbols-rounded">arrow_right_alt</span>
+                </span>
+                <span class="text">Retiro por mantenimiento</span>
+            </a>
+        </li>
         <div class="indicator"></div>
     </ul>
 </div>
@@ -99,4 +118,87 @@
 <script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationPopup = document.getElementById('notification-popup');
+        const closeNotificationPopup = document.getElementById('close-notification-popup');
+
+        let isPopupOpen = false;
+
+        notificationIcon.addEventListener('click', function () {
+            if (isPopupOpen) {
+                notificationPopup.style.display = 'none';
+            } else {
+                // Hacer una solicitud AJAX al servidor para obtener las notificaciones en formato JSON
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', '/fetch_machines_notifications', true);
+
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        const notifications = JSON.parse(xhr.responseText);
+                        const notificationList = document.createElement('ul');
+                        notificationList.classList.add('notification-list-container');
+
+                        // Agregar un elemento de lista para el encabezado
+                        const headerListItem = document.createElement('li');
+                        headerListItem.textContent = 'Máquinas proximas a salir';
+                        headerListItem.style.listStyleType = 'none';
+                        notificationList.appendChild(headerListItem);
+
+                        // Crear elementos de lista para cada notificación
+                        notifications.forEach(function (notification) {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `Máquina: ${notification[2]} ${notification[1]}, Necesita mantenimiento`;
+
+                            if (notification[2]) {
+                                listItem.classList.add('azul');
+                            }
+
+                            notificationList.appendChild(listItem);
+                        });
+
+                        notificationPopup.innerHTML = '';
+                        notificationPopup.appendChild(notificationList);
+                        notificationPopup.style.display = 'block';
+
+                        // Actualizar el contador de notificaciones
+                        const notificationCount = notifications.length;
+                        const notificationCountBadge = document.getElementById('notification-count-badge');
+                        notificationCountBadge.textContent = notificationCount;
+                    }
+                };
+
+                xhr.send();
+            }
+
+            isPopupOpen = !isPopupOpen;
+        });
+
+        closeNotificationPopup.addEventListener('click', function () {
+            notificationPopup.style.display = 'none';
+            isPopupOpen = false;
+        });
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+    // Hacer una solicitud AJAX para obtener las notificaciones
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/fetch_machines_notifications', true);
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            const notifications = JSON.parse(xhr.responseText);
+            const notificationCount = notifications.length;
+            // Actualiza el contador de notificaciones
+            document.getElementById('notification-count-badge').textContent = notificationCount;
+        }
+    };
+
+    xhr.send();
+});
+
+</script>
 {% endblock %}

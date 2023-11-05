@@ -3,37 +3,86 @@
 {% block title %}Nuevas solicitudes{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/crud/read.css')}}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/clientsList.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0" />
 
 {% endblock %}
 
 
 {% block body %}
 
-<a href="{{ url_for('sales_emp_area') }}" class="btn" >Atras</a>
+<a href="{{ url_for('sales_emp_area') }}" class="btn">Atras</a>
 <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.ico') }}">
 
 
 <h1>Pagina de Nuevas solicitudes</h1>
 <h1>Solicitudes pendientes</h1>
 
-<table class="table1">
-    <tr>
-        <th>No. de Solicitud</th>
-        <th>Solicitante</th>
-        <th>Correo</th>
-        <th>Maquinas</th>
-    </tr>
+<p>Los pedidos de tipo renta se muestran en un color amarillo</p>
+<p>Los pedidos de tipo compra se muestran en un color naranja</p>
+<br>
 
-    {% for order in orders %}
-    <tr>
-        <td>{{ order[0] }}</td>
-        <td>{{ order[1] }}</td>
-        <td>{{ order[2] }}</td>
-        <td>{{ order[3] | upper }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<div class="table-container">
+    <table class="table1">
+        <thead>
+            <tr>
+                <th>No. de Solicitud</th>
+                <th>Solicitante</th>
+                <th>Correo</th>
+                <th>Maquinas</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td class="azul-claro">{{ order[0] }}</td>
+                <td {% if order[1]==0 %}class="naranja" {% elif order[1]==1 %}class="amarillo" {% endif %}>{{ order[2]
+                    }}</td>
+                <td {% if order[1]==0 %}class="naranja" {% elif order[1]==1 %}class="amarillo" {% endif %}>{{ order[3]
+                    }}</td>
+                <td {% if order[1]==0 %}class="naranja" {% elif order[1]==1 %}class="amarillo" {% endif %}>{{ order[4] |
+                    upper}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+<style>
+    .azul-claro {
+        background-color: lightblue;
+    }
+
+    .naranja {
+        background-color: orange;
+    }
+
+    .amarillo {
+        background-color: yellow;
+    }
+
+    .table-container {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .table1 th,
+    .table1 td {
+        padding: 8px;
+        text-align: left;
+    }
+
+
+    .table1 thead {
+        position: sticky;
+        top: 0;
+        background-color: rgb(187, 187, 187);
+        z-index: 2;
+    }
+</style>
+
 
 {% endblock %}

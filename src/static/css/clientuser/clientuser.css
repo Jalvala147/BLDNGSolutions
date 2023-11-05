@@ -88,6 +88,24 @@ h1 {
     background-color: rgba(0, 0, 0, 0.85);
 }
 
+.btnclr {
+    display: inline-block;
+    background-color: rgb(141, 141, 141);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: background .5s;
+    margin: 5px;
+    text-decoration: none;
+}
+
+.btnclr:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
 /* Add Machine Button Styles */
 .add-machine-btn {
     display: block;

@@ -6,8 +6,6 @@ orderSelect.addEventListener('change', function () {
     selectedOrderInfo.textContent = `Información de la orden seleccionada: ${orderInfoText}`;
 });
 
-
-
 function mostrarFormulario(tipoPago) {
     var formularios = document.getElementsByClassName('formulario');
     for (var i = 0; i < formularios.length; i++) {

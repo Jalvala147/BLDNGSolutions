@@ -3,7 +3,7 @@
 {% block title%}Documentos{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/uploadedDocuments.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/clientsList.css')}}">
 <link rel="stylesheet"
   href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -24,7 +24,7 @@
         <th>Descargar</th>
         <th>Visualizar</th>
         <th>Validar</th>
-        <th>No válido</th>
+        <th>Rechazar</th>
         <th>Estado</th>
         <th>Solicitud de cambio</th>
         <th>Aceptar solicitud</th>
@@ -59,16 +59,18 @@
         </td>
 
         <td>
-          <a href="{{ url_for('salesemp.mark_as_completed', file_id=file[0], user_id=user_id) }}"
-            class="btn btn-primary btn-valid"><span class="material-symbols-rounded">
-              done
-            </span></a>
+          <a href="{{ url_for('salesemp.mark_as_completed', file_id=file[0], user_id=user_id) }}" class=""><button
+              class="buttongreen"><span class="material-symbols-rounded">
+                done
+              </span></button>
+          </a>
         </td>
         <td>
-          <a href="{{ url_for('salesemp.mark_as_incomplete', file_id=file[0], user_id=user_id) }}"
-            class="btn btn-primary btn-valid"><span class="material-symbols-rounded">
-              close
-            </span></a>
+          <a href="{{ url_for('salesemp.mark_as_incomplete', file_id=file[0], user_id=user_id) }}" class=""><button
+              class="buttonred"><span class="material-symbols-rounded">
+                close
+              </span></button>
+          </a>
         </td>
         <td class="{% if file[2] == 1 %}valido{% elif file[2] == 0 %}no-valido{% else %}desconocido{% endif %}">
           {% if file[2] == 1 %}
@@ -126,32 +128,32 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-  // Función para verificar si todas las filas tienen "Valido" en la columna "Estado"
-  function checkValidationStatus() {
-    var rows = document.querySelectorAll(".table1 tbody tr");
-    var allValid = true;
-    for (var i = 0; i < rows.length; i++) {
-      var cell = rows[i].querySelector("td:nth-child(7)"); // Cambiamos "td:last-child" a "td:nth-child(7)"
-      if (cell.innerText.trim() !== "Valido") {
-        allValid = false;
-        break;
+    // Función para verificar si todas las filas tienen "Valido" en la columna "Estado"
+    function checkValidationStatus() {
+      var rows = document.querySelectorAll(".table1 tbody tr");
+      var allValid = true;
+      for (var i = 0; i < rows.length; i++) {
+        var cell = rows[i].querySelector("td:nth-child(7)"); // Cambiamos "td:last-child" a "td:nth-child(7)"
+        if (cell.innerText.trim() !== "Valido") {
+          allValid = false;
+          break;
+        }
+      }
+
+      // Mostrar el mensaje si todas las filas son válidas
+      var validationMessage = document.getElementById("validation-message");
+      if (allValid) {
+        validationMessage.style.display = "block";
+      } else {
+        validationMessage.style.display = "none";
       }
     }
 
-    // Mostrar el mensaje si todas las filas son válidas
-    var validationMessage = document.getElementById("validation-message");
-    if (allValid) {
-      validationMessage.style.display = "block";
-    } else {
-      validationMessage.style.display = "none";
-    }
-  }
-
-  // Llama a la función al cargar la página y cada vez que se realice un cambio en las filas
-  checkValidationStatus();
-  var tableBody = document.querySelector(".table1 tbody");
-  tableBody.addEventListener("change", checkValidationStatus);
-});
+    // Llama a la función al cargar la página y cada vez que se realice un cambio en las filas
+    checkValidationStatus();
+    var tableBody = document.querySelector(".table1 tbody");
+    tableBody.addEventListener("change", checkValidationStatus);
+  });
 
 
 </script>

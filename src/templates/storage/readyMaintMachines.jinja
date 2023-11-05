@@ -1,0 +1,46 @@
+{% extends './base.html' %}
+
+{% block title %}Maquinas a salir del almacen{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/storage/storage.css')}}">
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+{% endblock %}
+
+{% block body %}
+
+<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atras</a>
+
+<h1>Maquinas a retirar (por mantenimiento)*</h1>
+<p>*Se muestran las maquinas que el área</p>
+<p>de mantenimiento marcó como mantenimiento requerido</p>
+
+<table class="table1">
+    <tr>
+        <th>Id. Maquina</th>
+        <th>Modelo y marca</th>
+        <th>Marcar como retirada</th>
+    </tr>
+
+    {% for machine in machines_data %}
+        <tr>
+            <td>{{ machine[0] }}</td>
+            <td>{{ machine[2] | upper }} {{ machine[1] | upper }}</td>
+            <td>
+                <form action="{{ url_for('storageemp.markAsRetired', machine_id=machine[0]) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn">
+                        <span class="material-symbols-rounded">check</span>
+                    </button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+
+
+
+

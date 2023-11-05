@@ -57,10 +57,10 @@ def salesHome():
 def salesList():
     
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL) AND type = 0")
+    cur.execute("SELECT id, cancel_status, verifiedDocs, paymentMade FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL) AND type = 0")
 
     orders_ids = cur.fetchall()
-    cur.close
+    cur.close()
     return render_template('/salesEmpArea/salesList.jinja', order_ids=orders_ids)
 
 
@@ -69,10 +69,10 @@ def salesList():
 @sales_required
 def rentsList():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL) AND type = 1")
+    cur.execute("SELECT id, cancel_status, verifiedDocs, paymentMade FROM orders WHERE status = 1 AND (cancel_status != 0 OR cancel_status IS NULL) AND type = 1")
 
     orders_ids = cur.fetchall()
-    cur.close
+    cur.close()
     return render_template('/salesEmpArea/rentsList.jinja', order_ids=orders_ids)
 
 #-------------Aceptar solicitudes de cancelacion de pedidos
@@ -426,6 +426,7 @@ def newRequest():
     # Joins
     cur.execute("""
         SELECT orders.id AS 'NO. DE SOLICITUD',
+               orders.type AS 'TIPO',
                user.fullname AS 'SOLICITANTE',
                user.email AS 'CORREO',
                GROUP_CONCAT(CONCAT(machines.brand, ' ', machines.model) ORDER BY machineorders.machine_id) AS 'MAQUINAS'
@@ -434,7 +435,7 @@ def newRequest():
         INNER JOIN machineorders ON orders.id = machineorders.order_id
         INNER JOIN machines ON machineorders.machine_id = machines.id_Machine
         WHERE orders.status = 1
-        GROUP BY orders.id, user.fullname, user.email
+        GROUP BY orders.id, orders.type, user.fullname, user.email
     """)
     orders_data = cur.fetchall()
     cur.close()

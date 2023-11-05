@@ -5,7 +5,7 @@ Inicio
 {% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename = 'css/startdesign.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/startpage/startdesign.css') }}" />
 <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 {% endblock %}
@@ -48,52 +48,71 @@ Inicio
 
 <!-- Swiper Slider -->
 <swiper-container class="mySwiper" effect="cards" grab-cursor="true" autoplay="true" data-autoplay="5000" loop>
+
     <swiper-slide>
-        <h1>
-            ¡Bienvenido a <br><img src="static/images/logo.png" alt="Logo BLDNGSolutions" class="logo-image">LDNGSolutions!<br>
-            Plataforma de administración enfocada a PyMEs dedicadas a la venta y renta de maquinaria de
+        <h4>
+            ¡Bienvenido a BLDNGSolutions!<br>
+        </h4>
+        <p>Plataforma de administración enfocada a PyMEs dedicadas a la venta y renta de maquinaria de
             construcción.
-        </h1>
+        </p>
     </swiper-slide>
+
     <swiper-slide>
-        <img src="static/images/logo.png" alt="Logo BLDNGSolutions" class="logo-image">
-        Apartado para clientes con las herramientas necesarias para realizar pedidos y llevar un seguimiento de los
-        mismos
+        <p>
+            Apartado para clientes con las herramientas necesarias para realizar pedidos y llevar un seguimiento de los
+            mismos
+        </p>
         <span class="material-symbols-outlined icon">
             person
         </span>
     </swiper-slide>
+
     <swiper-slide>
-        Apartado para empleados de Ventas con herramientas necesarias para procesar pedidos y contactar con
-        clientes
+        <p>
+            Apartado para empleados de Ventas con herramientas necesarias para procesar pedidos y contactar con
+            clientes
+        </p>
         <span class="material-symbols-outlined icon">
             storefront
         </span>
     </swiper-slide>
+
     <swiper-slide>
-        Apartado para empleados de Almacén con herramientas necesarias para llevar el control sobre las máquinas de
-        la empresa
+        <p>
+            Apartado para empleados de Almacén con herramientas necesarias para llevar el control sobre las máquinas de
+            la empresa
+        </p>
         <span class="material-symbols-outlined icon">
             warehouse
         </span>
     </swiper-slide>
+
     <swiper-slide>
-        Apartado para empleados de Mantenimiento con herramientas necesarias para llevar el control sobre los
-        mantenimientos realizados, así como la programación de los mismos
+        <p>
+            Apartado para empleados de Mantenimiento con herramientas necesarias para llevar el control sobre los
+            mantenimientos realizados, así como la programación de los mismos
+        </p>
         <span class="material-symbols-outlined icon">
             engineering
         </span>
     </swiper-slide>
+
     <swiper-slide>
-        Apartado para empleados de Envíos con herramientas necesarias para hacer llegar el pedido al usuario
-        final
+        <p>
+            Apartado para empleados de Envíos con herramientas necesarias para hacer llegar el pedido al usuario
+            final
+        </p>
         <span class="material-symbols-outlined icon">
             local_shipping
         </span>
     </swiper-slide>
+
     <swiper-slide>
-        Apartado para administradores con herramientas para realizar todas las tareas de la empresa, llevar control
-        sobre empleados y monitorear los resultados financieros de la empresa
+        <p>
+            Apartado para administradores con herramientas para realizar todas las tareas de la empresa, llevar control
+            sobre empleados y monitorear los resultados financieros de la empresa
+        </p>
         <span class="material-symbols-outlined icon">
             admin_panel_settings
         </span>
@@ -104,6 +123,7 @@ Inicio
 <style>
     .icon {
         font-size: 150px;
+        color: #c46bcf;
     }
 
     body {

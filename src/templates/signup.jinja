@@ -13,7 +13,7 @@
   .flash-messages {
     list-style: none;
     background-color: #ff0000;
-    color: #fff; 
+    color: #fff;
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 10px;
@@ -39,8 +39,6 @@
         <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo" /></a>
       </div>
 
-      <h2 class="text-uppercase text-center mb-5">Crear cuenta</h2>
-
       {% with messages = get_flashed_messages() %}
       {% if messages %}
       <ul class="flash-messages">
@@ -54,6 +52,11 @@
       <form action="{{ url_for('signup') }}" method="post" onsubmit="return validateForm();">
 
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="login-card-header">
+          <h1>Crear cuenta:</h1>
+          <div>Por favor introduce tu información</div>
+        </div>
 
         <div class="form-item">
           <span class="form-item-icon material-symbols-rounded">person</span>
@@ -80,13 +83,14 @@
 
         <div class="form-item">
           <span class="form-item-icon material-symbols-rounded">lock</span>
-          <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirmar contraseña" required>
+          <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirmar contraseña"
+            required>
         </div>
 
         <button type="submit"> Enviar</button>
 
-        <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="/loginclient"
-            class="fw-bold text-body"><u>Login here</u></a></p>
+        <p class="text-center text-muted mt-5 mb-0">Ya eres cliente? <a href="/loginclient"
+            class="fw-bold text-body"><u>Ingresa aquí</u></a></p>
 
       </form>
 

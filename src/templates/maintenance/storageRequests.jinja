@@ -21,21 +21,36 @@
         <th>No. Maquina</th>
         <th>Máquina</th>
         <th>Mantenimiento necesario</th>
+        <th>Retiro necesario (por mantenimiento)</th>
     </tr>
 
     {% for machine in machines_data %}
     <tr>
         <td>{{ machine[0] }}</td>
         <td>{{ machine[2] | upper }} {{ machine[1] | upper }}</td>
-        <td {% if machine[3] == 1 or machine[3] == 0 %} class="red-cell" {% endif %}>
+        <td {% if machine[3]==1 or machine[3]==0 %} class="red-cell" {% endif %}>
             {% if machine[3] == 1 %}
-                CORRECTIVO
+            CORRECTIVO
             {% elif machine[3] == 0 %}
-                PREVENTIVO
+            PREVENTIVO
             {% elif machine[3] is none %}
-                SIN AVISO
+            SIN AVISO
             {% endif %}
         </td>
+        <td>
+            <form action="{{ url_for('maintemp.updateMachineStatus', machine_id=machine[0]) }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn">
+                    <span class="material-symbols-outlined">
+                        warehouse
+                    </span>
+                    <span class="material-symbols-outlined">
+                        arrow_right_alt
+                    </span>
+                </button>
+            </form>
+        </td>
+
     </tr>
     {% endfor %}
 </table>

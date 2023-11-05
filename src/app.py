@@ -435,7 +435,6 @@ def forgotpassword():
     return render_template('auth/forgotpassword.jinja', reset_url=reset_url)
 
 
-
 @app.route('/changepassword/<token>', methods=['GET', 'POST'])
 def changepassword(token):
     cur = mysql.connection.cursor()
@@ -451,18 +450,24 @@ def changepassword(token):
         if user_data is not None:
             user_id, username = user_data
 
-            if nueva_contrasena == confirmar_contrasena:
-                # Hashear la nueva contraseña
-                hashed_password = generate_password_hash(nueva_contrasena, method='sha256')
+            # Verificar la nueva contraseña usando la función verificar_contrasena
+            error_message = verificar_contrasena(nueva_contrasena)
 
-                # Actualizar la contraseña hasheada y borrar el token
-                cur.execute("UPDATE user SET password = %s, reset_token = NULL WHERE id = %s", (hashed_password, user_id))
-                mysql.connection.commit()
+            if error_message is None:
+                if nueva_contrasena == confirmar_contrasena:
+                    # Hashear la nueva contraseña
+                    hashed_password = generate_password_hash(nueva_contrasena, method='sha256')
 
-                flash('Contraseña actualizada correctamente.', 'success')
-                return redirect('/loginclient')
+                    # Actualizar la contraseña hasheada y borrar el token
+                    cur.execute("UPDATE user SET password = %s, reset_token = NULL WHERE id = %s", (hashed_password, user_id))
+                    mysql.connection.commit()
+
+                    flash('Contraseña actualizada correctamente.', 'success')
+                    return redirect('/loginclient')
+                else:
+                    flash('Error: Las contraseñas no coinciden.', 'error')
             else:
-                flash('Error: Las contraseñas no coinciden.', 'error')
+                flash('Error: ' + error_message, 'error')
         else:
             flash('Error: El token no es válido.', 'error')
 
