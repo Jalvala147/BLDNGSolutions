@@ -12,6 +12,13 @@ h1{
     color:azure;
 }
 
+h2 {
+    font-size: 1rem;
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+    text-align:left;
+}
+
 /* Global Styles */
 body {
     font-family: 'Poppins', sans-serif;
@@ -72,6 +79,7 @@ h1 {
 
 .table1 th {
     background: rgba(0, 0, 0, 0.1);
+    color: rgb(255, 255, 255);
 }
 
 /* Button Styles */
@@ -123,6 +131,72 @@ button {
 }
 
 button:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+.buttonblue {
+    background-color: #2538b6;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    cursor: pointer;
+}
+
+.buttonblue:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+.buttonred {
+    background-color: orange;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    cursor: pointer;
+}
+
+.buttonred:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+.buttongreen {
+    background-color: rgb(143, 153, 10);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    cursor: pointer;
+}
+
+.buttongreen:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+.button {
+    display: inline-block;
+    background-color: #444654;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: background .5s;
+    margin: 5px;
+    text-decoration: none;
+}
+
+.button:hover {
     background-color: rgba(0, 0, 0, 0.85);
 }
 

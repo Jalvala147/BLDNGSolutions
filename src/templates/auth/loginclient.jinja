@@ -34,9 +34,6 @@
 
     {% endwith %}
 
-
-
-
 <div class="login-card-container" align="center">
     <div class="login-card">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -46,7 +43,7 @@
         </div>
 
         <div class="login-card-header">
-            <h1>Login Clientes</h1>
+            <h1>Inicio de sesión: Clientes</h1>
             <div>Por favor inicia sesión</div>
         </div>
         <form class="login-card-form">
@@ -61,7 +58,7 @@
             <div class="form-item-other">
                 <a href="/forgotpassword">Olvidé mi contraseña</a>
             </div>
-            <button type="submit">Entrar</button>
+            <button type="submit">Iniciar sesión</button>
         </form>
         <div class="login-card-footer">
             No tienes una cuenta? <a href="/signup">Crear cuenta</a>

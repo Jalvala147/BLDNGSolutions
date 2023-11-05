@@ -3,7 +3,7 @@
 {% block title %}Prospeccion de clientes{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/crud/read.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/clientsList.css')}}">
 <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0" />
 
@@ -33,15 +33,15 @@
         <td>{{ prospect[3] }}</td>
         <td>{{ prospect[4] }}</td>
         <td>
-            <a href="{{ url_for('salesemp.mark_contacted', prospect_id=prospect[0]) }}" class="btn"
-                onclick="return confirm('¿Estás seguro de marcar como contactado?')">
-                <span class="material-symbols-rounded">done</span>
+            <a href="{{ url_for('salesemp.mark_contacted', prospect_id=prospect[0]) }}" class=""
+                onclick="return confirm('¿Estás seguro de marcar como contactado?')"><button class="buttongreen">
+                <span class="material-symbols-rounded">done</span></button>
             </a>
         </td>
 
         <td>
-            <a href="{{ url_for('salesemp.edit_prospect', prospect_id=prospect[0]) }}" class="btn">
-            <span class="material-symbols-rounded">edit</span>
+            <a href="{{ url_for('salesemp.edit_prospect', prospect_id=prospect[0]) }}" class=""><button class="button">
+            <span class="material-symbols-rounded">edit</span></button>
             </a>
         </td>
     </tr>

@@ -16,6 +16,10 @@ body {
     padding: 2rem;
 }
 
+.azul-claro {
+    background-color: lightblue;
+}
+
 /* Container Styles */
 .container {
     max-width: 1100px;

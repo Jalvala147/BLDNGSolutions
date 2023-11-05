@@ -1,8 +1,5 @@
 {% extends './base.html' %}
-
 {% block title%}Pedidos{% endblock %}
-
-
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/clientuser/clientuser.css')}}">
@@ -38,7 +35,7 @@
             <form method="POST" action="{{ url_for('clients.cancel_order_request', order_id=order[0]) }}"
                 onsubmit="return confirm('¿Estás seguro de que quieres solicitar la cancelación para este pedido?');">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-danger">
+                <button type="submit" class="btnclr">
                     <span class="material-symbols-rounded">cancel</span>
                 </button>
             </form>

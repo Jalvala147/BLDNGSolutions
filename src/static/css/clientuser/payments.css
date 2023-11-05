@@ -22,6 +22,7 @@ h2 {
 p {
     font-size: 1rem;
     margin-bottom: .3rem;
+    
 }
 
 /* Global Styles */
@@ -72,8 +73,8 @@ select {
 
 button {
     display: inline-block;
-    background-color: rgb(171, 37, 212);
-    color: white;
+    background-color: rgb(125, 83, 223);
+    color: rgb(0, 0, 0);
     padding: 0.8rem 1.5rem;
     border-radius: 100px;
     text-align: center;

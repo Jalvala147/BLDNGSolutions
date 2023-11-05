@@ -473,3 +473,18 @@ def place_order():
         return redirect(url_for('clients.products'))
 
     return redirect(url_for('clients.products'))
+
+
+@clients.route('/fetch_notifications')
+@client_required
+def fetch_notifications():
+    user_id = current_user.id
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, filename, status FROM files WHERE user_id = %s", (user_id,))
+    notifications = cur.fetchall()
+    cur.close()
+
+    # Se muestra en formato JSON
+    return jsonify(notifications)
+    

@@ -218,7 +218,23 @@ def storageRequests():
     cur = mysql.connection.cursor()
 
     # Realizar la consulta a la tabla machines
-    cur.execute("SELECT id_Machine, model, brand, maintenanceNotice FROM machines")
+    cur.execute("SELECT id_Machine, model, brand, maintenanceNotice, retiredForMaintenenace FROM machines")
     machines_data = cur.fetchall()
 
     return render_template('maintenance/storageRequests.jinja', machines_data=machines_data)
+
+
+@maintemp.route('/maintenance/updateMachineStatus/<int:machine_id>', methods=['POST'])
+@maintenance_required
+def updateMachineStatus(machine_id):
+    cursor = mysql.connection.cursor()
+
+    # Actualiza el campo 'retiredForMaintenenace' en la tabla 'machines' a 0
+    cursor.execute("UPDATE machines SET retiredForMaintenenace = 0 WHERE id_Machine = %s", (machine_id,))
+
+    # Commit the changes
+    mysql.connection.commit()
+    cursor.close()
+
+    # Redirige a la página de 'storageRequests' después de la actualización
+    return redirect(url_for('maintemp.storageRequests'))

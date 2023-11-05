@@ -29,12 +29,16 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-6">
-            <h1>Que es esto?</h1>
-            <p>Este proyecto de titulación es una parte fundamental de mi formación académica y representa un hito importante en la carrera. Se enfoca en la administracion de PyME's, con el objetivo de brindar herramientas especializadas en este giro.</p>
-            <p>Este proyecto fué realizado por Josué Alvarado Arrezola para abordar desafíos específicos relacionados con la falta de herramientas y plataformas dedicadas específicamente a las empresas con enfoque a la venta y renta de maquinaria de construcción.</p>
+            <h1>¿Qué es esto?</h1>
+            <p class="justificado">Este proyecto de titulación es una parte fundamental de mi formación académica y
+                representa un hito importante en mi carrera. Se enfoca en la administración de PyMEs con el objetivo de
+                brindar herramientas especializadas en este ámbito.</p>
+            <p class="justificado">Este proyecto fue realizado por Josué Alvarado Arrezola para abordar desafíos
+                específicos relacionados con la falta de herramientas y plataformas dedicadas a empresas enfocadas en la
+                venta y renta de maquinaria de construcción.</p>
         </div>
         <div class="col-md-6">
-            <img src="static/images/logo.png" alt="logo" class="img-fluid">
+            <img src="static/images/logo.png" alt="logo" class="img-fluid" style="width: 150px; height: 150px;">
         </div>
     </div>
 </div>
@@ -48,32 +52,37 @@
 </footer>
 
 <style>
-body{
-    background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
-    background-size: cover;
-    background-repeat: no-repeat;
-}
-footer {
-  position: fixed;
-  bottom: 0; 
-  left: 0;
-  width: 100%;
-  height: 70px;
-  background: linear-gradient(to right, #33353f, #444654);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  z-index: 99;
-}
+    body {
+        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
 
-footer .footer {
-  height: 100%;
-  max-width: 1250px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: auto;
-  padding: 0 50px;
-}
+    footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background: linear-gradient(to right, #33353f, #444654);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        z-index: 99;
+    }
+
+    footer .footer {
+        height: 100%;
+        max-width: 1250px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: auto;
+        padding: 0 50px;
+    }
+
+    .justificado {
+        text-align: justify;
+    }
 </style>
 
 {% endblock %}

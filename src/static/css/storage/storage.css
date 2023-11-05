@@ -94,6 +94,24 @@ h2, h3 {
     background-color: rgba(0, 0, 0, 0.85);
 }
 
+.btnlight {
+    display: inline-block;
+    background-color: rgb(185, 182, 236);
+    color: rgb(0, 0, 0);
+    padding: 0.8rem 1.5rem;
+    border-radius: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: background .5s;
+    margin: 5px;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
 /* Add Machine Button Styles */
 .add-machine-btn {
     display: block;
@@ -110,4 +128,55 @@ h2, h3 {
 
 .add-machine-btn:hover {
     background-color: rgba(0, 0, 0, 0.85);
+}
+
+
+.notification-popup {
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    background-color: #c2c2c2;
+    border: 1px solid #ccc;
+    padding: 10px;
+    display: none;
+    z-index: 1;
+    border-radius: 10px;
+}
+
+#notification-icon {
+    cursor: pointer;
+}
+
+.notification-list-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.blue {
+    background-color: rgb(109, 73, 211);
+    color: white;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.notification-popup ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.notification-popup ul li {
+    text-align: center;
+}
+
+.notification-badge {
+    top: 5px;
+    right: 0px; 
+    background-color: red; 
+    color: white; 
+    border-radius: 50%; 
+    padding: 5px 10px; 
+    font-size: 12px; 
+    z-index: 2; 
 }

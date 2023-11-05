@@ -10,13 +10,17 @@
 
 {% block body %}
 
-<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atras</a>
-
-<a href="" id="reload-button" class="btn btn-primary">
-    <span class="material-symbols-rounded">
-        refresh
+<div class="notifications" style="position: absolute; top: 60px; right: 25px; width: 100px;">
+    <span class="material-symbols-rounded" style="font-size: 50px; color:white;" id="notification-icon">
+        notifications
     </span>
-</a>
+    <span id="notification-count-badge" class="notification-badge">0</span>
+    <div id="notification-popup" class="notification-popup" style="width: 350px;">
+        <!-- Contenido de las notificaciones -->
+    </div>
+</div>
+
+<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atras</a>
 
 <h1>Historial de las maquinas</h1>
 
@@ -44,7 +48,7 @@
             {% endif %}
         </td>
         <td>
-            <a href="{{ url_for('storageemp.machineHistory', machine_id=machine[0]) }}" class="btn btn-primary">
+            <a href="{{ url_for('storageemp.machineHistory', machine_id=machine[0]) }}" class="btnlight">
                 <span class="material-symbols-rounded">
                     history
                 </span>
@@ -55,13 +59,82 @@
 </table>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const reloadButton = document.getElementById("reload-button");
+    document.addEventListener('DOMContentLoaded', function () {
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationPopup = document.getElementById('notification-popup');
+        const closeNotificationPopup = document.getElementById('close-notification-popup');
 
-        reloadButton.addEventListener("click", function () {
-            location.reload(); // Esta línea recargará la página
+        let isPopupOpen = false;
+
+        notificationIcon.addEventListener('click', function () {
+            if (isPopupOpen) {
+                notificationPopup.style.display = 'none';
+            } else {
+                // Hacer una solicitud AJAX al servidor para obtener las notificaciones en formato JSON
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', '/check_mantenimiento', true);
+
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        const resultados = JSON.parse(xhr.responseText);
+                        const notificationList = document.createElement('ul');
+                        notificationList.classList.add('notification-list-container');
+
+                        for (const machineId in resultados) {
+                            if (resultados.hasOwnProperty(machineId)) {
+                                const notification = resultados[machineId];
+                                const listItem = document.createElement('li');
+                                listItem.textContent = notification.message;
+                                
+                                listItem.style.listStyle = 'none';
+
+                                listItem.classList.add('blue');
+
+                                notificationList.appendChild(listItem);
+                            }
+                        }
+
+                        notificationPopup.innerHTML = '';
+                        notificationPopup.appendChild(notificationList);
+                        notificationPopup.style.display = 'block';
+
+                        // Actualizar el contador de notificaciones
+                        const notificationCount = Object.keys(resultados).length;
+                        const notificationCountBadge = document.getElementById('notification-count-badge');
+                        notificationCountBadge.textContent = notificationCount;
+                    }
+                };
+
+                xhr.send();
+            }
+
+            isPopupOpen = !isPopupOpen;
+        });
+
+        closeNotificationPopup.addEventListener('click', function () {
+            notificationPopup.style.display = 'none';
+            isPopupOpen = false;
         });
     });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hacer una solicitud AJAX para obtener el número de notificaciones disponibles
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/check_mantenimiento', true);
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                const resultados = JSON.parse(xhr.responseText);
+                const notificationCount = Object.keys(resultados).length; // Obtenemos el número de elementos en el objeto JSON
+                // Actualizamos el contador de notificaciones
+                document.getElementById('notification-count-badge').textContent = notificationCount;
+            }
+        };
+
+        xhr.send();
+    });
+
 </script>
 
 {% endblock %}

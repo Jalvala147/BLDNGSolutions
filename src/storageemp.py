@@ -8,7 +8,8 @@ from flask import request
 from flask import Flask, url_for
 from flask import redirect
 from functools import wraps
-
+from flask import jsonify
+from datetime import datetime
 
 app = Flask(__name__)
 storageemp = Flask(__name__)
@@ -104,6 +105,38 @@ def machineHistory(machine_id):
     else:
         # Handle the case where no matching machine was found
         return "Machine not found"
+
+#Algoritmo para las salidas y determinar mantenimiento(notificaciones)
+@storageemp.route('/check_mantenimiento')
+@storage_required
+def check_mantenimiento():
+    max_salidas = 3  # Valor de máximo de salidas antes de mantenimiento
+
+    cursor = mysql.connection.cursor()
+
+    # Obtener todos los id_Machine disponibles en la tabla machinesid
+    cursor.execute("SELECT id_Machine FROM machinesid")
+    machine_ids = [id[0] for id in cursor.fetchall()]
+
+    resultados = {}
+
+    for machine_id in machine_ids:
+        # Obtener el historial de salidas de la máquina por su ID
+        cursor.execute("""
+            SELECT timestamp
+            FROM machinehistory
+            INNER JOIN machinesid ON machinehistory.uid = machinesid.uid_Machine
+            WHERE machinesid.id_Machine = %s AND new_status = 0
+            ORDER BY timestamp
+        """, (machine_id,))
+        salidas = [salida[0] for salida in cursor.fetchall()]
+
+        if len(salidas) >= max_salidas:
+            resultados[machine_id] = {"message": f"La máquina con ID {machine_id} necesita mantenimiento debido a un exceso de salidas."}
+    
+    cursor.close()
+
+    return jsonify(resultados)
 
 
 #---------------Mantenimiento Almacén aviso-------------
@@ -294,5 +327,44 @@ def readyMachines():
         # Manejo de errores
         return "Error al obtener las órdenes listas para enviar: " + str(e)
 
+
+@storageemp.route('/storage/readyMaintMachines')
+@storage_required
+def readyMaintMachines():
+    cursor = mysql.connection.cursor()
+
+    # Obtener las máquinas con retiredForMaintenenace = 0
+    cursor.execute("SELECT id_Machine, model, brand FROM machines WHERE retiredForMaintenenace = 0")
+    machines_data = cursor.fetchall()
+
+    return render_template('storage/readyMaintMachines.jinja', machines_data=machines_data)
+
+@storageemp.route('/storage/markAsRetired/<int:machine_id>', methods=['POST'])
+@storage_required
+def markAsRetired(machine_id):
+    cursor = mysql.connection.cursor()
+
+    # Actualizar el campo 'retiredForMaintenenace' en la tabla 'machines' a 1
+    cursor.execute("UPDATE machines SET retiredForMaintenenace = 1 WHERE id_Machine = %s", (machine_id,))
+
+    # Commit the changes
+    mysql.connection.commit()
+    cursor.close()
+
+    # Redirigir a la página 'readyMaintMachines' después de la actualización
+    return redirect(url_for('storageemp.readyMaintMachines'))
+
+
+@storageemp.route('/fetch_machines_notifications')
+@storage_required
+def fetch_machines_notifications():
+    
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id_Machine, model, brand FROM machines WHERE retiredForMaintenenace = 0")
+    notifications = cur.fetchall()
+    cur.close()
+
+    # Devolver los datos en formato JSON
+    return jsonify(notifications)
 
 
