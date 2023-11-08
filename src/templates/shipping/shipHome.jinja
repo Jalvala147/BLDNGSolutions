@@ -47,6 +47,16 @@
     </nav>
 </header>
 
+<div class="notifications" style="position: absolute; top: 60px; right: 10px;">
+    <span class="material-symbols-rounded" style="font-size: 50px; color:white;" id="notification-icon">
+        notifications
+    </span>
+    <span id="notification-count-badge" class="notification-badge">0</span>
+    <div id="notification-popup" class="notification-popup">
+        <!-- Aquí mostrarás el contenido de las notificaciones -->
+    </div>
+</div>
+
 <div class="user">
     <h1>Bienvenido, {{current_user.fullname}}</h1>
     <h3>{{current_user.id}}</h3>
@@ -84,6 +94,82 @@
 <script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationPopup = document.getElementById('notification-popup');
+        const closeNotificationPopup = document.getElementById('close-notification-popup');
+
+        let isPopupOpen = false;
+
+        notificationIcon.addEventListener('click', function () {
+            if (isPopupOpen) {
+                notificationPopup.style.display = 'none';
+            } else {
+                // Hacer una solicitud AJAX al servidor para obtener las notificaciones en formato JSON
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', '/ship_notifications', true);
+
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        const notifications = JSON.parse(xhr.responseText);
+                        const notificationList = document.createElement('ul');
+                        notificationList.classList.add('notification-list-container');
+
+                        //notificationList.style.listStyleType = 'none';
+
+                        // Crear elementos de lista para cada notificación
+                        notifications.forEach(function (notification) {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `Pedido: ${notification[0]}, Número de máquina: ${notification[1]}, Dirección: ${notification[3]}`;
+                            
+                            listItem.classList.add('verde')
+
+                            notificationList.appendChild(listItem);
+                        });
+
+                        notificationPopup.innerHTML = '';
+                        notificationPopup.appendChild(notificationList);
+                        notificationPopup.style.display = 'block';
+
+                        // Actualizar el contador de notificaciones
+                        const notificationCount = notifications.length;
+                        const notificationCountBadge = document.getElementById('notification-count-badge');
+                        notificationCountBadge.textContent = notificationCount;
+                    }
+                };
+
+                xhr.send();
+            }
+
+            isPopupOpen = !isPopupOpen;
+        });
+
+        closeNotificationPopup.addEventListener('click', function () {
+            notificationPopup.style.display = 'none';
+            isPopupOpen = false;
+        });
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+    // Hacer una solicitud AJAX para obtener las notificaciones
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/ship_notifications', true);
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            const notifications = JSON.parse(xhr.responseText);
+            const notificationCount = notifications.length;
+            // Actualiza el contador de notificaciones
+            document.getElementById('notification-count-badge').textContent = notificationCount;
+        }
+    };
+
+    xhr.send();
+});
+
+</script>
 {% endblock %}
 
 

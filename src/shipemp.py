@@ -43,10 +43,12 @@ def newOrders():
     # cursor
     cursor = mysql.connection.cursor()
     query = '''
-    SELECT orders.id, GROUP_CONCAT(machineorders.machine_id) AS machine_ids, 
+    SELECT orders.id, 
+           GROUP_CONCAT(machines.brand, ' ', machines.model) AS machine_info, 
            CONCAT(orders.address, ', ', orders.postalCode) AS delivery_address
     FROM orders
     INNER JOIN machineorders ON orders.id = machineorders.order_id
+    INNER JOIN machines ON machineorders.machine_id = machines.id_Machine
     WHERE orders.verifiedDocs = 1 AND orders.paymentMade = 1 AND orders.shipmentMade = 0
     GROUP BY orders.id
     '''
@@ -57,6 +59,27 @@ def newOrders():
     cursor.close()
     # Renderizar la plantilla con la informacion obtenida de la bd
     return render_template('/shipping/newOrders.jinja', data=data)
+
+@shipemp.route('/ship_notifications')
+@shipping_required
+def ship_notifications():
+
+    cursor = mysql.connection.cursor()
+    query = '''
+    SELECT orders.id, 
+           GROUP_CONCAT(machines.brand, ' ', machines.model) AS machine_info, 
+           CONCAT(orders.address, ', ', orders.postalCode) AS delivery_address
+    FROM orders
+    INNER JOIN machineorders ON orders.id = machineorders.order_id
+    INNER JOIN machines ON machineorders.machine_id = machines.id_Machine
+    WHERE orders.verifiedDocs = 1 AND orders.paymentMade = 1 AND orders.shipmentMade = 0
+    GROUP BY orders.id
+    '''
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    return jsonify(data)
 
 
 #--------------------Órdenes-----------------------
@@ -194,5 +217,3 @@ def routes():
     end_location_decoded = unquote(end_location)
 
     return render_template('/shipping/routes.jinja', start_location=start_location_decoded, end_location=end_location_decoded, api_key=GOOGLE_MAPS_API_KEY)
-
-
