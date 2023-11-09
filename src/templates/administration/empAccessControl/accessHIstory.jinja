@@ -22,6 +22,20 @@
     .red-bg {
         background-color: red;
     }
+
+    /* Selects "Seleccionar mes" y "Seleccionar período" */
+    select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        width: 200px;
+        margin: 5px 0;
+    }
+
+    /* Etiquetas para selects */
+    label {
+        font-weight: bold;
+    }
 </style>
 {% endblock %}
 
@@ -31,7 +45,9 @@
 <h1>Historial de accesos de {{ name }}, ID:{{ id }}</h1>
 <h1>Empleado de {% if access_records[0][2] == 2 %}Ventas{% elif access_records[0][2] == 5 %}Mantenimiento{% elif access_records[0][2] == 6 %}Envíos{% elif access_records[0][2] == 3 %}Almacén{% else %}Otro{% endif %}</h1>
 
-<a href="{{ url_for('admin.employeeResults', id=id, name=name) }}" class="btn">Resultados</a>
+<a href="{{ url_for('admin.employeeResults', id=id, name=name) }}" class="btn">Resultados puntualidad</a>
+
+<a href="{{ url_for('admin.employeeResultsExits', id=id, name=name) }}" class="btn">Resultados salidas</a>
 
 <div>
     <label for="monthSelect">Seleccionar mes:</label>
