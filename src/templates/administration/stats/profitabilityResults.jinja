@@ -22,24 +22,42 @@
     <input type="submit" value="Calcular">
 </form>
 
-
 {% if graph_html_rentabilidad %}
 <div>
     {{ graph_html_rentabilidad | safe }}
 </div>
 
 <div class="container">
-<p>Rentabilidad del mes: ${{ rentabilidad_mes | default("No se ha seleccionado un mes") }}</p>
+    <p>Rentabilidad del mes: ${{ rentabilidad_mes | default("No se ha seleccionado un mes") }}</p>
 
-{% if porcentaje_cambio is not none %}
-<p>Porcentaje de cambio en relación con el mes anterior: 
-    <span class="{% if porcentaje_cambio > 0 %}text-success{% elif porcentaje_cambio < 0 %}text-danger{% endif %}">
-        {{ porcentaje_cambio|float|round(2) }}%
-    </span>
-</p>
-{% endif %}
-</div>
+    {# <p>
+        Rentabilidad del mes:
+        {% if rentabilidad_mes is not none %}
+        {% if rentabilidad_mes > 0 %}
+        ${{ rentabilidad_mes|float|round(2) }} (Incremento)
+        {% elif rentabilidad_mes < 0 %}
+        ${{ rentabilidad_mes|float|round(2)|abs }} (Decremento)
+        {% else %}
+        $0 (Sin cambios)
+        {% endif %}
+        {% else %}
+        No se ha seleccionado un mes
+        {% endif %}
+    </p> #}
 
+    {% if porcentaje_cambio is not none %}
+    <p>
+        {% if porcentaje_cambio > 0 %}
+        Hubo un incremento del: {{ porcentaje_cambio|float|round(2) }}%
+        {% elif porcentaje_cambio < 0 %}
+        Hubo un decremento del: {{ porcentaje_cambio|float|round(2)|abs }}%
+        {% else %}
+        Sin cambios
+        {% endif %}
+        comparando el mes {{ nombre_mes }} {{ year_selected }}
+        (seleccionado) con el mes {{ nombre_mes_anterior }} {{ year_anterior }} (anterior).
+    </p>
+    {% endif %}
 </div>
 {% endif %}
 {% endblock %}

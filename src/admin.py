@@ -76,15 +76,13 @@ def accesscontrol():
 def accessHistory(id, name):
     cur = mysql.connection.cursor()
 
-    # Query distinct months from the access_records
     cur.execute("SELECT DISTINCT DATE_FORMAT(date_time, '%Y-%m') AS month FROM access_records")
     months = cur.fetchall()
 
-    selected_month = request.args.get('month')  # Get the selected month from the URL query parameter
+    selected_month = request.args.get('month') 
 
-    selected_period = request.args.get('period')  # Get the selected period (month or quincena) from the URL query parameter
+    selected_period = request.args.get('period') 
 
-    # Construct the SQL query to get access records for the selected month or quincena
     sql = """
     SELECT access_records.date_time, access_records.status, user.areaUsuario
     FROM user
@@ -105,7 +103,17 @@ def accessHistory(id, name):
     access_records = cur.fetchall()
     cur.close()
 
-    return render_template('administration/empAccessControl/accessHistory.jinja', id=id, name=name, access_records=access_records, months=months, selected_month=selected_month, selected_period=selected_period)
+    return render_template(
+        'administration/empAccessControl/accessHistory.jinja', 
+        id=id, 
+        name=name, 
+        access_records=access_records, 
+        months=months, 
+        selected_month=selected_month, 
+        selected_period=selected_period
+    )
+
+
 
 # Función para calcular la puntualidad
 def calcular_puntualidad(access_records):
@@ -154,8 +162,7 @@ def obtener_access_records(empleado_id):
 @admin.route('/administration/empAccessControl/employeeResults/<int:id>/<string:name>')
 @admin_required
 def employeeResults(id, name):
-    # Aquí debes obtener los registros de acceso específicos de este empleado desde tu base de datos
-    access_records = obtener_access_records(id)  # Reemplaza esto con tu propia lógica
+    access_records = obtener_access_records(id)  
 
     # Llama a la función para calcular la puntualidad
     resultados_puntualidad = calcular_puntualidad(access_records)
@@ -166,7 +173,75 @@ def employeeResults(id, name):
     months = cur.fetchall()
     cur.close()
 
-    return render_template('administration/empAccessControl/employeeResults.jinja', id=id, name=name, resultados_puntualidad=resultados_puntualidad, months=months)
+    return render_template(
+        'administration/empAccessControl/employeeResults.jinja', 
+        id=id,
+        name=name, 
+        resultados_puntualidad=resultados_puntualidad, 
+        months=months
+    )
+
+def obtener_exits_records(empleado_id):
+    cur = mysql.connection.cursor()
+
+    # Consulta para obtener los registros de salidas del empleado con el id proporcionado
+    sql = """
+    SELECT date_time, status
+    FROM access_records
+    WHERE fingerprint_id = %s AND status = 0
+    ORDER BY date_time
+    """
+    cur.execute(sql, (empleado_id,))
+
+    exits_records = cur.fetchall()
+    cur.close()
+
+    return exits_records
+
+def calcular_horas_extra(exits_records):
+    hora_salida_esperada = datetime.strptime("17:15:00", "%H:%M:%S")
+    hora_salida_limite = hora_salida_esperada + timedelta(minutes=15)
+
+    resultados_horas_extra = []
+
+    for exit_record in exits_records:
+        fecha_hora_salida = exit_record[0]
+
+        hora_salida = fecha_hora_salida.time()
+
+        if hora_salida <= hora_salida_esperada.time():
+            horas_extra = "Salida a tiempo"
+        else:
+            horas_extra = "Horas extra"
+
+        resultados_horas_extra.append({"fecha_hora": fecha_hora_salida, "horas_extra": horas_extra})
+
+    return resultados_horas_extra
+
+
+# Ruta para mostrar los resultados de salidas para un empleado específico
+@admin.route('/administration/empAccessControl/employeeResultsExits/<int:id>/<string:name>')
+@admin_required
+def employeeResultsExits(id, name):
+    exits_records = obtener_exits_records(id) 
+
+    resultados_horas_extra = calcular_horas_extra(exits_records)  # Calcula las horas extra basadas en los registros de salidas
+
+    # Consulta para obtener los meses disponibles en los registros de acceso
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT DISTINCT DATE_FORMAT(date_time, '%Y-%m') AS month FROM access_records")
+    months = cur.fetchall()
+    cur.close()
+
+    return render_template(
+        'administration/empAccessControl/employeeResultsExits.jinja',
+        id=id, 
+        name=name,
+        resultados_horas_extra=resultados_horas_extra,
+        months=months
+    )
+
+
 
 #---------------------------------------------------------------------------
 
@@ -880,10 +955,35 @@ def profitabilityResults():
             # No se ha seleccionado un mes, no mostrar ninguna gráfica
             graph_html_rentabilidad = None
 
+        # Obtener el mes seleccionado desde el formulario
+        selected_month = request.form['month']
+
+        # Calcular el mes anterior
+        selected_month_datetime = datetime.strptime(selected_month, '%Y-%m')
+        mes_anterior_datetime = selected_month_datetime - relativedelta(months=1)
+
+        # Obtener el mes en palabras
+        nombre_mes = calendar.month_name[selected_month_datetime.month]
+
+        # Obtener el año en número
+        year_selected = selected_month_datetime.year
+
+        # Obtener el mes anterior en palabras
+        nombre_mes_anterior = calendar.month_name[mes_anterior_datetime.month]
+
+        # Obtener el año del mes anterior en número
+        year_anterior = mes_anterior_datetime.year
+
+
         return render_template(
             'administration/stats/profitabilityResults.jinja',
             months=months,
-            porcentaje_cambio=porcentaje_cambio,  # Asegúrate de pasar la variable aquí
+            selected_month=selected_month,
+            nombre_mes=nombre_mes,  # Pasar el nombre del mes seleccionado
+            year_selected=year_selected,  # Pasar el año seleccionado
+            nombre_mes_anterior=nombre_mes_anterior,  # Pasar el nombre del mes anterior
+            year_anterior=year_anterior,  # Pasar el año del mes anterior
+            porcentaje_cambio=porcentaje_cambio,
             rentabilidad_mes=rentabilidad_mes,
             graph_html_rentabilidad=graph_html_rentabilidad
         )
