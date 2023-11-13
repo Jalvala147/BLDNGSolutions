@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Historial{% endblock %}
+{% block title %}Historial de máquinas{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/storage/storage.css')}}">
@@ -20,13 +20,13 @@
     </div>
 </div>
 
-<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atras</a>
+<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atrás</a>
 
-<h1>Historial de las maquinas</h1>
+<h1>Historial de las máquinas</h1>
 
 <table class="table1">
     <tr>
-        <th>Id de la Maquina</th>
+        <th>Id de la Máquina</th>
         <th>uid</th>
         <th>Modelo</th>
         {# <th>fecha</th> #}
@@ -116,7 +116,6 @@
             isPopupOpen = false;
         });
     });
-
 
     document.addEventListener('DOMContentLoaded', function () {
         // Hacer una solicitud AJAX para obtener el número de notificaciones disponibles

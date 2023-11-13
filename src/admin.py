@@ -199,7 +199,7 @@ def obtener_exits_records(empleado_id):
     return exits_records
 
 def calcular_horas_extra(exits_records):
-    hora_salida_esperada = datetime.strptime("17:15:00", "%H:%M:%S")
+    hora_salida_esperada = datetime.strptime("17:00:00", "%H:%M:%S")
     hora_salida_limite = hora_salida_esperada + timedelta(minutes=15)
 
     resultados_horas_extra = []
@@ -210,9 +210,14 @@ def calcular_horas_extra(exits_records):
         hora_salida = fecha_hora_salida.time()
 
         if hora_salida <= hora_salida_esperada.time():
-            horas_extra = "Salida a tiempo"
-        else:
+            if hora_salida < hora_salida_esperada.time():
+                horas_extra = "Horas incompletas"
+            else:
+                horas_extra = "A tiempo"
+        elif hora_salida > hora_salida_limite.time():
             horas_extra = "Horas extra"
+        else:
+            horas_extra = "A tiempo"
 
         resultados_horas_extra.append({"fecha_hora": fecha_hora_salida, "horas_extra": horas_extra})
 
@@ -1155,7 +1160,7 @@ def maintUpdateEmp(id):
 @admin_required
 def salesListEmp():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 2")
+    cur.execute("SELECT id, username, fullname, email, note FROM user WHERE tipousuario = 2 AND areaUsuario = 2")
     users = cur.fetchall()
     cur.close()
     return render_template('administration/salesListEmp.jinja', users=users)
@@ -1420,6 +1425,19 @@ def contactedProspectsList():
     prospects = cur.fetchall()
     cur.close()
     return render_template('administration/contactedProspects.jinja', prospects=prospects)
+
+#Actualizar notas
+@admin.route('/update_note/<user_id>', methods=['POST'])
+def update_note(user_id):
+    if request.method == 'POST':
+        new_note = request.form['note']
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE user SET note = %s WHERE id = %s", (new_note, user_id))
+        mysql.connection.commit()
+        cur.close()
+        return '', 204  
+    return '', 204
+
 
 #----------------RUD Clientes--------------------------
 

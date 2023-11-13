@@ -10,7 +10,7 @@
 <a href="{{ url_for('admin.projectionsResults') }}" class="btn">Atrás</a>
 
 <div class="container">
-    <h1>Comparación de Gráficas de resultados con proyecciones</h1>
+    <h1>Comparación de Gráficas de resultados con proyecciones dadas por regresión lineal</h1>
 
     <!-- Formulario para seleccionar el período de tiempo -->
     <form method="POST" action="/administration/compareGraphs" onsubmit="return validarSeleccion()">
@@ -30,7 +30,7 @@
     {{ graph_html_combined | safe }}
 
     <p>La primer gráfica corresponde a los resultados en la temporalidad seleccionada.</p>
-    <p>La segunda gráfica corresponde a la proyección dada por la regresion lineal.</p>
+    <p>La segunda gráfica corresponde a la proyección dada por la regresión lineal.</p>
 </div>
 
 <script>

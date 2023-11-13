@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Prospeccion de clientes{% endblock %}
+{% block title %}Prospección de clientes{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/sales/clientsList.css')}}">
@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block body %}
-<a href="{{ url_for('sales_emp_area') }}" class="btn">Atras</a>
+<a href="{{ url_for('sales_emp_area') }}" class="btn">Atrás</a>
 
-<h1>Prospeccion de clientes</h1>
+<h1>Prospección de clientes</h1>
 <a href="{{ url_for('salesemp.add_prospect') }}" class="btn">Agregar prospecto de cliente</a>
 
 

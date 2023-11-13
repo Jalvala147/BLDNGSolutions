@@ -1,21 +1,18 @@
 {% extends './base.html' %}
 
-{% block title%}Envios Emp{% endblock %}
+{% block title%}Empleados de envíos{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css')}}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
-
-
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
 {% endblock %}
 
-
 {% block body %}
-<a href="{{ url_for('admin.employeelist') }}" class="btn" >Atras</a>
-<h1>Informacion de los empleados del area de envios</h1>
+<a href="{{ url_for('admin.employeelist') }}" class="btn">Atrás</a>
+<h1>Información de los empleados del área de envios</h1>
 
 <a href="{{ url_for('admin.shipAddEmp') }}" class="btn">Agregar nuevo empleado</a>
-
 
 <table class="table1">
     <tr>
@@ -25,6 +22,7 @@
         <th>Correo electrónico</th>
         <th>Editar</th>
         <th>Eliminar</th>
+        <th>Nota</th>
     </tr>
     {% for user in users %}
     <tr>
@@ -33,18 +31,32 @@
         <td>{{ user[2] }}</td>
         <td>{{ user[3] }}</td>
         <td><a href="{{ url_for('admin.shipUpdateEmp', id=user[0]) }}">
-            <span class="material-symbols-rounded">
-            edit
-            </span></a>
+                <span class="material-symbols-rounded">
+                    edit
+                </span></a>
         </td>
-        <td><a href="{{ url_for('admin.shipDeleteEmp', id=user[0]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
-            <input type="hidden" name="_method" value="DELETE">
-            <span class="material-symbols-rounded">
-            delete
-            </span></a>
+        <td><a href="{{ url_for('admin.shipDeleteEmp', id=user[0]) }}"
+                onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
+                <input type="hidden" name="_method" value="DELETE">
+                <span class="material-symbols-rounded">
+                    delete
+                </span></a>
         </td>
+        <form method="POST" action="{{ url_for('admin.update_note', user_id=user[0]) }}" target="_self">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <td class="note-column" data-user-id="{{ user[0] }}">
+                <span class="user-note">{{ user[4] }}</span>
+                <div class="nota-container">
+                    <span class="nota">Editar nota</span>
+                    <textarea class="nota-input" name="note" placeholder="Agrega una nota..."
+                        style="display: none;">{{ user[4] }}</textarea>
+                    <button type="submit" class="confirm-btn" style="display: none;">Confirmar</button>
+                </div>
+            </td>
+        </form>
     </tr>
     {% endfor %}
 </table>
 
+<script src="{{ url_for('static', filename='js/administration/notes.js') }}"></script>
 {% endblock %}

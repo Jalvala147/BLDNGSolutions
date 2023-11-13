@@ -9,10 +9,9 @@
 {% endblock %}
 
 {% block body %}
-
 <div class="add-employee-card-container" align="center">
     <div class="add-employee-card">
-        <a href="{{ url_for('admin.prospects') }}" class="btn">Atras</a>
+        <a href="{{ url_for('admin.prospects') }}" class="btn">Atrás</a>
         <h1>Agregar nuevo prospecto</h1>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

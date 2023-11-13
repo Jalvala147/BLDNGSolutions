@@ -4,25 +4,27 @@
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/administration/listEmp.css')}}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
 
 {% endblock %}
 
 
 {% block body %}
-<a href="{{ url_for('admin.employeelist') }}" class="btn">Atras</a>
-<h1>Informacion de los empleados del area de ventas</h1>
+<a href="{{ url_for('admin.employeelist') }}" class="btn">Atrás</a>
+<h1>Información de los empleados del área de ventas</h1>
 
 <a href="{{ url_for('admin.salesAddEmp') }}" class="btn">Agregar nuevo empleado</a>
 
 <table class="table1">
     <tr>
-        <th>ID</th>
+        <th>Id</th>
         <th>Nombre de usuario</th>
         <th>Nombre completo</th>
         <th>Correo electrónico</th>
         <th>Editar</th>
         <th>Eliminar</th>
+        <th>Nota</th>
     </tr>
     {% for user in users %}
     <tr>
@@ -39,8 +41,20 @@
                 onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')"
                 class="material-symbols-rounded" data-symbol="delete"></a>
         </td>
+        <form method="POST" action="{{ url_for('admin.update_note', user_id=user[0]) }}" target="_self">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <td class="note-column" data-user-id="{{ user[0] }}">
+                <span class="user-note">{{ user[4] }}</span>
+                <div class="nota-container">
+                    <span class="nota">Editar nota</span>
+                    <textarea class="nota-input" name="note" placeholder="Agrega una nota..."
+                        style="display: none;">{{ user[4] }}</textarea>
+                    <button type="submit" class="confirm-btn" style="display: none;">Confirmar</button>
+                </div>
+            </td>
+        </form>
     </tr>
     {% endfor %}
 </table>
-
+<script src="{{ url_for('static', filename='js/administration/notes.js') }}"></script>
 {% endblock %}

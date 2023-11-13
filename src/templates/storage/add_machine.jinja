@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Agregar Maquina{% endblock %}
+{% block title %}Agregar Máquina{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/crud/add.css')}}">
@@ -9,11 +9,11 @@
 
 {% block body %}
 
-<a href="{{ url_for('storageemp.stoMachines') }}" class="btn btn-primary">Atras</a>
+<a href="{{ url_for('storageemp.stoMachines') }}" class="btn btn-primary">Atrás</a>
 
 <div class="container">
 
-    <h1>Agregar Nueva Maquina</h1>
+    <h1>Agregar Nueva máquina</h1>
 
     <form method="post" action="{{ url_for('storageemp.add_machine') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -23,7 +23,7 @@
         <label for="brand">Marca:</label>
         <input type="text" name="brand" required>
         <br>
-        <label for="type">Tipo de maquina:</label>
+        <label for="type">Tipo de máquina:</label>
         <input type="text" name="type" required>
         <br>
 

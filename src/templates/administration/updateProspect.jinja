@@ -6,14 +6,12 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/administration/updateEmp.css') }}">
 <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
-
 {% endblock %}
 
 {% block body %}
-
 <div class="update-employee-container" align="center">
     <div class="update-employee-card">
-        <a href="{{ url_for('admin.prospects') }}" class="btn">Atras</a>
+        <a href="{{ url_for('admin.prospects') }}" class="btn">Atrás</a>
         <h1>Editar prospecto</h1>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -42,5 +40,4 @@
         </form>
     </div>
 </div>
-
 {% endblock %}

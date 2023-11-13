@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Mantenimiento{% endblock %}
+{% block title %}Aviso de mantenimiento{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/storage/storage.css')}}">
@@ -12,14 +12,14 @@
 
 {% block body %}
 
-<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atras</a>
+<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atrás</a>
 
-<h1>Aviso de mantenimiento a maquina</h1>
+<h1>Aviso de mantenimiento a máquina</h1>
 
 <table class="table1">
     <tr>
-        <th>No. Maquina</th>
-        <th>Maquina</th>
+        <th>No. Máquina</th>
+        <th>Máquina</th>
         <th>Mantenimiento</th>
     </tr>
 
@@ -42,12 +42,11 @@
     </tr>
     <script>
         function confirmAction(action) {
-            return confirm(`Al seleccionar esta opción se avisará al área de mantenimiento que la maqiuna requiere mantenimiento ${action}`);
+            return confirm(`Al seleccionar esta opción se avisará al área de mantenimiento que la máquina requiere mantenimiento ${action}`);
         }
     </script>
 
     {% endfor %}
 </table>
-
 
 {% endblock %}

@@ -22,8 +22,6 @@
     <li>Comprobante de pago indicando el número de pedido</li>
 </ul>
 
-
-
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 <div id="flash-message" class="alert alert-success">
@@ -46,7 +44,6 @@
   </div>
   <button type="submit" class="custom-button custom-button-large">Cargar</button>
 </form>
-
 
 <div class="container">
   <h1>Documentos cargados</h1>
@@ -150,7 +147,6 @@
     }
   }
 
-  // Function to confirm document upload
   function confirmUpload() {
     return confirm("¿Quieres cargar este documento?");
   }
@@ -183,7 +179,6 @@
     fileInput.files = event.dataTransfer.files;
     displaySelectedFile(event);
   });
-
 
   function confirmDownload() {
     return confirm("¿Quieres descargar este documento?");

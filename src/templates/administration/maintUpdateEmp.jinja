@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title%}Update Employee{% endblock %}
+{% block title%}Editar empleado de mantenimiento{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/administration/updateEmp.css')}}">
@@ -15,7 +15,7 @@
 <div class="update-employee-container" align="center">
     <div class="update-employee-card">
     <a href="{{ url_for('admin.maintListEmp') }}" class="btn">Atras</a>
-    <h1>Editar empleado</h1>
+    <h1>Editar empleado de mantenimiento</h1>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 

@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Maquinas{% endblock %}
+{% block title %}Máquinas{% endblock %}
 
 {% block customCSS %}
 
@@ -12,20 +12,20 @@
 
 {% block body %}
 
-<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atras</a>
+<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atrás</a>
 
-<h1>Información de las maquinas</h1>
+<h1>Información de las máquinas</h1>
 
 <a href="{{ url_for('storageemp.add_machine') }}" class="btn btn-primary">Agregar Nueva Maquina</a>
 
 <table class="table1">
 
     <tr>
-        <th>ID. Maquina</th>
+        <th>ID. Máquina</th>
         <th>Marca y Modelo</th>
-        <th>Tipo de maquina</th>
-        <th>Editar maquina</th>
-        <th>Eliminar maquina</th>
+        <th>Tipo de máquina</th>
+        <th>Editar máquina</th>
+        <th>Eliminar máquina</th>
     </tr>
 
     {% for machine in machines_data %}
@@ -55,7 +55,6 @@
     {% endfor %}
 
 </table>
-
 
 <script>
     function confirmDelete() {

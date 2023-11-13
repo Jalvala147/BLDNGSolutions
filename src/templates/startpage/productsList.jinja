@@ -5,12 +5,10 @@
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename = 'css/clientuser/products.css') }}" />
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-
 {% endblock %}
 
 
 {% block body %}
-<!-- Header -->
 <header>
     <div class="nav container">
         <div><a href="{{ url_for('startpage') }}" class="btn">Atras</a></div>
@@ -33,19 +31,13 @@
         <div class="product-box" data-machine-id="{{ product.id }}">
             <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="" class="product-img">
             <h4 class="machine-id" style="display: none;">{{ product.id_Machine }}</h4>
-
             <h2 class="product-title">{{ product.name }}</h2>
             <span class="">Rentas <br> desde: </span>
             <span class="price">${{ product.price }} MXN</span>
         </div>
-
         {% endfor %}
     </div>
-
 </section>
 
-
-<script src="{{ url_for('static', filename='js/startpage/productsList.js') }}"></script>
-
-
+{# <script src="{{ url_for('static', filename='js/startpage/productsList.js') }}"></script> #}
 {% endblock %}

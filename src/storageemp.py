@@ -354,7 +354,6 @@ def markAsRetired(machine_id):
     # Redirigir a la página 'readyMaintMachines' después de la actualización
     return redirect(url_for('storageemp.readyMaintMachines'))
 
-
 @storageemp.route('/fetch_machines_notifications')
 @storage_required
 def fetch_machines_notifications():
@@ -366,5 +365,3 @@ def fetch_machines_notifications():
 
     # Devolver los datos en formato JSON
     return jsonify(notifications)
-
-

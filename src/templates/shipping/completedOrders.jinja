@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Envios{% endblock %}
+{% block title %}Envíos completados{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/shipping/shipping.css')}}">
@@ -10,17 +10,17 @@
 
 
 {% block body %}
-<h1>Pagina pedidos completados</h1>
+<h1>Página pedidos completados</h1>
 
 <a href="{{ url_for('shipemp.orders') }}" class="btn btn-primary">Atrás</a>
 
 <table class="table1">
     <tr>
         <th>No. de pedido</th>
-        <th>Id. maquinas</th>
+        <th>Id. máquinas</th>
         <th>Domicilio de entrega y Código Postal</th>
-        <th>Telefono de contacto</th>
-        <th>Informacion completa del pedido</th>
+        <th>Teléfono de contacto</th>
+        <th>Información completa del pedido</th>
         <th>Ver ruta</th>
         <th>Marcar como no enviado</th>
     </tr>
@@ -49,10 +49,6 @@
                         class="material-symbols-rounded">block</span></button>
             </form>
         </td>
-
-
-
-
     </tr>
     {% endfor %}
 </table>

@@ -15,7 +15,7 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <select name="month">
         {% for month in months %}
-            <option value="{{ month }}">{{ month }}</option>
+        <option value="{{ month }}">{{ month }}</option>
         {% endfor %}
     </select>
     <input type="submit" value="Mostrar">
@@ -25,10 +25,8 @@
     {{ mensaje_perdida }}
 </h2>
 
-
 <div>
     {{ graph_html_perdidas | safe }}
 </div>
-
 
 {% endblock %}

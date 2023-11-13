@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Historial{% endblock %}
+{% block title %}Historial máquina{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/storage/storage.css')}}">
@@ -13,7 +13,7 @@
 <h1><p> Historial máquina #{{machine_id}} </p> <p>{{ brand | upper }} {{ model | upper }}</p></h1>
 
 <h3>Número de entrdas al almacén: {{ entry_dates|length }}</h3>
-<h3>Némero de salidas del almacen: {{ exit_dates|length }}</h3>
+<h3>Número de salidas del almacén: {{ exit_dates|length }}</h3>
 
 <div class="table-container">
     <table class="table1">
@@ -40,6 +40,5 @@
         </tbody>
     </table>
 </div>
-
 
 {% endblock %}

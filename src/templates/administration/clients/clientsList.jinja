@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title%}Listado de clientes de ventas{% endblock %}
+{% block title%}Listado de clientes{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/sales/clientsList.css')}}">
@@ -9,14 +9,13 @@
 {% endblock %}
 
 {% block body %}
-
 <a href="{{ url_for('admin.adminHome') }}" class="btn btn-primary">Atrás</a>
 
 <h1>Información de los Clientes</h1>
 
 <table class="table1">
     <tr>
-        <th>Numero de usuario</th>
+        <th>Número de usuario</th>
         <th>Nombre de usuario</th>
         <th>Nombre completo</th>
         <th>Correo electrónico</th>
@@ -43,5 +42,4 @@
     </tr>
     {% endfor %}
 </table>
-
 {% endblock %}

@@ -16,8 +16,6 @@
 <h1>{{current_user.fullname}}, Seleccione el pedido a realizar el pago</h1>
 
 
-
-
 <form>
     <select id="order-select" name="order" autocomplete="off" onchange="actualizarCamposPago()">
         <option value="" disabled selected>Selecciona una orden</option>
@@ -40,8 +38,6 @@
     </select>
     <br><br>
 
-
-    {# integracion del boton de stripe para realizar pagos #}
     <div id="tarjeta" class="formulario" style="display: none; text-align: center;">
         <div style="display: flex; justify-content: center; align-items: center;">
             <div>
@@ -64,7 +60,6 @@
         <img src="{{ url_for('static', filename='images/logos/mastercardlogo.png') }}" width="50px">
         <img src="{{ url_for('static', filename='images/logos/visalogo.png') }}" width="50px">
     </div>
-
 
     <form method="POST" action="/generar-orden-de-pago">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -92,13 +87,10 @@
 
 </div>
 
-
 <br>
 <p>Después de relizar el pago, favor de guardar como PDF algún comprobante de pago</p>
 <p>en donde sea legible el número de pedido y el monto pagado. Y favor de cargarlo</p>
 <p> en la ventana de subida de documentos.</p>
-
-
 
 <script>
     // Inicializa el botón de PayPal una sola vez
@@ -172,11 +164,7 @@
     actualizarCamposPago();
 </script>
 
-
-
-
 <script src="{{ url_for('static', filename='js/clientuser/payments.js') }}"></script>
-
 
 <script>
     const orderSelect = document.getElementById('order-select');
@@ -194,9 +182,5 @@
     });
 
 </script>
-
-
-
-
 
 {% endblock %}
