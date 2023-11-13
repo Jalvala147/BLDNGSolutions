@@ -35,7 +35,7 @@
         font-size: 18px;
         font-weight: bold;
     }
-    /* Selects "Seleccionar mes" y "Seleccionar período" */
+
     select {
         padding: 10px;
         border: 1px solid #ccc;
@@ -44,12 +44,10 @@
         margin: 5px 0;
     }
 
-    /* Etiquetas para selects */
     label {
         font-weight: bold;
     }
 
-    /* Tabla "table1" */
     .table1 {
         width: 100%;
         border-collapse: collapse;
@@ -161,16 +159,16 @@
         // Mensajes
         if (tarde === 1) {
             mensajeBono.textContent = "Se perdió el derecho al bono de puntualidad.";
-            mensajeBono.classList.add("red-bg"); // Aplica fondo rojo
-            mensajeBono.classList.remove("green-bg"); // Elimina fondo verde
+            mensajeBono.classList.add("red-bg"); 
+            mensajeBono.classList.remove("green-bg"); 
         } else if (tarde > 1) {
             mensajeBono.textContent = "Es necesaria una llamada de atención debido a las faltas de puntualidad.";
-            mensajeBono.classList.add("red-bg"); // Aplica fondo rojo
-            mensajeBono.classList.remove("green-bg"); // Elimina fondo verde
+            mensajeBono.classList.add("red-bg"); 
+            mensajeBono.classList.remove("green-bg"); 
         } else if (tarde === 0 && atime > 0) {
             mensajeBono.textContent = "Es acreedor al bono de puntualidad.";
-            mensajeBono.classList.remove("red-bg"); // Elimina fondo rojo
-            mensajeBono.classList.add("green-bg"); // Aplica fondo verde
+            mensajeBono.classList.remove("red-bg"); 
+            mensajeBono.classList.add("green-bg"); 
         }
         mensajeBono.style.display = 'block';
 

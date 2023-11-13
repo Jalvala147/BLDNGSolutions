@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Envios{% endblock %}
+{% block title %}Nuevos pedidos{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/shipping/shipping.css')}}">
@@ -10,14 +10,14 @@
 
 
 {% block body %}
-<h1>Pagina pedidos</h1>
+<h1>Página pedidos</h1>
 
 <a href="{{ url_for('shipping_home') }}" class="btn btn-primary">Atrás</a>
 
 <table class="table1">
     <tr>
         <th>No. de pedido</th>
-        <th>Id. maquinas</th>
+        <th>Id. máquinas</th>
         <th>Domicilio de entrega y Código Postal</th>
     </tr>
     {% for row in data %}

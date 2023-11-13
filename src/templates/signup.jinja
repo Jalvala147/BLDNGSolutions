@@ -2,8 +2,6 @@
 
 {% block title%}Signup{% endblock %}
 
-
-
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css')}}">
 <link rel="stylesheet"
@@ -72,8 +70,6 @@
         <div class="form-item">
           <span class="form-item-icon material-symbols-rounded">Mail</span>
           <input type="email" name="email" placeholder="Correo electrónico" value="{{ email }}" required>
-          {# <small id="emailHelp" class="form-text text-muted">Nunca compartiremos tu correo con alguien mas.</small>
-          #}
         </div>
 
         <div class="form-item">
@@ -93,8 +89,6 @@
             class="fw-bold text-body"><u>Ingresa aquí</u></a></p>
 
       </form>
-
-
     </div>
   </div>
 

@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block body %}
-<a href="{{ url_for('salesemp.prospects') }}" class="btn btn-primary">Atras</a>
+<a href="{{ url_for('salesemp.prospects') }}" class="btn btn-primary">Atrás</a>
 
 <div class="container">
 
@@ -19,7 +19,7 @@
         <input type="text" id="fullname" name="fullname" value="{{ prospect[1] }}" required>
         <label for="company">Empresa:</label>
         <input type="text" id="company" name="company" value="{{ prospect[4] }}" required>
-        <label for="number">Telefono:</label>
+        <label for="number">Teléfono:</label>
         <input type="text" id="number" name="number" value="{{ prospect[2] }}" required>
         <label for="email">Correo Electrónico:</label>
         <input type="text" id="email" name="email" value="{{ prospect[3] }}" required>

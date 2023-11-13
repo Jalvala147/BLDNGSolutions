@@ -10,16 +10,15 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 {% endblock %}
 
-
 {% block body %}
 <a href="{{ url_for('maintenance_home') }}" class="btn btn-primary">Atrás</a>
 
-<h1>Pagina de Mantenimiento</h1>
+<h1>Página de Mantenimiento</h1>
 
 <table class="table1">
     <tr>
         <th>No.</th>
-        <th>Maquina</th>
+        <th>Máquina</th>
         <th>Mantenimiento correctivo finalizado</th>
         <th>Mantenimiento preventivo</th>
         <th>Faltan:</th>
@@ -70,8 +69,6 @@
             No programado
             {% endif %}
         </td>
-
-
     </tr>
     <script>
         function confirmCorrectiveAction() {

@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Maquinas a salir del almacen{% endblock %}
+{% block title %}Máquinas a salir del almacén{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/storage/storage.css')}}">
@@ -10,15 +10,15 @@
 
 {% block body %}
 
-<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atras</a>
+<a href="{{ url_for('storage_home') }}" class="btn btn-primary">Atrás</a>
 
-<h1>Maquinas a retirar (por mantenimiento)*</h1>
-<p>*Se muestran las maquinas que el área</p>
+<h1>Máquinas a retirar (por mantenimiento)*</h1>
+<p>*Se muestran las máquinas que el área</p>
 <p>de mantenimiento marcó como mantenimiento requerido</p>
 
 <table class="table1">
     <tr>
-        <th>Id. Maquina</th>
+        <th>Id. Máquina</th>
         <th>Modelo y marca</th>
         <th>Marcar como retirada</th>
     </tr>
@@ -40,7 +40,3 @@
 </table>
 
 {% endblock %}
-
-
-
-

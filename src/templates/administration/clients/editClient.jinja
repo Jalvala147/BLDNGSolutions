@@ -7,10 +7,9 @@
 {% endblock %}
 
 {% block body %}
-<a href="{{ url_for('admin.clientsList') }}" class="btn btn-primary">Atras</a>
+<a href="{{ url_for('admin.clientsList') }}" class="btn btn-primary">Atrás</a>
 
 <div class="container">
-
     <h1>Editar cliente</h1>
 
     <form method="post">
@@ -23,7 +22,5 @@
         <input type="text" id="email" name="email" value="{{ user[3] }}" required>
         <button type="submit">Guardar cambios</button>
     </form>
-
 </div>
-
 {% endblock %}

@@ -40,7 +40,7 @@
 {% endblock %}
 
 {% block body %}
-<a href="{{ url_for('admin.accesscontrol') }}" class="btn">Atras</a>
+<a href="{{ url_for('admin.accesscontrol') }}" class="btn">Atrás</a>
 
 <h1>Historial de accesos de {{ name }}, ID:{{ id }}</h1>
 <h1>Empleado de {% if access_records[0][2] == 2 %}Ventas{% elif access_records[0][2] == 5 %}Mantenimiento{% elif access_records[0][2] == 6 %}Envíos{% elif access_records[0][2] == 3 %}Almacén{% else %}Otro{% endif %}</h1>
@@ -59,7 +59,7 @@
 </div>
 
 <div>
-    <label for="periodSelect">Seleccionar período:</label>
+    <label for="periodSelect">Seleccionar periodo:</label>
     <select id="periodSelect">
         <option value="mes">Mensual</option>
         <option value="quincena1">Primera quincena</option>

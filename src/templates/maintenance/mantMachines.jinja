@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Maquinas{% endblock %}
+{% block title %}Máquinas{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/crud/read.css')}}">
@@ -12,14 +12,14 @@
 {% block body %}
 <a href="{{ url_for('maintenance_home') }}" class="btn btn-primary">Atrás</a>
 
-<h1>Maquinas Mantenimiento</h1>
+<h1>Máquinas Mantenimiento</h1>
 
 <table class="table1">
     <tr>
-        <th>Id de la maquina</th>
+        <th>Id. máquina</th>
         <th>Modelo</th>
         <th>Marca</th>
-        <th>Tipo de maquina</th>
+        <th>Tipo de máquina</th>
         <th>Historial</th>
     </tr>
 
@@ -31,13 +31,11 @@
         <td>{{ machine[3] | upper }}</td>
         <td>
             <a href="{{ url_for('maintemp.mantHistory', machine_id=machine[0]) }}" class="btn btn-primary"><span
-                    class="material-symbols-outlined">history</span></a>
-
+                class="material-symbols-outlined">history</span>
+            </a>
         </td>
     </tr>
     {% endfor %}
-
-
 
 </table>
 

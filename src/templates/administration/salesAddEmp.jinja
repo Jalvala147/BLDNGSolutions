@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Agregar Empleado{% endblock %}
+{% block title %}Agregar Empleado de ventas{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/administration/addEmp.css')}}">
@@ -8,10 +8,9 @@
 {% endblock %}
 
 {% block body %}
-
 <div class="add-employee-card-container" align="center">
     <div class="add-employee-card">
-    <a href="{{ url_for('admin.salesListEmp') }}" class="btn">Atras</a>
+    <a href="{{ url_for('admin.salesListEmp') }}" class="btn">Atrás</a>
     <h1>Agregar nuevo empleado</h1>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

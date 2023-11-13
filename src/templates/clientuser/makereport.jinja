@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Rentas{% endblock %}
+{% block title %}Hacer reporte{% endblock %}
 
 {% block customCSS %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/clientuser/payments.css')}}">
@@ -51,7 +51,7 @@
     <div class="form-group">
         <label for="machine_id">Selecciona una máquina:</label>
         <select id="machine_id" name="machine_id" class="form-control" autocomplete="off">
-            <option value="" disabled selected>Selecciona una maquina</option>
+            <option value="" disabled selected>Selecciona una máquina</option>
             {% for order_id, machine_desc in machine_info.items() %}
             <option value="{{ order_id }}">{{ machine_desc }}</option>
             {% endfor %}
