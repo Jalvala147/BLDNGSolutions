@@ -322,4 +322,40 @@ aside .sidebar .message-count{
     margin-bottom: 0.2rem;
 }
 
+.content {
+    margin-top: 50px; 
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 80%; 
+}
 
+/* Estilos para la tabla */
+.table1 {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+/* Estilos para el encabezado de la tabla */
+.table1 th {
+    background-color: #f2f2f2;
+    color: #333;
+    font-weight: bold;
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+/* Estilos para las celdas de la tabla */
+.table1 td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+/* Resaltado al pasar el cursor sobre las filas */
+.table1 tbody tr:hover {
+    background-color: #e9e9e9;
+    transition: background-color 0.3s;
+}

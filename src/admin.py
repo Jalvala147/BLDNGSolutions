@@ -49,7 +49,31 @@ def admin_required(func):
 @admin.route('/administration/administrationindex')
 @admin_required
 def adminHome():
-    return render_template('administration/administrationindex.jinja')
+    try:
+        cursor = mysql.connection.cursor()
+
+        # Query con JOIN y condición WHERE para filtrar por bonus igual a 1
+        query = "SELECT u.fullname, u.areaUsuario, p.bonus, p.datetime, p.id_bonus FROM payroll p JOIN user u ON p.employee_id = u.id WHERE p.bonus = 1"
+        cursor.execute(query)
+        data = cursor.fetchall()
+        cursor.close()
+
+        return render_template('administration/administrationindex.jinja', data=data)
+    except Exception as e:
+        return str(e), 500
+    
+@admin.route('/update_bonus/<int:bonus_id>', methods=['POST'])
+@admin_required
+def update_bonus(bonus_id):
+    try:
+        cursor = mysql.connection.cursor()
+        query = "UPDATE payroll SET bonus = 0 WHERE id_bonus = %s"
+        cursor.execute(query, (bonus_id,))
+        mysql.connection.commit()
+        cursor.close()
+        return redirect(url_for('admin.adminHome'))
+    except Exception as e:
+        return str(e), 500
 
 
 #renderiza la Plantilla que muestra las areas de la empresa y dentro de ellas, sus empleados
@@ -246,8 +270,23 @@ def employeeResultsExits(id, name):
         months=months
     )
 
+@admin.route('/punctualityBonus/<int:id>', methods=['POST'])
+@admin_required
+def punctualityBonus(id):
+    try:
+        # Conexión a la base de datos
+        conn = mysql.connection
+        cursor = conn.cursor()
 
+        query = "INSERT INTO payroll (employee_id, bonus) VALUES (%s, 1)"
+        cursor.execute(query, (id,))
+        
+        conn.commit()
+        cursor.close()
 
+        return '', 204  
+    except Exception as e:
+        return str(e), 500 
 #---------------------------------------------------------------------------
 
 @admin.route('/administration/projectionsResults')
@@ -890,108 +929,86 @@ def lossResults():
 @admin_required
 def profitabilityResults():
     try:
-        # Establecer una conexión a la base de datos
         cur = mysql.connection.cursor()
-
-        # Obtener todos los meses disponibles
         cur.execute("SELECT DISTINCT DATE_FORMAT(order_date, '%Y-%m') as month FROM orders")
         months = [row[0] for row in cur.fetchall()]
 
         rentabilidad_mes = None
-        porcentaje_cambio = None  # Definir la variable porcentaje_cambio aquí
+        porcentaje_cambio = None
 
         if request.method == 'POST':
-            # El usuario ha seleccionado un mes
-            selected_month = request.form['month']
+            selected_month = request.form.get('month')
+            if selected_month:
+                income_query = """
+                    SELECT SUM(total) as income
+                    FROM orders
+                    WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                    AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
+                """
+                cur.execute(income_query, [selected_month])
+                income = cur.fetchone()[0]
 
-            # Consulta SQL para obtener los ingresos del mes seleccionado
-            income_query = """
-                SELECT SUM(total) as income
-                FROM orders
-                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
-                AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
-            """
-            cur.execute(income_query, [selected_month])
-            income = cur.fetchone()[0]
+                mes_anterior = (datetime.strptime(selected_month, '%Y-%m') - relativedelta(months=1)).strftime('%Y-%m')
+                income_query_anterior = """
+                    SELECT SUM(total) as income
+                    FROM orders
+                    WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
+                    AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
+                """
+                cur.execute(income_query_anterior, [mes_anterior])
+                income_anterior = cur.fetchone()[0]
 
-            # Consulta SQL para obtener los ingresos del mes anterior
-            mes_anterior = (datetime.strptime(selected_month, '%Y-%m') - relativedelta(months=1)).strftime('%Y-%m')
-            income_query_anterior = """
-                SELECT SUM(total) as income
-                FROM orders
-                WHERE verifiedDocs = 1 AND paymentMade = 1 AND shipmentMade = 1
-                AND DATE_FORMAT(order_date, '%%Y-%%m') = %s
-            """
-            cur.execute(income_query_anterior, [mes_anterior])
-            income_anterior = cur.fetchone()[0]
+                if income_anterior is not None:
+                    rentabilidad_mes = income - income_anterior
+                    porcentaje_cambio = ((income - income_anterior) / income_anterior) * 100
+                else:
+                    rentabilidad_mes = income
+                    porcentaje_cambio = 0
 
-            if income_anterior is not None:
-                rentabilidad_mes = income - income_anterior
-                porcentaje_cambio = ((income - income_anterior) / income_anterior) * 100
+                cur.close()
+
+                labels = ['Mes actual', 'Mes anterior']
+                values = [income, income_anterior]
+                fig_rentabilidad = go.Figure(data=[go.Bar(x=labels, y=values)])
+
+                numero_mes = int(selected_month.split('-')[1])
+                nombre_mes = calendar.month_name[numero_mes]
+                fig_rentabilidad.update_layout(
+                    title=f'Rentabilidad de {nombre_mes} {selected_month.split("-")[0]}'
+                )
+                graph_html_rentabilidad = fig_rentabilidad.to_html(full_html=False)
             else:
-                rentabilidad_mes = income
-                porcentaje_cambio = 0  # Porcentaje de cambio nulo si no hay mes anterior
+                graph_html_rentabilidad = None
 
-            # Cerrar la conexión a la base de datos
-            cur.close()
+            selected_month = request.form.get('month')
 
-            # Calcular la rentabilidad como la diferencia entre los ingresos del mes actual y el mes anterior
-            rentabilidad_mes = income - income_anterior
+            selected_month_datetime = datetime.strptime(selected_month, '%Y-%m')
+            mes_anterior_datetime = selected_month_datetime - relativedelta(months=1)
 
-            # Crear una gráfica de barras para mostrar la rentabilidad
-            labels = ['Mes actual', 'Mes anterior']
-            values = [income, income_anterior]
-            fig_rentabilidad = go.Figure(data=[go.Bar(x=labels, y=values)])
+            nombre_mes = calendar.month_name[selected_month_datetime.month]
+            year_selected = selected_month_datetime.year
 
-            # Obtener el número del mes a partir de 'selected_month' (formato 'YYYY-MM')
-            numero_mes = int(selected_month.split('-')[1])
+            nombre_mes_anterior = calendar.month_name[mes_anterior_datetime.month]
+            year_anterior = mes_anterior_datetime.year
 
-            # Obtener el nombre del mes a partir del número del mes
-            nombre_mes = calendar.month_name[numero_mes]
-
-            # Configurar título con el nombre del mes
-            fig_rentabilidad.update_layout(
-                title=f'Rentabilidad de {nombre_mes} {selected_month.split("-")[0]}'
+            return render_template(
+                'administration/stats/profitabilityResults.jinja',
+                months=months,
+                selected_month=selected_month,
+                nombre_mes=nombre_mes,
+                year_selected=year_selected,
+                nombre_mes_anterior=nombre_mes_anterior,
+                year_anterior=year_anterior,
+                porcentaje_cambio=porcentaje_cambio,
+                rentabilidad_mes=rentabilidad_mes,
+                graph_html_rentabilidad=graph_html_rentabilidad
             )
-
-            # Convertir la figura de Plotly a HTML
-            graph_html_rentabilidad = fig_rentabilidad.to_html(full_html=False)
         else:
-            # No se ha seleccionado un mes, no mostrar ninguna gráfica
-            graph_html_rentabilidad = None
-
-        # Obtener el mes seleccionado desde el formulario
-        selected_month = request.form['month']
-
-        # Calcular el mes anterior
-        selected_month_datetime = datetime.strptime(selected_month, '%Y-%m')
-        mes_anterior_datetime = selected_month_datetime - relativedelta(months=1)
-
-        # Obtener el mes en palabras
-        nombre_mes = calendar.month_name[selected_month_datetime.month]
-
-        # Obtener el año en número
-        year_selected = selected_month_datetime.year
-
-        # Obtener el mes anterior en palabras
-        nombre_mes_anterior = calendar.month_name[mes_anterior_datetime.month]
-
-        # Obtener el año del mes anterior en número
-        year_anterior = mes_anterior_datetime.year
-
-
-        return render_template(
-            'administration/stats/profitabilityResults.jinja',
-            months=months,
-            selected_month=selected_month,
-            nombre_mes=nombre_mes,  # Pasar el nombre del mes seleccionado
-            year_selected=year_selected,  # Pasar el año seleccionado
-            nombre_mes_anterior=nombre_mes_anterior,  # Pasar el nombre del mes anterior
-            year_anterior=year_anterior,  # Pasar el año del mes anterior
-            porcentaje_cambio=porcentaje_cambio,
-            rentabilidad_mes=rentabilidad_mes,
-            graph_html_rentabilidad=graph_html_rentabilidad
-        )
+            return render_template(
+                'administration/stats/profitabilityResults.jinja',
+                months=months,
+                graph_html_rentabilidad=None
+            )
 
     except Exception as e:
         return f"Error al calcular la rentabilidad: {str(e)}"

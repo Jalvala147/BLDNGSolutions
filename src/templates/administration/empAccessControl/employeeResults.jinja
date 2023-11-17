@@ -58,8 +58,9 @@
 {% endblock %}
 
 {% block body %}
+
     <a href="{{ url_for('admin.accesscontrol') }}" class="btn">Página de control de accesos</a>
-    <h1>Resultados de ingresos para {{ name }}</h1>
+    <h1>Resultados de ingresos para {{ name }}, {{ id }}</h1>
     <h2>Empleados</h2>
     <div>
         <label for="monthSelect">Seleccionar mes:</label>
@@ -82,7 +83,16 @@
         <p>Registros Tarde: <span id="tardeCount">0</span></p>
         <p>Registros A tiempo: <span id="atimeCount">0</span></p>
     </div>
-    <div id="mensajeBono" style="display: none;"></div>  {# Mensaje de bono o sanción #}
+
+    <div id="mensajeBono">
+        <p id="mensajeText"></p>
+    </div>
+
+    <form id="bonusForm" action="{{ url_for('admin.punctualityBonus', id=id) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" id="btnPunctualityBonus" class="btn" style="display: none;">Otorgar bono</button>
+    </form>
+
     <table class="table1">
         <tr>
             <th>Fecha y Hora</th>
@@ -159,21 +169,45 @@
         // Mensajes
         if (tarde === 1) {
             mensajeBono.textContent = "Se perdió el derecho al bono de puntualidad.";
-            mensajeBono.classList.add("red-bg"); 
-            mensajeBono.classList.remove("green-bg"); 
+            mensajeBono.classList.add("red-bg");
+            mensajeBono.classList.remove("green-bg");
+            mensajeBono.style.display = 'block'; // Muestra el mensaje
+            document.getElementById('btnPunctualityBonus').style.display = 'none'; // Oculta el botón
         } else if (tarde > 1) {
             mensajeBono.textContent = "Es necesaria una llamada de atención debido a las faltas de puntualidad.";
-            mensajeBono.classList.add("red-bg"); 
-            mensajeBono.classList.remove("green-bg"); 
+            mensajeBono.classList.add("red-bg");
+            mensajeBono.classList.remove("green-bg");
+            mensajeBono.style.display = 'block'; // Muestra el mensaje
+            document.getElementById('btnPunctualityBonus').style.display = 'none'; // Oculta el botón
         } else if (tarde === 0 && atime > 0) {
-            mensajeBono.textContent = "Es acreedor al bono de puntualidad.";
-            mensajeBono.classList.remove("red-bg"); 
-            mensajeBono.classList.add("green-bg"); 
+            mensajeBono.textContent = "Es acreedor al bono de puntualidad";
+            mensajeBono.classList.remove("red-bg");
+            mensajeBono.classList.add("green-bg");
+            mensajeBono.style.display = 'block'; // Muestra el mensaje
+            document.getElementById('btnPunctualityBonus').style.display = 'block'; // Muestra el botón
+        } else if (rows.length === 0) {
+            // No hay registros, ocultar el mensaje y el botón
+            mensajeBono.style.display = 'none';
+            document.getElementById('btnPunctualityBonus').style.display = 'none';
+        } else {
+            mensajeBono.style.display = 'none'; // Oculta el mensaje
+            document.getElementById('btnPunctualityBonus').style.display = 'none'; // Oculta el botón
         }
+
         mensajeBono.style.display = 'block';
 
-
     }
+
+    document.getElementById('btnPunctualityBonus').addEventListener('click', function (event) {
+        event.preventDefault(); 
+
+        if (confirm('¿Seguro que quieres otorgarle a este empleado un bono de puntualidad?')) {
+            document.getElementById('bonusForm').submit(); 
+        } else {
+
+        }
+    });
+
 </script>
 {% endblock %}
 
