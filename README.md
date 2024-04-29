@@ -1,5 +1,5 @@
-# BLDNGSolutions
-Proyecto BLDNGSolutions
+<h1># BLDNGSolutions</h1>
+<h2>Sistema Web para empresas dedicadas a la venta y renta de maquinaria de construcción</h2>
 
 
 Version de python 3.11.2 
