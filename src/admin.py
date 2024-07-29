@@ -19,7 +19,7 @@ import plotly.express as px
 import plotly.subplots as sp
 from plotly.subplots import make_subplots
 from plotly.offline import plot
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression 
 from sklearn.model_selection import train_test_split
 
 from datetime import datetime
