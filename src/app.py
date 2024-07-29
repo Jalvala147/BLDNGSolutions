@@ -160,7 +160,7 @@ def signup():
     if request.method == 'POST':
         # Recibir la informacion del formulario de signup.jinja
         username = request.form['username']
-        password = generate_password_hash(request.form['password'], method='scrypt') #sha256
+        password = generate_password_hash(request.form['password'], method='sha256') #sha256
         fullname = request.form['fullname']
         email = request.form['email']
         tipoUsuario = 3
@@ -466,7 +466,7 @@ def changepassword(token):
             if error_message is None:
                 if nueva_contrasena == confirmar_contrasena:
                     # Hashear la nueva contraseña
-                    hashed_password = generate_password_hash(nueva_contrasena, method='scrypt') #sha256
+                    hashed_password = generate_password_hash(nueva_contrasena, method='sha256') #sha256
 
                     # Actualizar la contraseña hasheada y borrar el token
                     cur.execute("UPDATE user SET password = %s, reset_token = NULL WHERE id = %s", (hashed_password, user_id))
