@@ -160,7 +160,7 @@ def signup():
     if request.method == 'POST':
         # Recibir la informacion del formulario de signup.jinja
         username = request.form['username']
-        password = generate_password_hash(request.form['password'], method='sha256')
+        password = generate_password_hash(request.form['password'], method='scrypt') #sha256
         fullname = request.form['fullname']
         email = request.form['email']
         tipoUsuario = 3
@@ -178,8 +178,18 @@ def signup():
             flash(password_error)
             return render_template('signup.jinja', username=username, fullname=fullname, email=email)
 
+        # Verificar si el correo ya está en uso
         cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM user WHERE email = %s", (email,))
+        existing_user = cur.fetchone()
+        cur.close()
+
+        if existing_user:
+            flash("El correo electrónico ya está en uso.")
+            return render_template('signup.jinja', username=username, fullname=fullname, email=email)
         
+        
+        cur = mysql.connection.cursor()
         # Query para insertar en la bd la informacion del nuevo usuario cliente
         cur.execute("INSERT INTO user (username, password, fullname, email, tipoUsuario, areaUsuario) VALUES (%s, %s, %s, %s, %s, %s)", (username, password, fullname, email, tipoUsuario, areaUsuario))
 
@@ -456,7 +466,7 @@ def changepassword(token):
             if error_message is None:
                 if nueva_contrasena == confirmar_contrasena:
                     # Hashear la nueva contraseña
-                    hashed_password = generate_password_hash(nueva_contrasena, method='sha256')
+                    hashed_password = generate_password_hash(nueva_contrasena, method='scrypt') #sha256
 
                     # Actualizar la contraseña hasheada y borrar el token
                     cur.execute("UPDATE user SET password = %s, reset_token = NULL WHERE id = %s", (hashed_password, user_id))
