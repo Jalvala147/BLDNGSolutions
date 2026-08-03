@@ -1,177 +1,133 @@
-body,
-h1,
-h3,
-h4,
-h5,
-h6,
-p,
-ul,
-ol,
-li {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-h2 {
-  font-size: 1.5rem;
-  font-weight: 520;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
+@import url('../core/erp-base.css');
+@import url('../core/erp-components.css');
 
 body {
-  font-family: 'Poppins', sans-serif;
-  min-height: 100vh;
-  background: linear-gradient(to right, #33353f, #444654);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
+    display: block;
+    padding: 1.5rem clamp(0.85rem, 2.5vw, 1.75rem) 2.5rem;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
-/* Container Styles */
 .container {
-  max-width: 1100px;
-  width: 100%;
-  background: rgba(255, 255, 255, .5);
-  padding: 2rem;
-  border-radius: 10px;
-  position: relative;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin-top: 30px;
+    max-width: 1100px;
 }
 
-.container::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, .15);
-  transform: rotate(-2deg);
-  border-radius: 10px;
-  z-index: -1;
+h1, h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
 }
 
-/* Header Styles */
-h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-/* Additional Styles */
+/* Step progress wizard */
 .container .steps {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  z-index: 1;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+    margin: 2rem 0;
 }
 
 .steps .circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 110px;
-  width: 110px;
-  color: #999;
-  font-size: 22px;
-  font-weight: 500;
-  border-radius: 50%;
-  background: #fff;
-  border: 4px solid #e0e0e0;
-  transition: all 200ms ease;
-  transition-delay: 0s;
-  display: flex;
-  flex-direction: column; 
-  align-items: center; 
-  justify-content: center;
-  margin-right: 20px;
-}
-
-.steps .circle:last-child {
-  margin-right: 0; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 90px;
+    width: 90px;
+    color: var(--erp-text-muted);
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 50%;
+    background: var(--erp-surface);
+    border: 3px solid var(--erp-border);
+    transition: all 0.2s ease;
+    margin-right: 0;
+    flex-shrink: 0;
 }
 
 .steps .circle-text {
-  margin-top: 5px; 
-  text-align: center; 
-  font-size: 14px; 
+    margin-top: 0.35rem;
+    text-align: center;
+    font-size: 0.7rem;
+    line-height: 1.2;
 }
 
 .steps .circle.active {
-  transition-delay: 100ms;
-  border-color: #7e7c7c;
-  color: #3f3f3f;
+    border-color: var(--erp-primary);
+    color: var(--erp-primary);
+    background: var(--erp-primary-light);
 }
 
 .steps .progress-bar {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  height: 4px;
-  width: 100%;
-  background: #e0e0e0;
-  z-index: -1;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 3px;
+    width: 100%;
+    background: var(--erp-border);
+    z-index: -1;
 }
 
 .progress-bar .indicator {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  height: 100%;
-  width: 0%;
-  background: #7e7c7c;
-  transition: all 300ms ease;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 100%;
+    width: 0%;
+    background: var(--erp-primary);
+    transition: width 0.3s ease;
+    display: block;
+    border: none;
+    border-radius: 0;
 }
 
 .container .buttons {
-  display: flex;
-  gap: 20px;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
 }
 
 .buttons button {
-  padding: 8px 25px;
-  background: #606061;
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 400;
-  cursor: pointer;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
-  transition: all 200ms linear;
-  margin-top: 30px;
+    padding: 0.55rem 1.25rem;
+    background: var(--erp-primary);
+    border: none;
+    border-radius: var(--erp-radius);
+    color: var(--erp-text-inverse);
+    font-size: var(--erp-font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: var(--erp-shadow-sm);
+    transition: background var(--erp-transition);
+    margin-top: 1.5rem;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.buttons button:hover {
+    background: var(--erp-primary-hover);
 }
 
 .buttons button:active {
-  transform: scale(0.97);
+    transform: scale(0.98);
 }
 
 .buttons button:disabled {
-  background: #717b94;
-  cursor: not-allowed;
+    background: var(--erp-text-muted);
+    cursor: not-allowed;
 }
 
-.btn {
-  display: inline-block;
-  background-color: rgb(171, 37, 212);
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 100px;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  transition: background .5s;
-  margin: 5px;
-  text-decoration: none;
-}
+@media (max-width: 768px) {
+    .steps .circle {
+        height: 70px;
+        width: 70px;
+        font-size: 0.85rem;
+    }
 
-.btn:hover {
-  background-color: rgba(0, 0, 0, 0.85);
+    .steps .circle-text {
+        font-size: 0.6rem;
+    }
 }

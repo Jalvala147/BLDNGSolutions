@@ -1,108 +1,79 @@
 {% extends './base.html' %}
 
-{% block title%}Signup{% endblock %}
+{% block title %}Signup{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css')}}">
-<link rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
-
-<style>
-  .flash-messages {
-    list-style: none;
-    background-color: #ff0000;
-    color: #fff;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-  }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 {% endblock %}
 
-
 {% block body %}
-
-<a href="/startpage" class="inicio">
-  <img src="{{ url_for('static', filename='images/logo.png') }}" width="50" height="50" alt="logo1">
-  Ir a la página de inicio
+<a href="{{ url_for('startpage') }}" class="inicio">
+  <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+  Inicio
 </a>
 
-
-<div class="login-card-container" align="center">
+<div class="login-card-container">
   <div class="login-card">
+    <div class="login-card-logo">
+      <a href="{{ url_for('startpage') }}">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="BLDNG Solutions">
+      </a>
+    </div>
 
-    <div class="form">
-
-      <div class="login-card-logo">
-        <a title="logo" href="/startpage"><img src="static/images/logo.png" class="logo" /></a>
-      </div>
-
-      {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages() %}
       {% if messages %}
-      <ul class="flash-messages">
         {% for message in messages %}
-        <li>{{ message }}</li>
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
         {% endfor %}
-      </ul>
       {% endif %}
-      {% endwith %}
+    {% endwith %}
 
-      <form action="{{ url_for('signup') }}" method="post" onsubmit="return validateForm();">
+    <div class="login-card-header">
+      <h1>Crear cuenta</h1>
+      <div>Introduce tu información</div>
+    </div>
 
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <form class="login-card-form" action="{{ url_for('signup') }}" method="post" onsubmit="return validateForm();">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-item">
+        <span class="form-item-icon material-symbols-rounded">person</span>
+        <input type="text" name="username" placeholder="Nombre de usuario" value="{{ username }}" required>
+      </div>
+      <div class="form-item">
+        <span class="form-item-icon material-symbols-rounded">badge</span>
+        <input type="text" name="fullname" placeholder="Nombre completo" value="{{ fullname }}" required>
+      </div>
+      <div class="form-item">
+        <span class="form-item-icon material-symbols-rounded">mail</span>
+        <input type="email" name="email" placeholder="Correo electrónico" value="{{ email }}" required>
+      </div>
+      <div class="form-item">
+        <span class="form-item-icon material-symbols-rounded">lock</span>
+        <input type="password" name="password" id="password" placeholder="Contraseña" required>
+      </div>
+      <div class="form-item">
+        <span class="form-item-icon material-symbols-rounded">lock</span>
+        <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirmar contraseña" required>
+      </div>
+      <button type="submit">Crear cuenta</button>
+    </form>
 
-        <div class="login-card-header">
-          <h1>Crear cuenta:</h1>
-          <div>Por favor introduce tu información</div>
-        </div>
-
-        <div class="form-item">
-          <span class="form-item-icon material-symbols-rounded">person</span>
-          <input type="text" name="username" placeholder="Nombre de usuario" value="{{ username }}" required>
-
-        </div>
-
-        <div class="form-item">
-          <span class="form-item-icon material-symbols-rounded">Badge</span>
-          <input type="text" name="fullname" placeholder="Nombre completo" value="{{ fullname }}" required>
-        </div>
-
-        <div class="form-item">
-          <span class="form-item-icon material-symbols-rounded">Mail</span>
-          <input type="email" name="email" placeholder="Correo electrónico" value="{{ email }}" required>
-        </div>
-
-        <div class="form-item">
-          <span class="form-item-icon material-symbols-rounded">lock</span>
-          <input type="password" name="password" id="password" placeholder="Contraseña" required>
-        </div>
-
-        <div class="form-item">
-          <span class="form-item-icon material-symbols-rounded">lock</span>
-          <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirmar contraseña"
-            required>
-        </div>
-
-        <button type="submit"> Enviar</button>
-
-        <p class="text-center text-muted mt-5 mb-0">Ya eres cliente? <a href="/loginclient"
-            class="fw-bold text-body"><u>Ingresa aquí</u></a></p>
-
-      </form>
+    <div class="login-card-footer">
+      ¿Ya eres cliente? <a href="{{ url_for('login') }}">Ingresa aquí</a>
     </div>
   </div>
+</div>
 
-  <script>
-    function validateForm() {
-      var password = document.getElementById("password").value;
-      var confirm_password = document.getElementById("confirm_password").value;
-
-      if (password !== confirm_password) {
-        alert("Las contraseñas no coinciden.");
-        return false;
-      }
-      return true;
+<script>
+  function validateForm() {
+    var password = document.getElementById("password").value;
+    var confirm_password = document.getElementById("confirm_password").value;
+    if (password !== confirm_password) {
+      alert("Las contraseñas no coinciden");
+      return false;
     }
-  </script>
-
-  {% endblock %}
+    return true;
+  }
+</script>
+{% endblock %}

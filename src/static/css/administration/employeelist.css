@@ -1,182 +1,62 @@
-/* Reset CSS */
-body, h2, h3, h4, h5, h6, p, ul, ol, li {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+@import url('../core/erp-base.css');
+@import url('../core/erp-components.css');
 
-h1 {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: azure;
-}
-
-/* Global Styles */
 body {
-    font-family: 'Poppins', sans-serif;
-    min-height: 100vh;
-    background: #33353f;
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
     padding: 2rem;
 }
 
-/* Container Styles */
 .container {
-    max-width: 1200px;
-    width: 100%;
-    background: rgba(255, 255, 255, .5);
-    padding: 2rem;
-    border-radius: 10px;
-    position: relative;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 50px;
-    height: 350px;
+    max-width: 600px;
+    min-height: auto;
 }
 
-.container::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, .15);
-    transform: rotate(-3deg);
-    border-radius: 10px;
-    z-index: -1;
-}
-
-/* Header Styles */
 h1 {
-    font-size: 2.3rem;
-    font-weight: 600;
+    text-align: center;
     margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-/* Table Styles */
-.table1 {
-    width: 100%;
-    margin-bottom: 2rem;
-    border-collapse: collapse;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    table-layout: fixed;
-}
-
-.table1 th, .table1 td {
-    padding: 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.table1 th {
-    background: rgba(0, 0, 0, 0.1);
-}
-
-/* Button Styles */
-.btn {
-    display: inline-block;
-    background-color: #444654;
-    color: white;
-    padding: 0.8rem 1.5rem;
-    border-radius: 100px;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    transition: background .5s;
-    margin: 5px;
-    text-decoration: none;
-}
-
-.btn:hover {
-    background-color: rgba(0, 0, 0, 0.85);
-    color: white;
-}
-
-/* Additional Styles */
-table {
-    margin-top: 20px;
-}
-
-table th, table td {
-    padding: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-table th {
-    background-color: rgba(255, 255, 255, 0.1);
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-button {
-    background-color: #444654;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 100px;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: rgba(0, 0, 0, 0.85);
-}
-
-.material-symbols-rounded {
-    font-family: 'Material Symbols Rounded', sans-serif;
-    font-size: 18px;
-}
-
-.material-symbols-rounded:before {
-    content: attr(data-symbol);
 }
 
 .options-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
     list-style: none;
     padding: 0;
-    margin: 0;
+}
+
+.options-list .list {
+    flex: 1 1 140px;
+    max-width: 180px;
+}
+
+.options-list .list a {
     display: flex;
-    justify-content: center;
-}
-
-.list {
-    margin: 0 20px;
-    padding: 30px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    transition: background-color 0.3s;
-}
-
-.list:hover {
-    background-color: rgba(63, 63, 63, 0.3);
-}
-
-
-.text {
-    display: block;
-    margin-top: 5px;
-    font-size: 18px;
-}
-
-.text:hover {
-    display: block;
-    margin-top: 5px;
-    font-size: 18px;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.25rem 1rem;
+    background: var(--erp-bg);
+    border: 1px solid var(--erp-border);
+    border-radius: var(--erp-radius-lg);
+    color: var(--erp-text);
     text-decoration: none;
+    transition: border-color var(--erp-transition), box-shadow var(--erp-transition), background var(--erp-transition);
 }
 
-a {
-    text-decoration: none; 
-    color: #333; 
-    transition: color 0.3s;
+.options-list .list a:hover {
+    border-color: var(--erp-primary);
+    background: var(--erp-primary-light);
+    color: var(--erp-primary);
+    box-shadow: var(--erp-shadow-sm);
 }
 
-a:hover {
-    color: #dddddd; 
-    text-decoration: none;
+.options-list .list .text {
+    font-size: var(--erp-font-size-sm);
+    font-weight: 500;
+    text-align: center;
 }
+

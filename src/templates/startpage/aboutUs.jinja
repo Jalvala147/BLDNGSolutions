@@ -1,86 +1,53 @@
 {% extends './base.html' %}
 
-{% block title %}About us{% endblock %}
+{% block title %}Nosotros{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename = 'css/startdesign.css') }}" />
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/startpage/startdesign.css') }}">
 {% endblock %}
 
 {% block body %}
-
 <nav>
-    <div class="navbar">
-        <div class="logo">
-            <a href="/startpage">
-                <img src="static/images/logo.png" alt="Logo BLDNGSolutions" class="logo-image">
-                BLDNGSolutions
-            </a>
-        </div>
-        <div class="nav-links">
-            <div class="sidebar-logo">
-                <span class="logo-name">BLDNGSolutions</span>
-            </div>
-        </div>
+  <div class="navbar">
+    <div class="logo">
+      <a href="{{ url_for('startpage') }}">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="BLDNGSolutions" class="logo-image">
+        BLDNGSolutions
+      </a>
     </div>
+    <div class="nav-links">
+      <ul class="links">
+        <li><a href="{{ url_for('startpage') }}">Inicio</a></li>
+        <li><a href="{{ url_for('aboutUs') }}">Nosotros</a></li>
+        <li><a href="{{ url_for('contact') }}">Contacto</a></li>
+        <li><a href="{{ url_for('productsList') }}">Productos</a></li>
+      </ul>
+    </div>
+  </div>
 </nav>
-<br><br><br><br>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6">
-            <h1>¿Qué es esto?</h1>
-            <p class="justificado">Este proyecto de titulación es una parte fundamental de mi formación académica y
-                representa un hito importante en mi carrera. Se enfoca en la administración de PyMEs con el objetivo de
-                brindar herramientas especializadas en este ámbito.</p>
-            <p class="justificado">Este proyecto fue realizado por Josué Alvarado Arrezola para abordar desafíos
-                específicos relacionados con la falta de herramientas y plataformas dedicadas a empresas enfocadas en la
-                venta y renta de maquinaria de construcción.</p>
-        </div>
-        <div class="col-md-6">
-            <img src="static/images/logo.png" alt="logo" class="img-fluid" style="width: 150px; height: 150px;">
-        </div>
+<main class="public-page">
+  <section class="public-panel">
+    <div class="public-grid">
+      <div>
+        <h1>¿Qué es BLDNGSolutions?</h1>
+        <p class="lead justificado">
+          Plataforma de administración para PyMEs dedicadas a la venta y renta de maquinaria de construcción.
+          Centraliza operaciones, pedidos y seguimiento en un solo lugar.
+        </p>
+        <p class="justificado">
+          Este proyecto de titulación fue realizado por Josué Alvarado Arrezola para resolver la falta de
+          herramientas especializadas en este sector.
+        </p>
+      </div>
+      <div>
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="brand-mark">
+      </div>
     </div>
-</div>
+  </section>
+</main>
 
-<footer>
-    <div class="footer">
-        <p>&copy; 2023 BLDNGSolutions. Todos los derechos reservados.</p>
-    </div>
+<footer class="site-footer">
+  <p>&copy; 2026 BLDNGSolutions. Todos los derechos reservados.</p>
 </footer>
-
-<style>
-    body {
-        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-
-    footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 70px;
-        background: linear-gradient(to right, #33353f, #444654);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        z-index: 99;
-    }
-
-    footer .footer {
-        height: 100%;
-        max-width: 1250px;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin: auto;
-        padding: 0 50px;
-    }
-
-    .justificado {
-        text-align: justify;
-    }
-</style>
-
 {% endblock %}

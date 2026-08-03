@@ -333,8 +333,12 @@ def readyMachines():
 def readyMaintMachines():
     cursor = mysql.connection.cursor()
 
-    # Obtener las máquinas con retiredForMaintenenace = 0
-    cursor.execute("SELECT id_Machine, model, brand FROM machines WHERE retiredForMaintenenace = 0")
+    # Máquinas con aviso de mantenimiento que aún no se han retirado
+    cursor.execute("""
+        SELECT id_Machine, model, brand
+        FROM machines
+        WHERE maintenanceNotice IS NOT NULL AND retiredForMaintenenace = 0
+    """)
     machines_data = cursor.fetchall()
 
     return render_template('storage/readyMaintMachines.jinja', machines_data=machines_data)
@@ -359,7 +363,11 @@ def markAsRetired(machine_id):
 def fetch_machines_notifications():
     
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id_Machine, model, brand FROM machines WHERE retiredForMaintenenace = 0")
+    cur.execute("""
+        SELECT id_Machine, model, brand
+        FROM machines
+        WHERE maintenanceNotice IS NOT NULL OR retiredForMaintenenace = 1
+    """)
     notifications = cur.fetchall()
     cur.close()
 

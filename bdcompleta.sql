@@ -87,7 +87,9 @@ CREATE TABLE `files` (
   `user_id` int(11) NOT NULL,
   `filename` varchar(255) NOT NULL,
   `file_data` longblob NOT NULL,
-  `estado` int(11) DEFAULT 0
+  `estado` int(11) DEFAULT 0,
+  `status` int(11) DEFAULT 0,
+  `changeRequest` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -133,7 +135,9 @@ CREATE TABLE `machineorders` (
   `id` int(11) NOT NULL,
   `order_id` int(11) DEFAULT NULL,
   `machine_id` int(11) DEFAULT NULL,
-  `weeks` int(11) NOT NULL
+  `weeks` int(11) NOT NULL,
+  `price` decimal(10,2) DEFAULT NULL,
+  `type` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -209,7 +213,9 @@ CREATE TABLE `machines` (
   `id_Machine` int(11) NOT NULL,
   `model` varchar(50) NOT NULL,
   `brand` varchar(50) NOT NULL,
-  `type` varchar(30) NOT NULL
+  `type` varchar(30) NOT NULL,
+  `maintenanceNotice` tinyint(1) DEFAULT NULL,
+  `retiredForMaintenenace` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -302,7 +308,18 @@ CREATE TABLE `orders` (
   `id` int(11) NOT NULL,
   `clientUser_id` int(11) NOT NULL,
   `order_date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `total` decimal(10,2) NOT NULL
+  `total` decimal(10,2) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `type` tinyint(1) NOT NULL DEFAULT 0,
+  `cancel_status` tinyint(1) DEFAULT NULL,
+  `verifiedDocs` tinyint(1) NOT NULL DEFAULT 0,
+  `paymentMade` tinyint(1) NOT NULL DEFAULT 0,
+  `shipmentMade` tinyint(1) NOT NULL DEFAULT 0,
+  `address` varchar(255) DEFAULT NULL,
+  `postalCode` varchar(20) DEFAULT NULL,
+  `rfc` varchar(20) DEFAULT NULL,
+  `phoneNumber` varchar(30) DEFAULT NULL,
+  `paymentMethod` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -334,7 +351,8 @@ INSERT INTO `orders` (`id`, `clientUser_id`, `order_date`, `total`) VALUES
 CREATE TABLE `preventivemaintenance` (
   `id_Preventive` int(11) NOT NULL,
   `id_Maintenance` int(11) NOT NULL,
-  `date` timestamp NOT NULL DEFAULT current_timestamp()
+  `date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `scheduled_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -348,7 +366,8 @@ CREATE TABLE `products` (
   `id_Machine` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
-  `price` decimal(10,2) DEFAULT NULL
+  `price` decimal(10,2) DEFAULT NULL,
+  `sell_price` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -488,7 +507,9 @@ CREATE TABLE `user` (
   `fullname` varchar(60) NOT NULL,
   `email` varchar(60) NOT NULL,
   `tipousuario` int(11) NOT NULL,
-  `areaUsuario` int(11) NOT NULL
+  `areaUsuario` int(11) NOT NULL,
+  `note` text DEFAULT NULL,
+  `reset_token` varchar(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -834,3 +855,42 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- --------------------------------------------------------
+-- PATCH employee/client schema (2026-08-03)
+-- Run also: migrations/fix_employee_schema.sql against live DB
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `prospects` (
+  `id_Prospect` int(11) NOT NULL AUTO_INCREMENT,
+  `fullname` varchar(60) NOT NULL,
+  `company` varchar(100) DEFAULT NULL,
+  `number` varchar(30) DEFAULT NULL,
+  `email` varchar(60) DEFAULT NULL,
+  `contacted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id_Prospect`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `machinesid` (
+  `id_Machine` int(11) NOT NULL,
+  `uid_Machine` varchar(255) NOT NULL,
+  PRIMARY KEY (`id_Machine`),
+  UNIQUE KEY `uid_Machine` (`uid_Machine`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `access_records` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fingerprint_id` int(11) NOT NULL,
+  `date_time` datetime NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `payroll` (
+  `id_bonus` int(11) NOT NULL AUTO_INCREMENT,
+  `employee_id` int(11) NOT NULL,
+  `bonus` tinyint(1) NOT NULL DEFAULT 1,
+  `datetime` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_bonus`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -153,7 +153,7 @@ def orderDetails(order_id):
     SELECT o.clientUser_id, GROUP_CONCAT(CONCAT(m.brand, ' ', m.model)) AS machines, o.order_date, u.fullname, GROUP_CONCAT(mo.weeks) AS weeks, GROUP_CONCAT(mo.price) AS prices, SUM(mo.price) AS order_total
     FROM orders o
     INNER JOIN machineorders mo ON o.id = mo.order_id
-    INNER JOIN machines m ON mo.machine_id = m.id_machine
+    INNER JOIN machines m ON mo.machine_id = m.id_Machine
     INNER JOIN user u ON o.clientUser_id = u.id
     WHERE o.id = %s
     GROUP BY o.clientUser_id, o.order_date, u.fullname
@@ -193,7 +193,7 @@ def salesDetails(order_id):
     SELECT o.clientUser_id, GROUP_CONCAT(CONCAT(m.brand, ' ', m.model)) AS machines, o.order_date, u.fullname, GROUP_CONCAT(mo.weeks) AS weeks, GROUP_CONCAT(mo.price) AS prices, SUM(mo.price) AS order_total
     FROM orders o
     INNER JOIN machineorders mo ON o.id = mo.order_id
-    INNER JOIN machines m ON mo.machine_id = m.id_machine
+    INNER JOIN machines m ON mo.machine_id = m.id_Machine
     INNER JOIN user u ON o.clientUser_id = u.id
     WHERE o.id = %s
     GROUP BY o.clientUser_id, o.order_date, u.fullname
@@ -431,7 +431,7 @@ def newRequest():
                user.email AS 'CORREO',
                GROUP_CONCAT(CONCAT(machines.brand, ' ', machines.model) ORDER BY machineorders.machine_id) AS 'MAQUINAS'
         FROM orders
-        INNER JOIN user ON orders.ClientUser_id = user.id
+        INNER JOIN user ON orders.clientUser_id = user.id
         INNER JOIN machineorders ON orders.id = machineorders.order_id
         INNER JOIN machines ON machineorders.machine_id = machines.id_Machine
         WHERE orders.status = 1
@@ -453,8 +453,8 @@ def update_type(id_order):
         # Obtiene la opción seleccionada del formulario
         new_type = request.form['type']
 
-        # Actualiza el campo "type" en la base de datos para el registro correspondiente
-        cur.execute("UPDATE machinesorders SET type = %s WHERE id_order = %s", (new_type, id_order))
+        # Actualiza el tipo de pedido (renta/venta) en orders
+        cur.execute("UPDATE orders SET type = %s WHERE id = %s", (new_type, id_order))
         mysql.connection.commit()
 
         # Cierra el cursor

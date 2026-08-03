@@ -1,4 +1,24 @@
 #Importaciones
+import os
+from pathlib import Path
+
+# Load local .env if present (no-op on Vercel when vars are set in the dashboard)
+_env_path = Path(__file__).resolve().parents[1] / '.env'
+if _env_path.is_file():
+    for _line in _env_path.read_text(encoding='utf-8').splitlines():
+        _line = _line.strip()
+        if not _line or _line.startswith('#') or '=' not in _line:
+            continue
+        _k, _v = _line.split('=', 1)
+        os.environ.setdefault(_k.strip(), _v.strip())
+
+# Prefer pure-Python MySQL driver on serverless (Vercel); fall back to mysqlclient locally.
+try:
+    import pymysql
+    pymysql.install_as_MySQLdb()
+except ImportError:
+    pass
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
 from flask_mail import Mail, Message
@@ -6,18 +26,29 @@ import secrets
 from flask import render_template_string
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required
-from werkzeug.security import generate_password_hash, check_password_hash
+from utils.passwords import generate_password_hash, check_password_hash
 from salesemp import salesemp
 from clients import clients
 from maintemp import maintemp
 from storageemp import storageemp
 from shipemp import shipemp
 from admin import admin
+from config import config
 import re
 
 app = Flask(__name__)
+_env = os.environ.get('FLASK_ENV', os.environ.get('VERCEL_ENV', 'development'))
+_config_name = 'production' if _env in ('production', 'prod') or os.environ.get('VERCEL') else 'development'
+app.config.from_object(config[_config_name])
 
-#app.run(host="0.0.0.0", debug=True, port=8000)
+# MySQL (env vars override defaults from config)
+app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', app.config.get('MYSQL_HOST', 'localhost'))
+app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', app.config.get('MYSQL_USER', ''))
+app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', app.config.get('MYSQL_PASSWORD', ''))
+app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', app.config.get('MYSQL_DB', 'bdcompleta'))
+if os.environ.get('MYSQL_PORT'):
+    app.config['MYSQL_PORT'] = int(os.environ['MYSQL_PORT'])
+
 #Blueprints de las otras areas
 app.register_blueprint(salesemp)
 app.register_blueprint(clients)
@@ -27,8 +58,6 @@ app.register_blueprint(shipemp)
 app.register_blueprint(admin)
 
 login_manager = LoginManager(app)
-
-from config import config
 
 # Models:
 from models.ModelUser import ModelUser
@@ -47,20 +76,12 @@ login_manager_app = LoginManager(app)
 def load_user(id):
     return ModelUser.get_by_id(mysql, id)
 
-#Checar el archivo config.py tambien
-
-# Configuración de la conexión a la base de datos MySQL
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = ''
-app.config['MYSQL_DATABASE_DB'] = 'bdcompleta'
-
 #configuracion para el envio de correos
-app.config['MAIL_SERVER']='smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'bldngsolutions.mail@gmail.com'
-app.config['MAIL_PASSWORD'] = 'mxghnyfszbqlaicr'
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', app.config.get('MAIL_SERVER', 'smtp.googlemail.com'))
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', app.config.get('MAIL_PORT', 587)))
+app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', app.config.get('MAIL_USERNAME', ''))
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', app.config.get('MAIL_PASSWORD', ''))
 
 mail = Mail(app)
 
@@ -124,7 +145,10 @@ def productsList():
 
 @app.route('/contact')
 def contact():
-    return render_template('startpage/contact.jinja')
+    return render_template(
+        'startpage/contact.jinja',
+        google_maps_api_key=os.environ.get('GOOGLE_MAPS_API_KEY_CONTACT', ''),
+    )
 
 @app.route('/aboutUs')
 def aboutUs():
@@ -160,7 +184,7 @@ def signup():
     if request.method == 'POST':
         # Recibir la informacion del formulario de signup.jinja
         username = request.form['username']
-        password = generate_password_hash(request.form['password'], method='sha256') #sha256
+        password = generate_password_hash(request.form['password'])
         fullname = request.form['fullname']
         email = request.form['email']
         tipoUsuario = 3
@@ -466,7 +490,7 @@ def changepassword(token):
             if error_message is None:
                 if nueva_contrasena == confirmar_contrasena:
                     # Hashear la nueva contraseña
-                    hashed_password = generate_password_hash(nueva_contrasena, method='sha256') #sha256
+                    hashed_password = generate_password_hash(nueva_contrasena)
 
                     # Actualizar la contraseña hasheada y borrar el token
                     cur.execute("UPDATE user SET password = %s, reset_token = NULL WHERE id = %s", (hashed_password, user_id))
@@ -498,10 +522,11 @@ def status_401(error):
 def status_404(error):
     return "<h1>Página no encontrada error 404</h1><h2>También puede ser un problema con las rutas</h2>", 404
 
+
+# Init extensions before app.run() — otherwise they never register when running locally
+csrf.init_app(app)
+app.register_error_handler(401, status_401)
+app.register_error_handler(404, status_404)
+
 if __name__ == '__main__':
-    app.config.from_object(config['development'])
-    csrf.init_app(app)
-    app.register_error_handler(401, status_401)
-    app.register_error_handler(404, status_404)
     app.run()
-    

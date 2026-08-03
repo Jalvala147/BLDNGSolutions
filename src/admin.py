@@ -1,6 +1,6 @@
 from flask_mysqldb import MySQL
 from flask import render_template, session, redirect, flash
-from werkzeug.security import generate_password_hash
+from utils.passwords import generate_password_hash
 from flask import Blueprint
 from flask import url_for
 from flask_wtf.csrf import CSRFProtect
@@ -33,7 +33,13 @@ csrf = CSRFProtect()
 
 admin = Blueprint('admin', __name__)
 
-locale.setlocale(locale.LC_TIME, 'es_ES.utf8') #indicamos a locale que se está usando el sistema en español
+# Prefer Spanish date names when available; fall back so the app still starts.
+for _locale_name in ('es_ES.utf8', 'es_ES.UTF-8', 'es_MX.utf8', 'es_MX.UTF-8', 'C.utf8'):
+    try:
+        locale.setlocale(locale.LC_TIME, _locale_name)
+        break
+    except locale.Error:
+        continue
 
 #Decorador para que solo los administradores puedan acceder a sus rutas
 def admin_required(func):
@@ -50,13 +56,13 @@ def admin_required(func):
 @admin_required
 def adminHome():
     try:
-        cursor = mysql.connection.cursor()
-
-        # Query con JOIN y condición WHERE para filtrar por bonus igual a 1
-        query = "SELECT u.fullname, u.areaUsuario, p.bonus, p.datetime, p.id_bonus FROM payroll p JOIN user u ON p.employee_id = u.id WHERE p.bonus = 1"
-        cursor.execute(query)
-        data = cursor.fetchall()
-        cursor.close()
+        # Tabla payroll no existe en bdcompleta; se deja vacío por ahora
+        # cursor = mysql.connection.cursor()
+        # query = "SELECT u.fullname, u.areaUsuario, p.bonus, p.datetime, p.id_bonus FROM payroll p JOIN user u ON p.employee_id = u.id WHERE p.bonus = 1"
+        # cursor.execute(query)
+        # data = cursor.fetchall()
+        # cursor.close()
+        data = []
 
         return render_template('administration/administrationindex.jinja', data=data)
     except Exception as e:
@@ -66,11 +72,13 @@ def adminHome():
 @admin_required
 def update_bonus(bonus_id):
     try:
-        cursor = mysql.connection.cursor()
-        query = "UPDATE payroll SET bonus = 0 WHERE id_bonus = %s"
-        cursor.execute(query, (bonus_id,))
-        mysql.connection.commit()
-        cursor.close()
+        # Tabla payroll no existe en bdcompleta
+        # cursor = mysql.connection.cursor()
+        # query = "UPDATE payroll SET bonus = 0 WHERE id_bonus = %s"
+        # cursor.execute(query, (bonus_id,))
+        # mysql.connection.commit()
+        # cursor.close()
+        flash("Función de bonus deshabilitada: tabla payroll no existe.")
         return redirect(url_for('admin.adminHome'))
     except Exception as e:
         return str(e), 500
@@ -274,16 +282,13 @@ def employeeResultsExits(id, name):
 @admin_required
 def punctualityBonus(id):
     try:
-        # Conexión a la base de datos
-        conn = mysql.connection
-        cursor = conn.cursor()
-
-        query = "INSERT INTO payroll (employee_id, bonus) VALUES (%s, 1)"
-        cursor.execute(query, (id,))
-        
-        conn.commit()
-        cursor.close()
-
+        # Tabla payroll no existe en bdcompleta
+        # conn = mysql.connection
+        # cursor = conn.cursor()
+        # query = "INSERT INTO payroll (employee_id, bonus) VALUES (%s, 1)"
+        # cursor.execute(query, (id,))
+        # conn.commit()
+        # cursor.close()
         return '', 204  
     except Exception as e:
         return str(e), 500 
@@ -1124,7 +1129,7 @@ def maintListEmp():
 def maintAddEmp():
     if request.method == 'POST':
         username = request.form['username']
-        password = generate_password_hash(request.form['password'], method='sha256')
+        password = generate_password_hash(request.form['password'])
         fullname = request.form['fullname']
         email = request.form['email']
         tipoUsuario = 2  # El valor 'tipoUsuario' se establece en 2 para empleados de mantenimiento
@@ -1190,7 +1195,7 @@ def salesListEmp():
 def salesAddEmp():
     if request.method == 'POST':
         username = request.form['username']
-        password = generate_password_hash(request.form['password'], method='sha256')
+        password = generate_password_hash(request.form['password'])
         fullname = request.form['fullname']
         email = request.form['email']
         tipoUsuario = 2  # El valor 'tipoUsuario' se establece en 2 para empleados de ventas
@@ -1258,7 +1263,7 @@ def storListEmp():
 def storAddEmp():
     if request.method == 'POST':
         username = request.form['username']
-        password = generate_password_hash(request.form['password'], method='sha256')
+        password = generate_password_hash(request.form['password'])
         fullname = request.form['fullname']
         email = request.form['email']
         tipoUsuario = 2  # El valor 'tipoUsuario' se establece en 2 para empleados de almacén
@@ -1327,7 +1332,7 @@ def shipListEmp():
 def shipAddEmp():
     if request.method == 'POST':
         username = request.form['username']
-        password = generate_password_hash(request.form['password'], method='sha256')   
+        password = generate_password_hash(request.form['password'])   
         fullname = request.form['fullname']
         email = request.form['email']
         tipoUsuario = 2  # El valor 'tipoUsuario' se establece en 2 para empleados de envios

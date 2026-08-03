@@ -1,176 +1,94 @@
 {% extends './base.html' %}
 
-{% block title%}Envíos{% endblock %}
-
+{% block title %}Envíos{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/shipping/shipHome.css')}}">
-<link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shipping/shipHome.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
 {% endblock %}
-
 
 {% block body %}
-<div id="particles-js"></div>
-<style>
-    body {
-        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-
-    #particles-js {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-
-    }
-</style>
-
-
-<div class="logout" style="position: absolute; top: 15px; right: 10px;">
-    <a class="btn btn-secondary" href="{{ url_for('salesemp.logout') }}">
-        <span class="material-symbols-rounded" style="vertical-align: middle;">logout</span>
-        Cerrar Sesión
+<div class="module-home">
+  <div class="module-home-top">
+    <a class="module-home-brand" href="{{ url_for('startpage') }}">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+      <span>BLDNGSolutions</span>
     </a>
-</div>
-
-<header class="header">
-    <nav>
-        <div class="logo">
-            <a title="logo" href="/startpage"><img src="{{ url_for('static', filename='images/logo.png') }}" class="logo" /></a>
-        </div>
-
-    </nav>
-</header>
-
-<div class="notifications" style="position: absolute; top: 60px; right: 10px;">
-    <span class="material-symbols-rounded" style="font-size: 50px; color:white;" id="notification-icon">
-        notifications
-    </span>
-    <span id="notification-count-badge" class="notification-badge">0</span>
-    <div id="notification-popup" class="notification-popup">
-        <!-- Aquí mostrarás el contenido de las notificaciones -->
+    <div class="module-home-actions">
+      <div class="notifications">
+        <span class="material-symbols-rounded" id="notification-icon">notifications</span>
+        <span id="notification-count-badge" class="notification-badge">0</span>
+        <div id="notification-popup" class="notification-popup"></div>
+      </div>
+      <a class="btn btn-secondary" href="{{ url_for('logoutemp') }}">
+        <span class="material-symbols-rounded">logout</span> Salir
+      </a>
     </div>
+  </div>
+
+  <section class="module-home-hero">
+    <p class="eyebrow">Área de envíos</p>
+    <h1>Bienvenido, {{ current_user.fullname }}</h1>
+    <p>Coordina pedidos listos para entrega y rutas de envío.</p>
+  </section>
+
+  <ul class="module-home-grid">
+    <li>
+      <a class="module-home-card" href="{{ url_for('shipemp.orders') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">order_approve</span></div>
+        <h2 class="card-title">Pedidos</h2>
+        <p class="card-desc">Pedidos en proceso de envío.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('shipemp.newOrders') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">news</span></div>
+        <h2 class="card-title">Nuevos pedidos</h2>
+        <p class="card-desc">Solicitudes pendientes de despacho.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('shipemp.completedOrders') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">task_alt</span></div>
+        <h2 class="card-title">Completados</h2>
+        <p class="card-desc">Historial de envíos finalizados.</p>
+      </a>
+    </li>
+  </ul>
 </div>
-
-<div class="user">
-    <h1>Bienvenido, {{current_user.fullname}}</h1>
-    {# <h3>{{current_user.id}}</h3> #}
-
-    <h1>Página de empleados de envíos</h1>
-</div>
-
-<div class="navigation" align="center">
-    <ul>
-        <li class="list active" align="center">
-            <a href="/shipping/orders">
-                <span class="icon">
-                    <span class="material-symbols-rounded">order_approve</span>
-                </span>
-                <span class="text">Pedidos</span>
-            </a>
-        </li>
-        <li class="list">
-            <a href="/shipping/newOrders">
-                <span class="icon">
-                    <span class="material-symbols-rounded">news</span>
-                </span>
-                <span class="text">Nuevos pedidos</span>
-            </a>
-        </li>
-        <div class="indicator"></div>
-    </ul>
-</div>
-
-
-{# Script para manejar la selección del menu en la barra inferior #}
-<script src="{{ url_for('static', filename='js/selectionItems.js') }}"></script>
-
-{# Importamos las particulas #}
-<script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const notificationIcon = document.getElementById('notification-icon');
-        const notificationPopup = document.getElementById('notification-popup');
-        const closeNotificationPopup = document.getElementById('close-notification-popup');
+document.addEventListener('DOMContentLoaded', function () {
+  const icon = document.getElementById('notification-icon');
+  const popup = document.getElementById('notification-popup');
+  const badge = document.getElementById('notification-count-badge');
+  let open = false;
 
-        let isPopupOpen = false;
-
-        notificationIcon.addEventListener('click', function () {
-            if (isPopupOpen) {
-                notificationPopup.style.display = 'none';
-            } else {
-                // Hacer una solicitud AJAX al servidor para obtener las notificaciones en formato JSON
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', '/ship_notifications', true);
-
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        const notifications = JSON.parse(xhr.responseText);
-                        const notificationList = document.createElement('ul');
-                        notificationList.classList.add('notification-list-container');
-
-                        //notificationList.style.listStyleType = 'none';
-
-                        // Crear elementos de lista para cada notificación
-                        notifications.forEach(function (notification) {
-                            const listItem = document.createElement('li');
-                            listItem.textContent = `Pedido: ${notification[0]}, Número de máquina: ${notification[1]}, Dirección: ${notification[3]}`;
-                            
-                            listItem.classList.add('verde')
-
-                            notificationList.appendChild(listItem);
-                        });
-
-                        notificationPopup.innerHTML = '';
-                        notificationPopup.appendChild(notificationList);
-                        notificationPopup.style.display = 'block';
-
-                        // Actualizar el contador de notificaciones
-                        const notificationCount = notifications.length;
-                        const notificationCountBadge = document.getElementById('notification-count-badge');
-                        notificationCountBadge.textContent = notificationCount;
-                    }
-                };
-
-                xhr.send();
-            }
-
-            isPopupOpen = !isPopupOpen;
+  function loadNotifications() {
+    fetch('/ship_notifications')
+      .then(r => r.json())
+      .then(data => {
+        const list = document.createElement('ul');
+        list.className = 'notification-list-container';
+        (data || []).forEach(item => {
+          const li = document.createElement('li');
+          li.className = 'verde';
+          li.textContent = Array.isArray(item) ? `Pedido ${item[0]}` : String(item);
+          list.appendChild(li);
         });
+        popup.innerHTML = '';
+        popup.appendChild(list);
+        badge.textContent = (data || []).length;
+      })
+      .catch(() => { badge.textContent = '0'; });
+  }
 
-        closeNotificationPopup.addEventListener('click', function () {
-            notificationPopup.style.display = 'none';
-            isPopupOpen = false;
-        });
-    });
-
-
-    document.addEventListener('DOMContentLoaded', function () {
-    // Hacer una solicitud AJAX para obtener las notificaciones
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', '/ship_notifications', true);
-
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            const notifications = JSON.parse(xhr.responseText);
-            const notificationCount = notifications.length;
-            // Actualiza el contador de notificaciones
-            document.getElementById('notification-count-badge').textContent = notificationCount;
-        }
-    };
-
-    xhr.send();
+  loadNotifications();
+  icon.addEventListener('click', function () {
+    open = !open;
+    popup.style.display = open ? 'block' : 'none';
+    if (open) loadNotifications();
+  });
 });
-
 </script>
 {% endblock %}
-
-
-

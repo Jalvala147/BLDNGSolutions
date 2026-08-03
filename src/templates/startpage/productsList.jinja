@@ -3,41 +3,36 @@
 {% block title %}Productos{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename = 'css/clientuser/products.css') }}" />
-<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/clientuser/products.css') }}">
 {% endblock %}
-
 
 {% block body %}
 <header>
-    <div class="nav container">
-        <div><a href="{{ url_for('startpage') }}" class="btn">Atras</a></div>
-        <a href="/startpage" class="logo2">BLDNGSolutions</a>
-        <a href="/startpage"><img src="static/images/logo.png" class="small-logo" /></a>
+  <div class="nav container">
+    <div>
+      <a href="{{ url_for('startpage') }}" class="btn btn-secondary">Atrás</a>
+      <a href="{{ url_for('startpage') }}">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="small-logo" alt="Logo">
+      </a>
     </div>
+    <a href="{{ url_for('startpage') }}" class="logo2">BLDNGSolutions</a>
+    <span aria-hidden="true" style="width:1.5rem"></span>
+  </div>
 </header>
 
-<style>
-    body {
-        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-</style>
-
 <section class="shop container">
-    <div class="shop-content">
-        {% for product in products %}
-        <div class="product-box" data-machine-id="{{ product.id }}">
-            <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="" class="product-img">
-            <h4 class="machine-id" style="display: none;">{{ product.id_Machine }}</h4>
-            <h2 class="product-title">{{ product.name }}</h2>
-            <span class="">Rentas <br> desde: </span>
-            <span class="price">${{ product.price }} MXN</span>
-        </div>
-        {% endfor %}
-    </div>
+  <h1 class="section-title">Catálogo de maquinaria</h1>
+  <div class="shop-content">
+    {% for product in products %}
+    <article class="product-box" data-machine-id="{{ product.id }}">
+      <img src="{{ url_for('static', filename='images/products/' + product.image) }}" alt="{{ product.name }}" class="product-img">
+      <h2 class="product-title">{{ product.name }}</h2>
+      <p class="price-label">Rentas desde</p>
+      <span class="price">${{ product.price }} MXN</span>
+    </article>
+    {% else %}
+    <p class="empty-catalog">No hay productos disponibles por ahora.</p>
+    {% endfor %}
+  </div>
 </section>
-
-{# <script src="{{ url_for('static', filename='js/startpage/productsList.js') }}"></script> #}
 {% endblock %}

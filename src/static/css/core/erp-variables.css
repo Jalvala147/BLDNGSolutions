@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Default theme = dark */
+:root,
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    /* Brand */
+    --erp-primary: #5b9bd5;
+    --erp-primary-hover: #7eb0e0;
+    --erp-primary-light: #1a2f4a;
+    --erp-primary-dark: #9ec5e8;
+
+    /* Semantic */
+    --erp-success: #34d399;
+    --erp-success-light: #064e3b;
+    --erp-danger: #f87171;
+    --erp-danger-light: #7f1d1d;
+    --erp-warning: #fbbf24;
+    --erp-warning-light: #78350f;
+    --erp-info: #38bdf8;
+    --erp-info-light: #0c4a6e;
+
+    /* Surfaces */
+    --erp-bg: #0f1419;
+    --erp-surface: #1a2332;
+    --erp-surface-hover: #243044;
+    --erp-border: #2d3a4d;
+    --erp-border-light: #243044;
+
+    /* Text */
+    --erp-text: #e8eef6;
+    --erp-text-secondary: #9aa8bc;
+    --erp-text-muted: #6b7a8f;
+    --erp-text-inverse: #0f1419;
+
+    /* Typography */
+    --erp-font: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    --erp-font-size-xs: 0.75rem;
+    --erp-font-size-sm: 0.875rem;
+    --erp-font-size-base: 0.9375rem;
+    --erp-font-size-lg: 1.125rem;
+    --erp-font-size-xl: 1.5rem;
+    --erp-font-size-2xl: 1.875rem;
+
+    /* Spacing & radius */
+    --erp-radius-sm: 6px;
+    --erp-radius: 8px;
+    --erp-radius-lg: 12px;
+    --erp-radius-xl: 16px;
+
+    /* Shadows */
+    --erp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --erp-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --erp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -2px rgba(0, 0, 0, 0.35);
+    --erp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+
+    /* Layout */
+    --erp-nav-height: 64px;
+    --erp-header-height: 56px;
+    --erp-sidebar-width: 240px;
+    --erp-table-max: 1200px;
+
+    /* Transitions */
+    --erp-transition: 0.2s ease;
+}
+
+[data-theme="light"] {
+    color-scheme: light;
+
+    --erp-primary: #1e56a0;
+    --erp-primary-hover: #164785;
+    --erp-primary-light: #e8f0fa;
+    --erp-primary-dark: #0f3460;
+
+    --erp-success: #059669;
+    --erp-success-light: #d1fae5;
+    --erp-danger: #dc2626;
+    --erp-danger-light: #fee2e2;
+    --erp-warning: #d97706;
+    --erp-warning-light: #fef3c7;
+    --erp-info: #0284c7;
+    --erp-info-light: #e0f2fe;
+
+    --erp-bg: #f0f2f5;
+    --erp-surface: #ffffff;
+    --erp-surface-hover: #f8fafc;
+    --erp-border: #e2e8f0;
+    --erp-border-light: #f1f5f9;
+
+    --erp-text: #1e293b;
+    --erp-text-secondary: #64748b;
+    --erp-text-muted: #94a3b8;
+    --erp-text-inverse: #ffffff;
+
+    --erp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --erp-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --erp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+    --erp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+}
