@@ -1,3 +1,4 @@
+import os
 from flask_mysqldb import MySQL
 from flask import render_template, session, flash
 from functools import wraps
@@ -13,7 +14,7 @@ mysql = MySQL()
 
 shipemp = Blueprint('shipemp', __name__)
 
-GOOGLE_MAPS_API_KEY = "AIzaSyCiYij4rKyNlM9uXBUDjhlnfGxSzm_xi9M"
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
 
 
 # Decorador para envíos (tipoUsuario = 2 y areaUsuario = 6 o tipoUsuario = 1 y areaUsuario = 1)

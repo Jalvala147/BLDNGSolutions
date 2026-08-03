@@ -1,124 +1,68 @@
 {% extends './base.html' %}
 
-{% block title%}Ventas{% endblock %}
+{% block title %}Ventas{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/salesHome.css')}}">
-<link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sales/salesHome.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
 {% endblock %}
 
-
 {% block body %}
-<div id="particles-js"></div>
-<style>
-    body {
-        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-
-    #particles-js {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-
-    }
-</style>
-
-<div class="logout" style="position: absolute; top: 15px; right: 10px;">
-    <a class="btn btn-secondary" href="{{ url_for('salesemp.logout') }}">
-        <span class="material-symbols-rounded" style="vertical-align: middle;">logout</span>
-        Cerrar Sesión
+<div class="module-home">
+  <div class="module-home-top">
+    <a class="module-home-brand" href="{{ url_for('startpage') }}">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+      <span>BLDNGSolutions</span>
     </a>
+    <div class="module-home-actions">
+      <a class="btn btn-secondary" href="{{ url_for('salesemp.logout') }}">
+        <span class="material-symbols-rounded">logout</span> Salir
+      </a>
+    </div>
+  </div>
+
+  <section class="module-home-hero">
+    <p class="eyebrow">Área de ventas</p>
+    <h1>Bienvenido, {{ current_user.fullname }}</h1>
+    <p>Gestiona clientes, pedidos, rentas y prospección desde un solo lugar.</p>
+  </section>
+
+  <ul class="module-home-grid">
+    <li>
+      <a class="module-home-card" href="{{ url_for('salesemp.clientsList') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">account_circle</span></div>
+        <h2 class="card-title">Clientes</h2>
+        <p class="card-desc">Consulta y gestiona la cartera de clientes.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('salesemp.salesList') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">sell</span></div>
+        <h2 class="card-title">Ventas</h2>
+        <p class="card-desc">Pedidos de venta activos y seguimiento.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('salesemp.rentsList') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">list_alt</span></div>
+        <h2 class="card-title">Rentas</h2>
+        <p class="card-desc">Control de rentas y cancelaciones.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('salesemp.newRequest') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">notifications_active</span></div>
+        <h2 class="card-title">Solicitudes nuevas</h2>
+        <p class="card-desc">Revisa y clasifica pedidos entrantes.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('salesemp.prospects') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">group_add</span></div>
+        <h2 class="card-title">Prospección</h2>
+        <p class="card-desc">Captura y da seguimiento a prospectos.</p>
+      </a>
+    </li>
+  </ul>
 </div>
-
-<header class="header">
-    <nav>
-        <div class="logo">
-            <a title="logo" href="/startpage"><img src="{{ url_for('static', filename='images/logo.png') }}" class="logo" /></a>
-        </div>
-
-    </nav>
-</header>
-
-
-
-<div class="user">
-    <h1>Bienvenido, {{current_user.fullname}}</h1>
-    {# <h3>{{current_user.id}}</h3> #}
-
-    <h1>Página de empleados de ventas</h1>
-</div>
-
-<div class="navigation" align="center">
-    <ul>
-        <li class="list active">
-            <a href="/salesEmpArea/clientsList">
-
-                <span class="icon">
-                    <span class="material-symbols-rounded">
-                        account_circle
-                    </span>
-                </span>
-                <span class="text">Clientes</span>
-            </a>
-        </li>
-        <li class="list">
-            <a href="/salesEmpArea/salesList">
-                <span class="icon">
-                    <span class="material-symbols-rounded">
-                        sell
-                    </span>
-                </span>
-                <span class="text">Ventas</span>
-            </a>
-        </li>
-        <li class="list">
-            <a href="/salesEmpArea/rentsList">
-                <span class="icon">
-                    <span class="material-symbols-rounded">
-                        list_alt
-                    </span>
-                </span>
-                <span class="text">Rentas</span>
-            </a>
-        </li>
-        <li class="list">
-            <a href="/salesEmpArea/newRequest">
-                <span class="icon">
-                    <span class="material-symbols-rounded">
-                        notifications_active
-                    </span>
-                </span>
-                <span class="text">Solicitudes nuevas</span>
-            </a>
-        </li>
-        <li class="list">
-            <a href="/salesEmpArea/prospects">
-                <span class="icon">
-                    <span class="material-symbols-rounded">
-                        group_add
-                    </span>
-                </span>
-                <span class="text">Prospeccion</span>
-            </a>
-        </li>
-        <div class="indicator"></div>
-    </ul>
-</div>
-
-{# Script para manejar la selección del menu en la barra inferior #}
-<script src="{{ url_for('static', filename='js/selectionItems.js') }}"></script>
-
-
-<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-
-{# Importamos las particulas #}
-<script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
 {% endblock %}

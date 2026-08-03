@@ -1,68 +1,61 @@
-
 {% extends './base.html' %}
 
-{% block title%}Login Clientes{% endblock %}
+{% block title %}Login Clientes{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css')}}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300,0,0" />
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 {% endblock %}
 
 {% block body %}
-
-<a href="/startpage" class="inicio">
-  <img src="{{ url_for('static', filename='images/logo.png') }}" width="50" height="50" alt="logo1">
-  Ir a la página de inicio
+<a href="{{ url_for('startpage') }}" class="inicio">
+  <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+  Inicio
 </a>
 
-<form class="form-signin" action="{{ url_for('login') }}" method="POST">
-    
+<div class="login-card-container">
+  <div class="login-card">
     {% with messages = get_flashed_messages() %}
-
-    {% if messages %}
-    <br />
-    {% for message in messages %}
-    <div class="alert alert-primary alert-dismissible" role="alert">
-        <strong>{{ message }}</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-    {% endif %}
-
+      {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+      {% endif %}
     {% endwith %}
 
-<div class="login-card-container" align="center">
-    <div class="login-card">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-        <div class="login-card-logo">
-            <a title="logo" href="/startpage"><img src="{{ url_for('static', filename='images/logo.png') }}" class="logo"/></a>
-        </div>
-
-        <div class="login-card-header">
-            <h1>Inicio de sesión: Clientes</h1>
-            <div>Por favor inicia sesión</div>
-        </div>
-        <form class="login-card-form">
-            <div class="form-item">
-                <span class="form-item-icon material-symbols-rounded">person</span>
-                <input type="text" placeholder="Usuario" name="username" required="required">
-            </div>
-            <div class="form-item">
-                <span class="form-item-icon material-symbols-rounded">lock</span>
-                <input type="password" placeholder="Contraseña" name="password" required="required">
-            </div>
-            <div class="form-item-other">
-                <a href="/forgotpassword">Olvidé mi contraseña</a>
-            </div>
-            <button type="submit">Iniciar sesión</button>
-        </form>
-        <div class="login-card-footer">
-            No tienes una cuenta? <a href="/signup">Crear cuenta</a>
-        </div>
+    <div class="login-card-logo">
+      <a href="{{ url_for('startpage') }}">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="BLDNG Solutions">
+      </a>
     </div>
-    <div class="login-card-social"></div>
-</div>
 
+    <div class="login-card-header">
+      <h1>Clientes</h1>
+      <div>Inicia sesión para continuar</div>
+    </div>
+
+    <form class="login-card-form" action="{{ url_for('login') }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-item">
+        <span class="form-item-icon material-symbols-rounded">person</span>
+        <input type="text" placeholder="Usuario" name="username" required autocomplete="username">
+      </div>
+      <div class="form-item">
+        <span class="form-item-icon material-symbols-rounded">lock</span>
+        <input type="password" placeholder="Contraseña" name="password" required autocomplete="current-password">
+      </div>
+      <div class="form-item-other">
+        <a href="{{ url_for('forgotpassword') }}">Olvidé mi contraseña</a>
+      </div>
+      <button type="submit">Entrar</button>
+    </form>
+
+    <div class="login-card-footer">
+      ¿No tienes una cuenta? <a href="{{ url_for('signup') }}">Crear cuenta</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -1,0 +1,351 @@
+@import url('erp-base.css');
+@import url('erp-components.css');
+
+/* ── Auth pages ── */
+
+html, body {
+    min-height: 100%;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(145deg, #0f3460 0%, #1e56a0 55%, #2a6fbf 100%);
+    padding: 2rem 1rem;
+    margin: 0;
+}
+
+.login-card-container,
+.form-signin {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.login-card,
+.add-employee-card,
+.update-employee-card {
+    width: 100%;
+    background: #ffffff;
+    padding: 2rem 2rem 1.75rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+}
+
+.login-card::before,
+.add-employee-card::before,
+.update-employee-card::before {
+    display: none !important;
+    content: none !important;
+}
+
+.login-card-logo,
+.login-card-header,
+.login-card-footer,
+.add-employee-card-header,
+.update-employee-card-header {
+    text-align: center;
+}
+
+.login-card-logo {
+    margin-bottom: 1rem;
+}
+
+.login-card-logo a {
+    display: inline-block;
+}
+
+.login-card-logo img,
+.login-card-logo .logo {
+    width: 56px !important;
+    height: 56px !important;
+    max-width: 56px;
+    object-fit: contain;
+    position: static !important;
+    margin: 0 auto;
+    display: block;
+}
+
+.login-card-header {
+    margin-bottom: 1.5rem;
+}
+
+.login-card-header h1,
+.add-employee-card-header h1,
+.update-employee-card-header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 0.35rem;
+    line-height: 1.3;
+}
+
+.login-card-header h1 + div {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.login-card-form,
+.add-employee-card-form,
+.update-employee-card-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.login-card-form .form-item,
+.add-employee-card-form .form-item,
+.update-employee-card-form .form-item,
+.login-card .form-item {
+    position: relative;
+    display: block;
+    width: 100%;
+    margin-bottom: 0.75rem;
+}
+
+.login-card-form .form-item .form-item-icon,
+.add-employee-card-form .form-item .form-item-icon,
+.update-employee-card-form .form-item .form-item-icon,
+.login-card .form-item .form-item-icon {
+    position: absolute;
+    top: 50%;
+    left: 0.85rem;
+    transform: translateY(-50%);
+    font-size: 1.25rem !important;
+    line-height: 1;
+    color: #94a3b8;
+    pointer-events: none;
+    z-index: 2;
+    width: auto;
+    height: auto;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.login-card-form .form-item-other {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 0.8125rem;
+    margin: 0;
+}
+
+.login-card-footer {
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    color: #64748b;
+}
+
+.login-card a,
+.login-card-footer a {
+    color: #1e56a0;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-card a:hover,
+.login-card-footer a:hover {
+    text-decoration: underline;
+}
+
+.login-card input[type="text"],
+.login-card input[type="password"],
+.login-card input[type="email"],
+.login-card input[type="user"],
+.add-employee-card input[type="text"],
+.add-employee-card input[type="password"],
+.add-employee-card input[type="email"],
+.add-employee-card input[type="user"],
+.update-employee-card input[type="text"],
+.update-employee-card input[type="password"],
+.update-employee-card input[type="email"],
+.update-employee-card input[type="user"] {
+    width: 100%;
+    height: 46px;
+    padding: 0.65rem 0.875rem 0.65rem 2.75rem !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    background: #f8fafc !important;
+    color: #1e293b;
+    font-size: 0.9375rem;
+    box-shadow: none !important;
+}
+
+.login-card-form {
+    gap: 0.15rem;
+}
+
+.login-card-form .form-item {
+    margin-bottom: 0.85rem;
+}
+
+.login-card input:focus,
+.add-employee-card input:focus,
+.update-employee-card input:focus {
+    background: #ffffff !important;
+    border-color: #1e56a0 !important;
+    box-shadow: 0 0 0 3px rgba(30, 86, 160, 0.15) !important;
+    outline: none;
+}
+
+.login-card button,
+.add-employee-card button,
+.update-employee-card button,
+.login-card button[type="submit"] {
+    width: 100%;
+    height: 46px;
+    margin: 0.25rem 0 0 !important;
+    padding: 0 1rem !important;
+    border: none;
+    border-radius: 8px !important;
+    background: #1e56a0 !important;
+    color: #ffffff !important;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+}
+
+.login-card button:hover,
+.add-employee-card button:hover,
+.update-employee-card button:hover {
+    background: #164785 !important;
+}
+
+.login-card .alert,
+.form-signin .alert {
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.inicio {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.85rem;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff !important;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    text-decoration: none !important;
+}
+
+.inicio img {
+    width: 28px !important;
+    height: 28px !important;
+    object-fit: contain;
+    position: static !important;
+    margin: 0;
+}
+
+.inicio:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff !important;
+}
+
+.login-card-social {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 4.5rem 1rem 2rem;
+        align-items: flex-start;
+    }
+
+    .login-card,
+    .add-employee-card,
+    .update-employee-card {
+        padding: 1.5rem;
+    }
+
+    .inicio span,
+    .inicio {
+        font-size: 0.75rem;
+    }
+}
+
+/* ── Dark mode (auth) ── */
+
+[data-theme="dark"] body {
+    background: linear-gradient(145deg, #0a1628 0%, #12263f 50%, #1a3555 100%);
+}
+
+[data-theme="dark"] .login-card,
+[data-theme="dark"] .add-employee-card,
+[data-theme="dark"] .update-employee-card {
+    background: var(--erp-surface);
+    border-color: var(--erp-border);
+    box-shadow: var(--erp-shadow-lg);
+}
+
+[data-theme="dark"] .login-card-header h1,
+[data-theme="dark"] .add-employee-card-header h1,
+[data-theme="dark"] .update-employee-card-header h1 {
+    color: var(--erp-text);
+}
+
+[data-theme="dark"] .login-card-header h1 + div,
+[data-theme="dark"] .login-card-footer {
+    color: var(--erp-text-secondary);
+}
+
+[data-theme="dark"] .login-card a,
+[data-theme="dark"] .login-card-footer a {
+    color: var(--erp-primary);
+}
+
+[data-theme="dark"] .login-card-form .form-item .form-item-icon,
+[data-theme="dark"] .add-employee-card-form .form-item .form-item-icon,
+[data-theme="dark"] .update-employee-card-form .form-item .form-item-icon,
+[data-theme="dark"] .login-card .form-item .form-item-icon {
+    color: var(--erp-text-muted);
+}
+
+[data-theme="dark"] .login-card input[type="text"],
+[data-theme="dark"] .login-card input[type="password"],
+[data-theme="dark"] .login-card input[type="email"],
+[data-theme="dark"] .login-card input[type="user"],
+[data-theme="dark"] .add-employee-card input[type="text"],
+[data-theme="dark"] .add-employee-card input[type="password"],
+[data-theme="dark"] .add-employee-card input[type="email"],
+[data-theme="dark"] .add-employee-card input[type="user"],
+[data-theme="dark"] .update-employee-card input[type="text"],
+[data-theme="dark"] .update-employee-card input[type="password"],
+[data-theme="dark"] .update-employee-card input[type="email"],
+[data-theme="dark"] .update-employee-card input[type="user"] {
+    border-color: var(--erp-border) !important;
+    background: var(--erp-bg) !important;
+    color: var(--erp-text) !important;
+}
+
+[data-theme="dark"] .login-card input:focus,
+[data-theme="dark"] .add-employee-card input:focus,
+[data-theme="dark"] .update-employee-card input:focus {
+    background: var(--erp-surface-hover) !important;
+    border-color: var(--erp-primary) !important;
+    box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.25) !important;
+}
+
+[data-theme="dark"] .login-card button,
+[data-theme="dark"] .add-employee-card button,
+[data-theme="dark"] .update-employee-card button,
+[data-theme="dark"] .login-card button[type="submit"] {
+    background: var(--erp-primary) !important;
+    color: #0f1419 !important;
+}
+
+[data-theme="dark"] .login-card button:hover,
+[data-theme="dark"] .add-employee-card button:hover,
+[data-theme="dark"] .update-employee-card button:hover {
+    background: var(--erp-primary-hover) !important;
+}

@@ -1,112 +1,61 @@
 {% extends './base.html' %}
 
-{% block title%}Mantenimiento{% endblock %}
+{% block title %}Mantenimiento{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance/mantHome.css')}}">
-<link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-<link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance/mantHome.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
 {% endblock %}
 
 {% block body %}
-<div id="particles-js"></div>
-<style>
-    body {
-        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-
-    #particles-js {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-
-    }
-</style>
-
-
-<div class="logout" style="position: absolute; top: 15px; right: 10px;">
-    <a class="btn btn-secondary" href="{{ url_for('logoutemp') }}">
-        <span class="material-symbols-rounded" style="vertical-align: middle;">logout</span>
-        Cerrar Sesión
+<div class="module-home">
+  <div class="module-home-top">
+    <a class="module-home-brand" href="{{ url_for('startpage') }}">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+      <span>BLDNGSolutions</span>
     </a>
+    <div class="module-home-actions">
+      <a class="btn btn-secondary" href="{{ url_for('logoutemp') }}">
+        <span class="material-symbols-rounded">logout</span> Salir
+      </a>
+    </div>
+  </div>
+
+  <section class="module-home-hero">
+    <p class="eyebrow">Área de mantenimiento</p>
+    <h1>Bienvenido, {{ current_user.fullname }}</h1>
+    <p>Programa servicios, atiende reportes y gestiona avisos de almacén.</p>
+  </section>
+
+  <ul class="module-home-grid">
+    <li>
+      <a class="module-home-card" href="{{ url_for('maintemp.mantMachines') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">precision_manufacturing</span></div>
+        <h2 class="card-title">Máquinas</h2>
+        <p class="card-desc">Equipos bajo tu responsabilidad.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('maintemp.mantMaintenance') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">construction</span></div>
+        <h2 class="card-title">Mantenimiento</h2>
+        <p class="card-desc">Preventivos y correctivos programados.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('maintemp.mantReports') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">report</span></div>
+        <h2 class="card-title">Reportes</h2>
+        <p class="card-desc">Fallas reportadas por clientes.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('maintemp.storageRequests') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">notifications</span></div>
+        <h2 class="card-title">Avisos de almacén</h2>
+        <p class="card-desc">Solicitudes de mantenimiento entrantes.</p>
+      </a>
+    </li>
+  </ul>
 </div>
-
-
-<header class="header">
-    <nav>
-        <div class="logo">
-            <a title="logo" href="/startpage"><img src="{{ url_for('static', filename='images/logo.png') }}" class="logo" /></a>
-        </div>
-
-    </nav>
-</header>
-
-<div class="user">
-    <h1>Bienvenido, {{current_user.fullname}}</h1>
-    {# <h3>{{current_user.id}}</h3> #}
-
-    <h1>Página de empleados de mantenimiento</h1>
-</div>
-
-<div class="navigation" align="center">
-    <ul>
-        <li class="list active">
-            <a href="/maintenance/mantMachines">
-                <span class="icon">
-                    <span class="material-symbols-outlined">
-                        precision_manufacturing
-                    </span>
-                </span>
-                <span class="text">Maquinas</span>
-            </a>
-        </li>
-        <li class="list">
-            <a href="/maintenance/mantMaintenance">
-                <span class="icon">
-                    <span class="material-symbols-outlined">
-                        construction
-                    </span>
-                </span>
-                <span class="text">Mantenimiento</span>
-            </a>
-        </li>
-        <li class="list">
-            <a href="/maintenance/mantReports">
-                <span class="icon">
-                    <span class="material-symbols-outlined">
-                        report
-                    </span>
-                </span>
-                <span class="text">Reportes</span>
-            </a>
-        </li>
-        <li class="list">
-            <a href="/maintenance/storageRequests">
-                <span class="icon">
-                    <span class="material-symbols-outlined">
-                        notifications
-                    </span>
-                </span>
-                <span class="text">Avisos de mantenimiento</span>
-            </a>
-        </li>
-
-        <div class="indicator"></div>
-    </ul>
-</div>
-
-{# Script para manejar la selección del menu en la barra inferior #}
-<script src="{{ url_for('static', filename='js/selectionItems.js') }}"></script>
-
-{# Importamos las particulas #}
-<script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
-
 {% endblock %}

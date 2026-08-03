@@ -18,6 +18,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfgen import canvas
 from io import BytesIO
+import os
 # import stripe
 
 app = Flask(__name__)
@@ -66,7 +67,13 @@ def payments():
     orders = cur.fetchall()
     cur.close()
 
-    return render_template('clientuser/payments.jinja', user_id=user_id, orders=orders)
+    return render_template(
+        'clientuser/payments.jinja',
+        user_id=user_id,
+        orders=orders,
+        stripe_publishable_key=os.environ.get('STRIPE_PUBLISHABLE_KEY', ''),
+        stripe_buy_button_id=os.environ.get('STRIPE_BUY_BUTTON_ID', ''),
+    )
 
 #---------------Funcion para generar una orden de pago en PDF------------------------------
 def generar_pdf_orden_pago(bancoDestino, numeroCuenta, nombreTitular, monto, concepto, imagen_url):

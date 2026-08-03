@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "functions": {
+    "src/app.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{env/**,.venv/**,**/*.sql,bdcompleta.sql,migrations/**,**/__pycache__/**,**/*.pyc,agent-transcripts/**}"
+    }
+  }
+}

@@ -1,204 +1,108 @@
 {% extends './base.html' %}
 
-{% block title%}Almacén{% endblock %}
+{% block title %}Almacén{% endblock %}
 
 {% block customCSS %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/storage/storageHome.css')}}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/storage/storageHome.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
 {% endblock %}
 
-
 {% block body %}
-<div id="particles-js"></div>
-<style>
-    body {
-        background-image: url("{{ url_for('static', filename = 'images/backgrounds/background1.png') }}");
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-
-    #particles-js {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-
-    }
-</style>
-
-<div class="logout" style="position: absolute; top: 15px; right: 10px;">
-    <a class="btn btn-secondary" href="{{ url_for('salesemp.logout') }}">
-        <span class="material-symbols-rounded" style="vertical-align: middle;">logout</span>
-        Cerrar Sesión
+<div class="module-home">
+  <div class="module-home-top">
+    <a class="module-home-brand" href="{{ url_for('startpage') }}">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+      <span>BLDNGSolutions</span>
     </a>
-</div>
-
-<header class="header">
-    <nav>
-        <div class="logo">
-            <a title="logo" href="/startpage"><img src="{{ url_for('static', filename='images/logo.png') }}" class="logo" /></a>
-        </div>
-
-    </nav>
-</header>
-
-<div class="notifications" style="position: absolute; top: 60px; right: 10px;">
-    <span class="material-symbols-rounded" style="font-size: 50px; color:white;" id="notification-icon">
-        notifications
-    </span>
-    <span id="notification-count-badge" class="notification-badge">0</span>
-    <div id="notification-popup" class="notification-popup">
-        <!-- Contenido de las notificaciones -->
+    <div class="module-home-actions">
+      <div class="notifications">
+        <span class="material-symbols-rounded" id="notification-icon">notifications</span>
+        <span id="notification-count-badge" class="notification-badge">0</span>
+        <div id="notification-popup" class="notification-popup"></div>
+      </div>
+      <a class="btn btn-secondary" href="{{ url_for('storageemp.logout') }}">
+        <span class="material-symbols-rounded">logout</span> Salir
+      </a>
     </div>
+  </div>
+
+  <section class="module-home-hero">
+    <p class="eyebrow">Área de almacén</p>
+    <h1>Bienvenido, {{ current_user.fullname }}</h1>
+    <p>Inventario, historial de movimientos y avisos de mantenimiento.</p>
+  </section>
+
+  <ul class="module-home-grid">
+    <li>
+      <a class="module-home-card" href="{{ url_for('storageemp.stoMachines') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">precision_manufacturing</span></div>
+        <h2 class="card-title">Máquinas</h2>
+        <p class="card-desc">Catálogo e inventario de maquinaria.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('storageemp.stoHistory') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">history</span></div>
+        <h2 class="card-title">Historial</h2>
+        <p class="card-desc">Entradas y salidas registradas en almacén.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('storageemp.stoMaintenance') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">construction</span></div>
+        <h2 class="card-title">Mantenimiento</h2>
+        <p class="card-desc">Avisos y estado de equipos a revisar.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('storageemp.readyMachines') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">priority_high</span></div>
+        <h2 class="card-title">En espera de salida</h2>
+        <p class="card-desc">Pedidos listos para liberar maquinaria.</p>
+      </a>
+    </li>
+    <li>
+      <a class="module-home-card" href="{{ url_for('storageemp.readyMaintMachines') }}">
+        <div class="card-icon"><span class="material-symbols-rounded">arrow_right_alt</span></div>
+        <h2 class="card-title">Retiro por mantenimiento</h2>
+        <p class="card-desc">Equipos marcados para retiro técnico.</p>
+      </a>
+    </li>
+  </ul>
 </div>
-
-<div class="user">
-    <h1>Bienvenido, {{current_user.fullname}}</h1>
-    {# <h3>{{current_user.id}}</h3> #}
-    
-    <h1>Página de empleados de almacén</h1>
-</div>
-
-<div class="navigation" align="center">
-    <ul>
-        <li class="list active" align="center">
-            <a href="/storage/stoMachines">
-                <span class="icon">
-                    <span class="material-symbols-rounded">precision_manufacturing</span>
-                </span>
-                <span class="text">Máquinas</span>
-            </a>
-        </li>
-
-        <li class="list">
-            <a href="/storage/stoHistory">
-                <span class="icon">
-                    <span class="material-symbols-rounded">history</span>
-                </span>
-                <span class="text">Historial</span>
-            </a>
-        </li>
-
-        <li class="list">
-            <a href="/storage/stoMaintenance">
-                <span class="icon">
-                    <span class="material-symbols-rounded">construction</span>
-                </span>
-                <span class="text">Mantenimiento</span>
-            </a>
-        </li>
-
-        <li class="list">
-            <a href="/storage/readyMachines">
-                <span class="icon">
-                    <span class="material-symbols-rounded">priority_high</span>
-                </span>
-                <span class="text">Máquinas en espera de salida</span>
-            </a>
-        </li>
-
-        <li class="list">
-            <a href="/storage/readyMaintMachines">
-                <span class="icon">
-                    <span class="material-symbols-rounded">arrow_right_alt</span>
-                </span>
-                <span class="text">Retiro por mantenimiento</span>
-            </a>
-        </li>
-        <div class="indicator"></div>
-    </ul>
-</div>
-
-{# Script para manejar la selección del menu en la barra inferior #}
-<script src="{{ url_for('static', filename='js/selectionItems.js') }}"></script>
-
-{# Importamos las particulas #}
-<script src="{{ url_for('static', filename='js/particlesjs/particles.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/particlesjs/particlesjs-config.json') }}"></script>
-
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const notificationIcon = document.getElementById('notification-icon');
-        const notificationPopup = document.getElementById('notification-popup');
-        const closeNotificationPopup = document.getElementById('close-notification-popup');
+document.addEventListener('DOMContentLoaded', function () {
+  const icon = document.getElementById('notification-icon');
+  const popup = document.getElementById('notification-popup');
+  const badge = document.getElementById('notification-count-badge');
+  let open = false;
 
-        let isPopupOpen = false;
-
-        notificationIcon.addEventListener('click', function () {
-            if (isPopupOpen) {
-                notificationPopup.style.display = 'none';
-            } else {
-                // Hacer una solicitud AJAX al servidor para obtener las notificaciones en formato JSON
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', '/fetch_machines_notifications', true);
-
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        const notifications = JSON.parse(xhr.responseText);
-                        const notificationList = document.createElement('ul');
-                        notificationList.classList.add('notification-list-container');
-
-                        // Agregar un elemento de lista para el encabezado
-                        const headerListItem = document.createElement('li');
-                        headerListItem.textContent = 'Máquinas proximas a salir';
-                        headerListItem.style.listStyleType = 'none';
-                        notificationList.appendChild(headerListItem);
-
-                        // Crear elementos de lista para cada notificación
-                        notifications.forEach(function (notification) {
-                            const listItem = document.createElement('li');
-                            listItem.textContent = `Máquina: ${notification[2]} ${notification[1]}, Necesita mantenimiento`;
-
-                            if (notification[2]) {
-                                listItem.classList.add('azul');
-                            }
-
-                            notificationList.appendChild(listItem);
-                        });
-
-                        notificationPopup.innerHTML = '';
-                        notificationPopup.appendChild(notificationList);
-                        notificationPopup.style.display = 'block';
-
-                        // Actualizar el contador de notificaciones
-                        const notificationCount = notifications.length;
-                        const notificationCountBadge = document.getElementById('notification-count-badge');
-                        notificationCountBadge.textContent = notificationCount;
-                    }
-                };
-
-                xhr.send();
-            }
-
-            isPopupOpen = !isPopupOpen;
+  function loadNotifications() {
+    fetch('/fetch_machines_notifications')
+      .then(r => r.json())
+      .then(data => {
+        const list = document.createElement('ul');
+        list.className = 'notification-list-container';
+        (data || []).forEach(item => {
+          const li = document.createElement('li');
+          li.className = 'azul';
+          li.textContent = Array.isArray(item) ? `Máquina ${item[0]}: ${item[1]} ${item[2]}` : String(item);
+          list.appendChild(li);
         });
+        popup.innerHTML = '';
+        popup.appendChild(list);
+        badge.textContent = (data || []).length;
+      })
+      .catch(() => { badge.textContent = '0'; });
+  }
 
-        closeNotificationPopup.addEventListener('click', function () {
-            notificationPopup.style.display = 'none';
-            isPopupOpen = false;
-        });
-    });
-
-
-    document.addEventListener('DOMContentLoaded', function () {
-    // Hacer una solicitud AJAX para obtener las notificaciones
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', '/fetch_machines_notifications', true);
-
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            const notifications = JSON.parse(xhr.responseText);
-            const notificationCount = notifications.length;
-            // Actualiza el contador de notificaciones
-            document.getElementById('notification-count-badge').textContent = notificationCount;
-        }
-    };
-
-    xhr.send();
+  loadNotifications();
+  icon.addEventListener('click', function () {
+    open = !open;
+    popup.style.display = open ? 'block' : 'none';
+    if (open) loadNotifications();
+  });
 });
-
 </script>
 {% endblock %}

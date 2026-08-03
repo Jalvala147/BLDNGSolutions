@@ -1,0 +1,66 @@
+@import url('erp-variables.css');
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--erp-font);
+    font-size: var(--erp-font-size-base);
+    color: var(--erp-text);
+    background-color: var(--erp-bg);
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+a {
+    color: var(--erp-primary);
+    text-decoration: none;
+    transition: color var(--erp-transition);
+}
+
+a:hover {
+    color: var(--erp-primary-hover);
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--erp-text);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+h1 { font-size: var(--erp-font-size-2xl); }
+h2 { font-size: var(--erp-font-size-xl); }
+h3 { font-size: var(--erp-font-size-lg); }
+
+p {
+    color: var(--erp-text-secondary);
+}
+
+small, .text-muted {
+    color: var(--erp-text-muted);
+    font-size: var(--erp-font-size-sm);
+}
+
+.primary   { color: var(--erp-primary); }
+.success   { color: var(--erp-success); }
+.danger    { color: var(--erp-danger); }
+.warning   { color: var(--erp-warning); }
+.info      { color: var(--erp-info); }
