@@ -37,9 +37,12 @@
                 data-symbol="edit"></a>
         </td>
         <td>
-            <a href="{{ url_for('admin.salesDeleteEmp', id=user[0]) }}"
-                onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')"
-                class="material-symbols-rounded" data-symbol="delete"></a>
+            <form method="POST" action="{{ url_for('admin.salesDeleteEmp', id=user[0]) }}" style="display:inline;"
+                onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="material-symbols-rounded" data-symbol="delete"
+                    style="background:none;border:none;cursor:pointer;padding:0;color:inherit;">delete</button>
+            </form>
         </td>
         <form method="POST" action="{{ url_for('admin.update_note', user_id=user[0]) }}" target="_self">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

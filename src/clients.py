@@ -19,6 +19,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
+from werkzeug.utils import secure_filename
 # import stripe
 
 app = Flask(__name__)
@@ -129,6 +130,8 @@ def generar_pdf_orden_pago(bancoDestino, numeroCuenta, nombreTitular, monto, con
 
 #----Fucion para generar el PDF y descargarlo
 @clients.route('/generar-orden-de-pago', methods=['POST'])
+@client_required
+@login_required
 def generar_orden_de_pago():
     # Recopila los valores de los campos del formulario
     bancoDestino = request.form.get('banco_destino')
@@ -180,16 +183,17 @@ def makereport():
     order_ids = [row[0] for row in cur.fetchall()]
     cur.close()
 
-    # Obtén las máquinas únicas correspondientes a los 'order_id'
-    cur = mysql.connection.cursor()
-    cur.execute("""
-    SELECT DISTINCT m.id_Machine, UPPER(m.model), UPPER(m.brand)
-    FROM machines m
-    JOIN machineorders mo ON m.id_Machine = mo.machine_id
-    WHERE mo.order_id IN %s
-    """, (tuple(order_ids),))
-    machine_info = {row[0]: f"{row[2]} - {row[1]}" for row in cur.fetchall()}
-    cur.close()
+    machine_info = {}
+    if order_ids:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+        SELECT DISTINCT m.id_Machine, UPPER(m.model), UPPER(m.brand)
+        FROM machines m
+        JOIN machineorders mo ON m.id_Machine = mo.machine_id
+        WHERE mo.order_id IN %s
+        """, (tuple(order_ids),))
+        machine_info = {row[0]: f"{row[2]} - {row[1]}" for row in cur.fetchall()}
+        cur.close()
 
     return render_template('/clientuser/makereport.jinja', machine_info=machine_info)
 
@@ -206,17 +210,23 @@ def docs():
 
     if request.method == 'POST':
         file = request.files['file']
-        if file:
-            # Leer el contenido del archivo
+        if file and file.filename:
+            filename = secure_filename(file.filename)
+            if not filename:
+                flash('Nombre de archivo inválido ❌', 'error')
+                return redirect(url_for('clients.docs'))
+
+            allowed_extensions = {'.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx'}
+            ext = os.path.splitext(filename)[1].lower()
+            if ext not in allowed_extensions:
+                flash('Tipo de archivo no permitido. Usa PDF, imagen u Office.', 'error')
+                return redirect(url_for('clients.docs'))
+
             file_data = file.read()
 
-            # Obtener el nombre del archivo
-            filename = file.filename
-
-            # Guardar el contenido y el nombre del archivo en la base de datos
             cur = mysql.connection.cursor()
             cur.execute("INSERT INTO files (user_id, filename, file_data, status) VALUES (%s, %s, %s, %s)",
-                        (user_id, filename, file_data, 0))  # Establece el estado como 1 para "Valido"
+                        (user_id, filename, file_data, 0))
             mysql.connection.commit()
             cur.close()
 
@@ -231,7 +241,7 @@ def docs():
 
     return render_template('/clientuser/docs.jinja', user_id=user_id, documents=documents)   
 
-@clients.route('/request_change/<int:document_id>', methods=['GET'])
+@clients.route('/request_change/<int:document_id>', methods=['POST'])
 @client_required
 @login_required
 def request_change_document(document_id):
@@ -251,7 +261,7 @@ def request_change_document(document_id):
 
     return redirect(url_for('clients.docs'))
 
-@clients.route('/delete_document/<int:document_id>', methods=['GET', 'POST'])
+@clients.route('/delete_document/<int:document_id>', methods=['POST'])
 @client_required
 @login_required
 def delete_document(document_id):
@@ -297,7 +307,7 @@ def canceledOrders():
     user_id = current_user.id
     cur = mysql.connection.cursor()
     #tomamos id la fecha y total de los pedidos del usuario actual
-    cur.execute("SELECT id, order_date, total, cancel_status FROM orders WHERE clientUser_id = %s AND (cancel_status != 0 OR cancel_status IS NOT NULL)", (user_id,))
+    cur.execute("SELECT id, order_date, total, cancel_status FROM orders WHERE clientUser_id = %s AND cancel_status = 0", (user_id,))
     orders_data = cur.fetchall()
     cur.close()
 
@@ -341,10 +351,13 @@ def information(id_order):
     SELECT o.total, u.fullname AS client_name, o.rfc, CONCAT(o.address, ', ', o.postalCode) AS delivery_address, o.paymentMethod AS payment_method
     FROM orders o
     INNER JOIN user u ON o.clientUser_id = u.id
-    WHERE o.id = %s
-    """, (id_order,))
+    WHERE o.id = %s AND (o.clientUser_id = %s OR %s = 1)
+    """, (id_order, current_user.id, current_user.tipoUsuario))
     
     order_info = cur.fetchone()
+    if order_info is None:
+        flash('No tienes permiso para ver este pedido.', 'error')
+        return redirect(url_for('clients.orders'))
     total = order_info[0] if order_info else 0
     client_name = order_info[1] if order_info else ""
     rfc = order_info[2] if order_info else ""
@@ -427,52 +440,74 @@ def products():
 @login_required
 def place_order():
     if request.method == 'POST':
-        client_user_id = request.form['clientUser_id']
-        cart_machine_ids_str = request.form['cart_machine_ids']
-        cart_total = request.form['cart_total']
-        cart_weeks_str = request.form['cart_weeks']
-        cart_type = request.form['cart-type']
+        client_user_id = current_user.id
+        cart_machine_ids_str = request.form.get('cart_machine_ids', '')
+        cart_weeks_str = request.form.get('cart_weeks')
 
-        #Bloque de pruebas de recepcion de informacion desde el form input type hidden de products.jinja
-        print(f'client_user_id: {client_user_id}')
-        print(f'cart_machine_ids_str: {cart_machine_ids_str}') 
-        print(f'cart_total: {cart_total}')
-        print(f'cart_weeks: {cart_weeks_str}')
-        print(f'cart_type: {cart_type}')
+        if not cart_machine_ids_str or not cart_weeks_str:
+            flash('El carrito está vacío o es inválido.', 'error')
+            return redirect(url_for('clients.products'))
 
-        # Convertir la cadena JSON en un diccionario
-        cart_weeks = json.loads(cart_weeks_str)
+        try:
+            cart_weeks = json.loads(cart_weeks_str)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            flash('No se pudo leer el carrito.', 'error')
+            return redirect(url_for('clients.products'))
 
         # Variable para almacenar el tipo del pedido
         order_type = 1  # Inicialmente, establecemos el tipo en 1 (renta)
 
-        # Verificar si al menos una máquina es de compra (cart_type contiene al menos un "0")
-        for machine_data in cart_weeks.values():
-            machine_type = machine_data['type']
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id_Machine, price, sell_price FROM products")
+        catalog = {
+            str(row[0]): {'rent': row[1], 'sell': row[2]}
+            for row in cur.fetchall()
+        }
+
+        line_items = []
+        cart_total = 0
+        for machine_id in cart_machine_ids_str.split(','):
+            machine_id = machine_id.strip()
+            if not machine_id:
+                continue
+            machine_data = cart_weeks.get(machine_id) or {}
+            machine_type = str(machine_data.get('type', '1'))
+            try:
+                weeks = int(machine_data.get('weeks') or 1)
+            except (TypeError, ValueError):
+                weeks = 1
+            weeks = max(1, weeks)
+
+            prices = catalog.get(machine_id)
+            if not prices:
+                continue
+
             if machine_type == "0":
                 order_type = 0
-                break  # Si encontramos al menos una máquina de compra, no necesitamos seguir buscando
+                line_price = float(prices['sell'] or 0)
+            else:
+                line_price = float(prices['rent'] or 0) * weeks
 
+            cart_total += line_price
+            line_items.append((machine_id, weeks, line_price, machine_type))
 
-        # Insertar el pedido en la tabla "orders"
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO orders (clientUser_id, total, type) VALUES (%s, %s, %s)", (client_user_id, cart_total, order_type))
+        if not line_items:
+            cur.close()
+            flash('El carrito está vacío o es inválido.', 'error')
+            return redirect(url_for('clients.products'))
+
+        cur.execute(
+            "INSERT INTO orders (clientUser_id, total, type) VALUES (%s, %s, %s)",
+            (client_user_id, cart_total, order_type),
+        )
         mysql.connection.commit()
-
-        # Obtener el ID del pedido recién insertado
         order_id = cur.lastrowid
 
-        # Obtener la lista de IDs de las máquinas y convertirla en una lista
-        cart_machine_ids = cart_machine_ids_str.split(',')
-
-        # Insertar las máquinas relacionadas en la tabla "machineorders"
-        for machine_id in cart_machine_ids:
-            machine_data = cart_weeks.get(machine_id)
-            weeks = machine_data['weeks']
-            price = machine_data['price']
-            type = machine_data['type']
-            cur.execute("INSERT INTO machineorders (order_id, machine_id, weeks, price, type) VALUES (%s, %s, %s, %s, %s)",
-                        (order_id, machine_id, weeks, price, type))
+        for machine_id, weeks, price, machine_type in line_items:
+            cur.execute(
+                "INSERT INTO machineorders (order_id, machine_id, weeks, price, type) VALUES (%s, %s, %s, %s, %s)",
+                (order_id, machine_id, weeks, price, machine_type),
+            )
             mysql.connection.commit()
 
         cur.close()

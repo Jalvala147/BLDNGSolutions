@@ -96,20 +96,23 @@
           {% endif %}
         </td>
         <td>
-          <a href="{{ url_for('clients.request_change_document', document_id=file[0]) }}" class="btn btn-danger" onclick="return confirm('¿Quieres solicitar cambio de este documento?');">
-              <span class="material-symbols-rounded">
-                  article_shortcut
-              </span>
-          </a>
+          <form method="POST" action="{{ url_for('clients.request_change_document', document_id=file[0]) }}" style="display:inline;"
+            onsubmit="return confirm('¿Quieres solicitar cambio de este documento?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger">
+              <span class="material-symbols-rounded">article_shortcut</span>
+            </button>
+          </form>
         </td>
         <td>
-          <a href="{{ url_for('clients.delete_document', document_id=file[0]) }}" class="btn btn-danger{% if file[3] != 0 %} disabled-btn{% endif %}"
-            {% if file[3] != 0 %}style="pointer-events: none; cursor: not-allowed;"{% endif %}
-            onclick="return confirm('¿Quieres eliminar este documento?');">
-            <span class="material-symbols-rounded">
-              delete
-            </span>
-          </a>
+          <form method="POST" action="{{ url_for('clients.delete_document', document_id=file[0]) }}" style="display:inline;"
+            onsubmit="return confirm('¿Quieres eliminar este documento?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger{% if file[3] != 0 %} disabled-btn{% endif %}"
+              {% if file[3] != 0 %}disabled style="pointer-events: none; cursor: not-allowed;"{% endif %}>
+              <span class="material-symbols-rounded">delete</span>
+            </button>
+          </form>
         </td>
       </tr>
       {% endfor %}

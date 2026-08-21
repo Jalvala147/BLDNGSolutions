@@ -58,7 +58,9 @@ Abre `http://127.0.0.1:5000`.
 | `src/static/` | CSS, JS e imágenes |
 | `.env.example` | Variables de entorno |
 | `requirements.txt` | Deps locales |
-| `requirements-vercel.txt` | Deps para Vercel |
+| `requirements-vercel.txt` | Deps del build en Vercel |
+| `scripts/vercel_install.sh` | pip en Vercel (PyMySQL, sin mysqlclient) |
+| `scripts/vercel_build.py` | Copia `src/static` a `public/static` (CDN) |
 | `vercel.json` | Config de deploy |
 | `migrations/` | Ajustes de schema |
 | `bdcompleta.sql` | Dump de la base (local, no va al repo) |
@@ -76,12 +78,61 @@ Abre `http://127.0.0.1:5000`.
 | `templates/auth/` | Logins |
 | `templates/startpage/` | Sitio público |
 
-## Deploy
+## Deploy en Vercel
 
-La app puede ir a Vercel; la base tiene que estar en un MySQL externo.
+Vercel corre Flask como una sola Function (`src/app.py`). **MySQL no puede ir en Vercel**: usa un MySQL/MariaDB alojado (PlanetScale, Railway, Aiven, RDS, un VPS, etc.) con acceso remoto.
 
-1. Importa `bdcompleta.sql` en ese MySQL y abre acceso remoto.
-2. Conecta el repo en Vercel.
-3. Carga las variables de `.env.example` en Environment Variables.
-4. Si el build pesa mucho, usa: `pip install -r requirements-vercel.txt`.
+Las IPs de salida de Vercel cambian. El host de MySQL tiene que aceptar conexiones externas (allowlist `0.0.0.0/0`, o un proveedor sin filtro por IP).
+
+### 1. Base de datos
+
+```bash
+mysql -u USER -p -h HOST -e "CREATE DATABASE bdcompleta CHARACTER SET utf8mb4;"
+mysql -u USER -p -h HOST bdcompleta < bdcompleta.sql
+```
+
+Si el proveedor exige TLS, más adelante pon `MYSQL_SSL=true`.
+
+### 2. Proyecto en Vercel
+
+1. [Importa el repo](https://vercel.com/new) (Framework Preset: Flask se detecta solo).
+2. Root Directory: deja el raíz del repo.
+3. No hace falta cambiar Install/Build: `vercel.json` ya usa `scripts/vercel_install.sh` y `scripts/vercel_build.py`.
+
+### 3. Variables de entorno
+
+En **Project → Settings → Environment Variables**, copia los nombres de `.env.example`. Mínimo para que arranque:
+
+| Variable | Notas |
+|----------|--------|
+| `SECRET_KEY` | Obligatorio. `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `FLASK_ENV` | `production` |
+| `MYSQL_HOST` | Host público del MySQL |
+| `MYSQL_PORT` | `3306` salvo que el proveedor indique otro |
+| `MYSQL_USER` / `MYSQL_PASSWORD` / `MYSQL_DB` | Credenciales |
+| `MYSQL_SSL` | `true` si el host exige TLS |
+| `MAIL_*` | Solo si usas recuperar contraseña |
+| `GOOGLE_MAPS_*` / `STRIPE_*` | Opcionales |
+
+Aplica las variables a Production (y Preview si quieres).
+
+En **Settings → Functions**, elige una región cercana a la base (menos latencia).
+
+### 4. Verificar
+
+Tras el deploy, `https://TU-DOMINIO.vercel.app/healthz` debe responder `{"status":"ok"}`. Luego prueba `/startpage` y un login.
+
+Si el Function log dice que no puede conectar a MySQL: host, puerto, firewall/allowlist, o `MYSQL_SSL`.
+
+### CLI (opcional)
+
+```bash
+npm i -g vercel
+vercel login
+vercel
+# producción:
+vercel --prod
+```
+
+No subas `.env`. Vercel inyecta las variables del dashboard.
 

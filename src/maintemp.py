@@ -28,6 +28,7 @@ def maintenance_required(func):
 
 #--------------------rutas mantenimiento-----------------------
 @maintemp.route('/maintenance_home')
+@maintenance_required
 def maintenance_home():
     # Código necesario para la página "maintenance/mantHome.jinja"
     return render_template('maintenance/mantHome.jinja')

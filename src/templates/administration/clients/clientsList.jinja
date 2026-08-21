@@ -33,11 +33,14 @@
             edit
             </span></a>
         </td>
-        <td><a href="{{ url_for('admin.deleteClient', id=user[0]) }}" onclick="return confirm('¿Estás seguro de que deseas eliminar este registro? Esta acción eliminará al cliente completamente del sistema asi como sus archivos')">
-            <input type="hidden" name="_method" value="DELETE">
-            <span class="material-symbols-rounded">
-            delete
-            </span></a>
+        <td>
+            <form method="POST" action="{{ url_for('admin.deleteClient', id=user[0]) }}" style="display:inline;"
+                onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro? Esta acción eliminará al cliente completamente del sistema asi como sus archivos')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;color:inherit;">
+                    <span class="material-symbols-rounded">delete</span>
+                </button>
+            </form>
         </td>
     </tr>
     {% endfor %}
