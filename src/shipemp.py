@@ -128,7 +128,7 @@ def completedOrders():
 
 
 #---------Cambiar el Estado del Pedido a Enviado------------
-@shipemp.route('/shipping/markShipped/<int:order_id>', methods=['GET', 'POST'])
+@shipemp.route('/shipping/markShipped/<int:order_id>', methods=['POST'])
 @shipping_required
 def markShipped(order_id):
     # Establecer un cursor para ejecutar consultas SQL
@@ -149,7 +149,7 @@ def markShipped(order_id):
 
 
 #---------Cambiar el Estado del Pedido a No Enviado------------
-@shipemp.route('/shipping/unmarkShipped/<int:order_id>', methods=['GET', 'POST'])
+@shipemp.route('/shipping/unmarkShipped/<int:order_id>', methods=['POST'])
 @shipping_required
 def unmarkShipped(order_id):
     # Establecer un cursor para ejecutar consultas SQL
@@ -210,8 +210,8 @@ def ordersInfo(order_id):
 @shipping_required
 def routes():
     # Recuperar los parámetros startLocation y endLocation codificados en URL
-    start_location = request.args.get('startLocation')
-    end_location = request.args.get('endLocation')
+    start_location = request.args.get('startLocation') or ''
+    end_location = request.args.get('endLocation') or ''
 
     # Decodificar los parámetros codificados en URL
     start_location_decoded = unquote(start_location)

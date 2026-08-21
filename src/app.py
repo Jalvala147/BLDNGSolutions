@@ -22,16 +22,16 @@ except ImportError:
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
 from flask_mail import Mail, Message
-import secrets
 from flask import render_template_string
 from flask_wtf.csrf import CSRFProtect
-from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import LoginManager, login_user, logout_user
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from utils.passwords import generate_password_hash, check_password_hash
-from salesemp import salesemp
+from salesemp import salesemp, sales_required
 from clients import clients
-from maintemp import maintemp
-from storageemp import storageemp
-from shipemp import shipemp
+from maintemp import maintemp, maintenance_required
+from storageemp import storageemp, storage_required
+from shipemp import shipemp, shipping_required
 from admin import admin
 from config import config
 import re
@@ -40,6 +40,10 @@ app = Flask(__name__)
 _env = os.environ.get('FLASK_ENV', os.environ.get('VERCEL_ENV', 'development'))
 _config_name = 'production' if _env in ('production', 'prod') or os.environ.get('VERCEL') else 'development'
 app.config.from_object(config[_config_name])
+if not app.config.get('SECRET_KEY'):
+    if _config_name == 'production':
+        raise RuntimeError('SECRET_KEY is required in production')
+    app.config['SECRET_KEY'] = 'dev-only-insecure-secret-key'
 
 # MySQL (env vars override defaults from config)
 app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', app.config.get('MYSQL_HOST', 'localhost'))
@@ -57,8 +61,6 @@ app.register_blueprint(storageemp)
 app.register_blueprint(shipemp)
 app.register_blueprint(admin)
 
-login_manager = LoginManager(app)
-
 # Models:
 from models.ModelUser import ModelUser
 
@@ -75,6 +77,10 @@ login_manager_app = LoginManager(app)
 @login_manager_app.user_loader
 def load_user(id):
     return ModelUser.get_by_id(mysql, id)
+
+
+def _password_reset_serializer():
+    return URLSafeTimedSerializer(app.config['SECRET_KEY'], salt='password-reset')
 
 #configuracion para el envio de correos
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', app.config.get('MAIL_SERVER', 'smtp.googlemail.com'))
@@ -170,7 +176,7 @@ def verificar_nombre_usuario(username):
 
 # Funcion para verificar las politicas de contraseña
 def verificar_contrasena(password):
-    if len(password) < 8:
+    if not password or len(password) < 8:
         return "La contraseña debe tener al menos 8 caracteres."
     if not any(char.isupper() for char in password):
         return "La contraseña debe contener al menos una mayúscula."
@@ -205,11 +211,17 @@ def signup():
         # Verificar si el correo ya está en uso
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM user WHERE email = %s", (email,))
-        existing_user = cur.fetchone()
+        existing_email = cur.fetchone()
+        cur.execute("SELECT id FROM user WHERE username = %s", (username,))
+        existing_username = cur.fetchone()
         cur.close()
 
-        if existing_user:
+        if existing_email:
             flash("El correo electrónico ya está en uso.")
+            return render_template('signup.jinja', username=username, fullname=fullname, email=email)
+
+        if existing_username:
+            flash("El nombre de usuario ya está en uso.")
             return render_template('signup.jinja', username=username, fullname=fullname, email=email)
         
         
@@ -233,19 +245,18 @@ def login():
         password = request.form['password']
 
         cur = mysql.connection.cursor()
-        cur.execute("SELECT id, password, tipousuario FROM user WHERE username=%s", (username,))
+        cur.execute("SELECT id, password, tipousuario, areaUsuario FROM user WHERE username=%s", (username,))
         user_data = cur.fetchone()
         cur.close()
 
         if user_data is not None:
-            user_id, hashed_password, tipoUsuario = user_data
+            user_id, hashed_password, tipoUsuario, areaUsuario = user_data
 
             if check_password_hash(hashed_password, password):
-                # Contraseña válida, puedes continuar con el inicio de sesión
-                logged_user = User(user_id, username, password)
+                logged_user = User(user_id, username, None, "", tipoUsuario, areaUsuario)
                 if tipoUsuario == 3:
                     login_user(logged_user)
-                    session['user_id'] = user_id  # Guardar el ID del usuario en la sesión
+                    session['user_id'] = user_id
                     return redirect(url_for('clients.clientsHome'))
 
                 flash("Invalid user type...")
@@ -267,16 +278,15 @@ def loginadm():
         #print(request.form['password'])
         
         cur = mysql.connection.cursor()
-        cur.execute("SELECT id, password, tipousuario FROM user WHERE username=%s", (username,))
+        cur.execute("SELECT id, password, tipousuario, areaUsuario FROM user WHERE username=%s", (username,))
         user_data = cur.fetchone()
         cur.close()
 
         if user_data is not None:
-            user_id, hashed_password, tipoUsuario = user_data
+            user_id, hashed_password, tipoUsuario, areaUsuario = user_data
 
             if check_password_hash(hashed_password, password):
-                # Contraseña válida, puedes continuar con el inicio de sesión
-                logged_user = User(user_id, username, password)
+                logged_user = User(user_id, username, None, "", tipoUsuario, areaUsuario)
                 if tipoUsuario == 1:
                     login_user(logged_user)
                     return redirect(url_for('admin.adminHome'))
@@ -311,8 +321,7 @@ def loginemp():
             user_id, hashed_password, tipoUsuario, idArea = user_data
             
             if check_password_hash(hashed_password, password):
-                # Contraseña válida, puedes continuar con el inicio de sesión
-                logged_user = User(user_id, username, password)
+                logged_user = User(user_id, username, None, "", tipoUsuario, idArea)
 
                 if tipoUsuario == 2 and idArea == 2:  #redireccion para usuarios de ventas
                     login_user(logged_user)
@@ -348,18 +357,22 @@ def loginemp():
     return render_template('auth/loginemp.jinja')
 
 @app.route('/sales_emp_area')
+@sales_required
 def sales_emp_area():
     return render_template('salesEmpArea/salesHome.jinja')
 
 @app.route('/storage_home')
+@storage_required
 def storage_home():
     return render_template('storage/storageHome.jinja')
 
 @app.route('/maintenance_home')
+@maintenance_required
 def maintenance_home():
     return render_template('maintenance/mantHome.jinja')
 
 @app.route('/shipping_home')
+@shipping_required
 def shipping_home():
     return render_template('shipping/shipHome.jinja')
 
@@ -367,143 +380,119 @@ def shipping_home():
 
 #---------------------------------Ruta para recuperacion de contraseña----------------------------------------------
 
+_RESET_TOKEN_MAX_AGE = 3600  # 1 hour
+_RESET_GENERIC_MESSAGE = (
+    'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.'
+)
+
 @app.route('/forgotpassword', methods=['GET', 'POST'])
 def forgotpassword():
-    cur = mysql.connection.cursor()
-
-    reset_url = None
-
     if request.method == 'POST':
-        # Obtener el correo electrónico ingresado en el formulario
-        correo_destinatario = request.form.get('correo')
-
-        # Validar el formato del correo electrónico usando una expresión regular
+        correo_destinatario = (request.form.get('correo') or '').strip()
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
         if not re.match(pattern, correo_destinatario):
             flash('Error: Por favor, ingrese un correo electrónico válido.', 'error')
-        else:
-            # Buscar el correo en la base de datos
-            cur.execute("SELECT * FROM user WHERE email = %s", (correo_destinatario,))
+            return render_template('auth/forgotpassword.jinja')
+
+        cur = mysql.connection.cursor()
+        try:
+            cur.execute("SELECT id FROM user WHERE email = %s", (correo_destinatario,))
             user = cur.fetchone()
 
-
             if user:
-                # Generar un token único
-                token = secrets.token_hex(16)
-            
-                # Almacenar el token en la base de datos junto con el usuario
+                token = _password_reset_serializer().dumps({'id': user[0]})
                 cur.execute("UPDATE user SET reset_token = %s WHERE id = %s", (token, user[0]))
                 mysql.connection.commit()
 
-                # Generar la URL con el token usando url_for
                 reset_url = url_for('changepassword', token=token, _external=True)
-
-                # Renderizar la plantilla HTML con Jinja2
                 html_content = render_template_string('''
                 <!DOCTYPE html>
                 <html>
                 <head>
                     <title>Recuperación de contraseña</title>
                     <style>
-                        body {
-                            font-family: Arial, sans-serif;
-                            background-color: #f2f2f2;
-                        }
+                        body { font-family: Arial, sans-serif; background-color: #f2f2f2; }
                         .container {
-                            max-width: 600px;
-                            margin: 0 auto;
-                            padding: 20px;
-                            background-color: #ffffff;
-                            border-radius: 5px;
+                            max-width: 600px; margin: 0 auto; padding: 20px;
+                            background-color: #ffffff; border-radius: 5px;
                             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
                         }
-                        h1 {
-                            color: #ff0000;
-                        }
-                        p {
-                            color: #333333;
-                            line-height: 1.6;
-                        }
-                        a {
-                            color: #0000ff;
-                            text-decoration: none;
-                        }
-                        a:hover {
-                            text-decoration: underline;
-                        }
+                        h1 { color: #ff0000; }
+                        p { color: #333333; line-height: 1.6; }
+                        a { color: #0000ff; text-decoration: none; }
+                        a:hover { text-decoration: underline; }
                         .btn {
-                            display: inline-block;
-                            padding: 10px 20px;
-                            background-color: #ff0000;
-                            color: #ffffff;
-                            text-decoration: none;
-                            border-radius: 5px;
-                        }
-                        .btn:hover {
-                            background-color: #0000ff;
+                            display: inline-block; padding: 10px 20px;
+                            background-color: #ff0000; color: #ffffff;
+                            text-decoration: none; border-radius: 5px;
                         }
                     </style>
                 </head>
                 <body>
                     <div class="container">
                         <h1>Recuperación de contraseña</h1>
-                        <p>Se ha solicitado un cambio de contraseña para su cuenta de BuildingSolutions. Si usted no ha solicitado este cambio, por favor ignore este correo. Si desea cambiar su contraseña, por favor ingrese al siguiente <a href="{{ reset_url }}">enlace</a>.</p>
-                        <p>¡Gracias!</p>
+                        <p>Se ha solicitado un cambio de contraseña para su cuenta de BuildingSolutions. Si usted no ha solicitado este cambio, ignore este correo. Si desea cambiar su contraseña, use el siguiente <a href="{{ reset_url }}">enlace</a>.</p>
+                        <p>El enlace caduca en una hora.</p>
                         <a class="btn" href="{{ reset_url }}">Cambiar Contraseña</a>
                     </div>
                 </body>
                 </html>
                 ''', reset_url=reset_url)
 
-                # Enviar el correo con el contenido HTML renderizado
-                msg = Message('Recuperación de contraseña', sender='bldngsolutions.mail@gmail.com', recipients=[correo_destinatario])
+                sender = app.config.get('MAIL_USERNAME') or 'bldngsolutions.mail@gmail.com'
+                msg = Message('Recuperación de contraseña', sender=sender, recipients=[correo_destinatario])
                 msg.html = html_content
                 mail.send(msg)
+        finally:
+            cur.close()
 
-                # Mostrar mensaje flash en el mismo formulario
-                flash('Correo enviado correctamente.', 'success')
-            else:
-                flash('Error: El correo electrónico no está registrado.', 'error')
+        flash(_RESET_GENERIC_MESSAGE, 'success')
 
-    return render_template('auth/forgotpassword.jinja', reset_url=reset_url)
+    return render_template('auth/forgotpassword.jinja')
 
 
 @app.route('/changepassword/<token>', methods=['GET', 'POST'])
 def changepassword(token):
-    cur = mysql.connection.cursor()
-    
-    if request.method == 'POST':
-        nueva_contrasena = request.form.get('nueva_contrasena')
-        confirmar_contrasena = request.form.get('confirmar_contrasena')
+    try:
+        data = _password_reset_serializer().loads(token, max_age=_RESET_TOKEN_MAX_AGE)
+        token_user_id = data.get('id')
+    except SignatureExpired:
+        flash('Error: El enlace de recuperación ha caducado. Solicita uno nuevo.', 'error')
+        return redirect(url_for('forgotpassword'))
+    except (BadSignature, TypeError, AttributeError):
+        flash('Error: El token no es válido.', 'error')
+        return redirect(url_for('forgotpassword'))
 
-        # Verificar si el token es válido
-        cur.execute("SELECT id, username FROM user WHERE reset_token = %s", (token,))
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute("SELECT id FROM user WHERE id = %s AND reset_token = %s", (token_user_id, token))
         user_data = cur.fetchone()
 
-        if user_data is not None:
-            user_id, username = user_data
+        if user_data is None:
+            flash('Error: El token no es válido o ya fue utilizado.', 'error')
+            return redirect(url_for('forgotpassword'))
 
-            # Verificar la nueva contraseña usando la función verificar_contrasena
+        if request.method == 'POST':
+            nueva_contrasena = request.form.get('nueva_contrasena')
+            confirmar_contrasena = request.form.get('confirmar_contrasena')
             error_message = verificar_contrasena(nueva_contrasena)
 
-            if error_message is None:
-                if nueva_contrasena == confirmar_contrasena:
-                    # Hashear la nueva contraseña
-                    hashed_password = generate_password_hash(nueva_contrasena)
-
-                    # Actualizar la contraseña hasheada y borrar el token
-                    cur.execute("UPDATE user SET password = %s, reset_token = NULL WHERE id = %s", (hashed_password, user_id))
-                    mysql.connection.commit()
-
-                    flash('Contraseña actualizada correctamente.', 'success')
-                    return redirect('/loginclient')
-                else:
-                    flash('Error: Las contraseñas no coinciden.', 'error')
-            else:
+            if error_message is not None:
                 flash('Error: ' + error_message, 'error')
-        else:
-            flash('Error: El token no es válido.', 'error')
+            elif nueva_contrasena != confirmar_contrasena:
+                flash('Error: Las contraseñas no coinciden.', 'error')
+            else:
+                hashed_password = generate_password_hash(nueva_contrasena)
+                cur.execute(
+                    "UPDATE user SET password = %s, reset_token = NULL WHERE id = %s",
+                    (hashed_password, token_user_id),
+                )
+                mysql.connection.commit()
+                flash('Contraseña actualizada correctamente.', 'success')
+                return redirect(url_for('login'))
+    finally:
+        cur.close()
 
     return render_template('changepassword.jinja')
 #---------------Rutas para logout, paginas protegidas, pagina de start y home -----------------------------------

@@ -8,6 +8,7 @@ class Config:
     MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
     MYSQL_DB = os.environ.get('MYSQL_DB', 'bdcompleta')
     MYSQL_PORT = int(os.environ.get('MYSQL_PORT', '3306'))
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB uploads
 
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))

@@ -39,6 +39,15 @@ def sales_required(func):
     return decorated_view
 
 
+def _can_access_sales_files():
+    if not current_user.is_authenticated:
+        return False
+    return (
+        (current_user.tipoUsuario == 2 and current_user.areaUsuario == 2)
+        or (current_user.tipoUsuario == 1)
+    )
+
+
 @salesemp.route('/logout')
 def logout():
     logout_user()
@@ -77,6 +86,7 @@ def rentsList():
 
 #-------------Aceptar solicitudes de cancelacion de pedidos
 @salesemp.route('/salesEmpArea/acceptCancelRequest/<int:order_id>', methods=['POST'])
+@sales_required
 def acceptCancelRequest(order_id):
     if request.method == 'POST':
         # Actualiza el valor de cancel_status a 0 en la base de datos
@@ -95,7 +105,7 @@ def canceledRentsList():
     cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND cancel_status = 0 AND type = 1")
 
     orders_ids = cur.fetchall()
-    cur.close
+    cur.close()
     return render_template('/salesEmpArea/canceledRentsList.jinja', order_ids=orders_ids)
 
 #Listado de ventas canceladas
@@ -106,7 +116,7 @@ def canceledSalesList():
     cur.execute("SELECT id, cancel_status FROM orders WHERE status = 1 AND cancel_status = 0 AND type = 0")
 
     orders_ids = cur.fetchall()
-    cur.close
+    cur.close()
     return render_template('/salesEmpArea/canceledSalesList.jinja', order_ids=orders_ids)
 
 #Funcion para actualizar el campo verifiedDocs cuando el empleado haya verificado los documentos
@@ -272,7 +282,7 @@ def completedOrders():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id FROM orders WHERE status = 0")
     orders_ids = cur.fetchall()
-    cur.close
+    cur.close()
     return render_template('/salesEmpArea/completedOrders.jinja', order_ids=orders_ids)
 
 #---------
@@ -311,32 +321,48 @@ def auto_progress(order_id):
 
 #------------------------------Guardado de archivos------------------------
 @salesemp.route('/download_file/<filename>')
+@login_required
 def download_file(filename):
-    # Obtén el archivo blob de la base de datos
     cur = mysql.connection.cursor()
-    cur.execute("SELECT file_data FROM files WHERE filename = %s", (filename,))
-    file_data = cur.fetchone()[0]
+    if _can_access_sales_files():
+        cur.execute("SELECT file_data FROM files WHERE filename = %s", (filename,))
+    else:
+        cur.execute(
+            "SELECT file_data FROM files WHERE filename = %s AND user_id = %s",
+            (filename, current_user.id),
+        )
+    row = cur.fetchone()
     cur.close()
 
-    # Crea una respuesta para enviar el archivo al cliente
-    response = make_response(file_data)
+    if not row or row[0] is None:
+        flash("Archivo no encontrado o no autorizado.", "error")
+        return redirect(url_for('clients.docs'))
+
+    response = make_response(row[0])
     response.headers["Content-Disposition"] = f"attachment; filename={filename}"
-    
     return response
-    
-    
+
+
 @salesemp.route('/view_file/<filename>')
+@login_required
 def view_file(filename):
-    # Obtén el archivo blob de la base de datos
     cur = mysql.connection.cursor()
-    cur.execute("SELECT file_data FROM files WHERE filename = %s", (filename,))
-    file_data = cur.fetchone()[0]
+    if _can_access_sales_files():
+        cur.execute("SELECT file_data FROM files WHERE filename = %s", (filename,))
+    else:
+        cur.execute(
+            "SELECT file_data FROM files WHERE filename = %s AND user_id = %s",
+            (filename, current_user.id),
+        )
+    row = cur.fetchone()
     cur.close()
 
-    # Crea una respuesta para enviar el archivo al navegador
-    response = make_response(file_data)
-    response.headers["Content-Type"] = "application/pdf"  # Establece el tipo de contenido según el tipo de archivo
-    
+    if not row or row[0] is None:
+        flash("Archivo no encontrado o no autorizado.", "error")
+        return redirect(url_for('clients.docs'))
+
+    response = make_response(row[0])
+    response.headers["Content-Type"] = "application/pdf"
     return response
 
 

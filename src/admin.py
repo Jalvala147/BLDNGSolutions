@@ -1117,7 +1117,7 @@ def profitabilityResults():
 @admin_required
 def maintListEmp():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 5")
+    cur.execute("SELECT id, username, fullname, email, note FROM user WHERE tipousuario = 2 AND areaUsuario = 5")
     users = cur.fetchall()
     cur.close()
     return render_template('administration/maintListEmp.jinja', users=users)
@@ -1144,11 +1144,11 @@ def maintAddEmp():
 
 
 # Vista para eliminar un empleado✅
-@admin.route('/administration/maintDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+@admin.route('/administration/maintDeleteEmp/<int:id>', methods=['POST'])
 @admin_required
 def maintDeleteEmp(id):
     cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM user WHERE id = %s", [id])
+    cur.execute("DELETE FROM user WHERE id = %s AND tipousuario = 2 AND areaUsuario = 5", [id])
     mysql.connection.commit()
     cur.close()
     return redirect(url_for('admin.maintListEmp'))
@@ -1210,11 +1210,11 @@ def salesAddEmp():
 
 
 # Vista para eliminar un empleado
-@admin.route('/administration/salesDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+@admin.route('/administration/salesDeleteEmp/<int:id>', methods=['POST'])
 @admin_required
 def salesDeleteEmp(id):
     cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM user WHERE id = %s", [id])
+    cur.execute("DELETE FROM user WHERE id = %s AND tipousuario = 2 AND areaUsuario = 2", [id])
     mysql.connection.commit()
     cur.close()
     return redirect(url_for('admin.salesListEmp'))
@@ -1250,7 +1250,7 @@ def salesUpdateEmp(id):
 @admin_required
 def storListEmp():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 3")
+    cur.execute("SELECT id, username, fullname, email, note FROM user WHERE tipousuario = 2 AND areaUsuario = 3")
     users = cur.fetchall()
     cur.close()
     return render_template('administration/storListEmp.jinja', users=users)
@@ -1279,11 +1279,11 @@ def storAddEmp():
 
 
 # Vista para eliminar un empleado
-@admin.route('/administration/storDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+@admin.route('/administration/storDeleteEmp/<int:id>', methods=['POST'])
 @admin_required
 def storDeleteEmp(id):
     cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM user WHERE id = %s", [id])
+    cur.execute("DELETE FROM user WHERE id = %s AND tipousuario = 2 AND areaUsuario = 3", [id])
     mysql.connection.commit()
     cur.close()
     return redirect(url_for('admin.storListEmp'))
@@ -1319,7 +1319,7 @@ def storUpdateEmp(id):
 @admin_required
 def shipListEmp():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, username, fullname, email FROM user WHERE tipousuario = 2 AND areaUsuario = 6")
+    cur.execute("SELECT id, username, fullname, email, note FROM user WHERE tipousuario = 2 AND areaUsuario = 6")
     users = cur.fetchall()
     cur.close()
     return render_template('administration/shipListEmp.jinja', users=users)
@@ -1347,11 +1347,11 @@ def shipAddEmp():
 
 
 # Vista para eliminar un empleado
-@admin.route('/administration/shipDeleteEmp/<int:id>', methods=['GET','POST', 'DELETE'])
+@admin.route('/administration/shipDeleteEmp/<int:id>', methods=['POST'])
 @admin_required
 def shipDeleteEmp(id):
     cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM user WHERE id = %s", [id])
+    cur.execute("DELETE FROM user WHERE id = %s AND tipousuario = 2 AND areaUsuario = 6", [id])
     mysql.connection.commit()
     cur.close()
     return redirect(url_for('admin.shipListEmp'))
@@ -1379,7 +1379,7 @@ def shipUpdateEmp(id):
 #--------------CRUD Prospectos-----------------------------------
 # Vista para listar todos los prospectos
 @admin.route('/administration/prospects')
-# @admin_required
+@admin_required
 def prospects():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id_Prospect, fullname, company, number, email FROM prospects WHERE contacted = 0")
@@ -1429,7 +1429,7 @@ def updateProspect(id):
     return render_template('administration/updateProspect.jinja', prospects=prospect)
 
 # Vista para eliminar un prospecto
-@admin.route('/administration/deleteProspect/<int:id>', methods=['GET', 'POST', 'DELETE'])
+@admin.route('/administration/deleteProspect/<int:id>', methods=['POST'])
 @admin_required
 def deleteProspect(id):
     cur = mysql.connection.cursor()
@@ -1449,7 +1449,8 @@ def contactedProspectsList():
     return render_template('administration/contactedProspects.jinja', prospects=prospects)
 
 #Actualizar notas
-@admin.route('/update_note/<user_id>', methods=['POST'])
+@admin.route('/update_note/<int:user_id>', methods=['POST'])
+@admin_required
 def update_note(user_id):
     if request.method == 'POST':
         new_note = request.form['note']
@@ -1502,7 +1503,7 @@ def editClient(id):
         return render_template('administration/clients/editClient.jinja', user=user_details)
     
 # Vista para eliminar un cliente
-@admin.route('/administration/deleteClient/<int:id>', methods=['GET', 'POST', 'DELETE'])
+@admin.route('/administration/deleteClient/<int:id>', methods=['POST'])
 @admin_required
 def deleteClient(id):
         # Elimina los registros relacionados en la tabla 'files'
@@ -1510,8 +1511,7 @@ def deleteClient(id):
         cur.execute("DELETE FROM files WHERE user_id = %s", [id])
         mysql.connection.commit()
         
-        # Luego, elimina al cliente de la tabla 'user'
-        cur.execute("DELETE FROM user WHERE id = %s", [id])
+        cur.execute("DELETE FROM user WHERE id = %s AND tipousuario = 3 AND areaUsuario = 4", [id])
         mysql.connection.commit()
         cur.close()
         
