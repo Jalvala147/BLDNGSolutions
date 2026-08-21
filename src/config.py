@@ -1,18 +1,32 @@
 import os
 
 
+def _env_int(name, default):
+    raw = os.environ.get(name)
+    if raw is None or str(raw).strip() == '':
+        return default
+    return int(raw)
+
+
+def _env_bool(name, default=False):
+    raw = os.environ.get(name)
+    if raw is None or str(raw).strip() == '':
+        return default
+    return str(raw).lower() in ('1', 'true', 'yes', 'on')
+
+
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', '')
+    SECRET_KEY = os.environ.get('SECRET_KEY', '') or ''
     MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')
     MYSQL_USER = os.environ.get('MYSQL_USER', 'admin')
     MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
     MYSQL_DB = os.environ.get('MYSQL_DB', 'bdcompleta')
-    MYSQL_PORT = int(os.environ.get('MYSQL_PORT', '3306'))
+    MYSQL_PORT = _env_int('MYSQL_PORT', 3306)
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB uploads
 
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
+    MAIL_PORT = _env_int('MAIL_PORT', 587)
+    MAIL_USE_TLS = _env_bool('MAIL_USE_TLS', True)
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME', '')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')
 

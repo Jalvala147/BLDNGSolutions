@@ -54,9 +54,11 @@ _env = os.environ.get('FLASK_ENV', os.environ.get('VERCEL_ENV', 'development'))
 _config_name = 'production' if _env in ('production', 'prod') or os.environ.get('VERCEL') else 'development'
 app.config.from_object(config[_config_name])
 if not app.config.get('SECRET_KEY'):
-    if _config_name == 'production':
-        raise RuntimeError('SECRET_KEY is required in production')
-    app.config['SECRET_KEY'] = 'dev-only-insecure-secret-key'
+    # Empty SECRET_KEY used to raise and crash the whole Vercel Function.
+    # Prefer setting SECRET_KEY in the dashboard; this keeps the app booting.
+    fallback = os.environ.get('VERCEL_DEPLOYMENT_ID') or 'dev-only-insecure-secret-key'
+    app.config['SECRET_KEY'] = fallback
+    print('WARNING: SECRET_KEY is not set; using a deploy fallback. Set SECRET_KEY in Vercel env.')
 
 # Vercel terminates TLS; honor X-Forwarded-* so cookies and url_for(_external=True) use https.
 if os.environ.get('VERCEL') or _config_name == 'production':
@@ -69,16 +71,14 @@ app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', app.config.get('
 app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', app.config.get('MYSQL_DB', 'bdcompleta'))
 app.config['MYSQL_CHARSET'] = os.environ.get('MYSQL_CHARSET', 'utf8mb4')
 app.config['MYSQL_CONNECT_TIMEOUT'] = int(os.environ.get('MYSQL_CONNECT_TIMEOUT', '10'))
-if os.environ.get('MYSQL_PORT'):
+if os.environ.get('MYSQL_PORT', '').strip():
     app.config['MYSQL_PORT'] = int(os.environ['MYSQL_PORT'])
 if os.environ.get('MYSQL_SSL', '').lower() in ('1', 'true', 'yes'):
     ssl_opts = {}
     if os.environ.get('MYSQL_SSL_CA'):
         ssl_opts['ca'] = os.environ['MYSQL_SSL_CA']
-    app.config['MYSQL_CUSTOM_OPTIONS'] = {
-        'ssl': ssl_opts,
-        'ssl_verify_cert': os.environ.get('MYSQL_SSL_VERIFY', '').lower() in ('1', 'true', 'yes'),
-    }
+    # PyMySQL: empty ssl dict enables TLS (required by TiDB Cloud).
+    app.config['MYSQL_CUSTOM_OPTIONS'] = {'ssl': ssl_opts}
 
 #Blueprints de las otras areas
 app.register_blueprint(salesemp)
@@ -154,7 +154,13 @@ def startpage():
 
 @app.route('/healthz')
 def healthz():
-    return {'status': 'ok'}, 200
+    return {
+        'status': 'ok',
+        'secret_key_configured': bool(os.environ.get('SECRET_KEY')),
+        'mysql_host_configured': bool(os.environ.get('MYSQL_HOST')),
+        'mysql_port': app.config.get('MYSQL_PORT'),
+        'mysql_ssl': bool(app.config.get('MYSQL_CUSTOM_OPTIONS')),
+    }, 200
 
 #------------Listado de los productos(maquinas)---------------------
 @app.route('/productsList')   

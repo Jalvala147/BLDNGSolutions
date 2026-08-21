@@ -11,19 +11,25 @@ from functools import wraps
 from datetime import datetime, timedelta
 import calendar
 import locale
-import pandas as pd
-import numpy as np
-import plotly.graph_objs as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-from plotly.offline import plot
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
+def _stats():
+    """Load analytics libs on demand so the Vercel Function can boot without them."""
+    import pandas as pd
+    import numpy as np
+    import plotly.graph_objs as go
+    import plotly.express as px
+    from plotly.subplots import make_subplots
+    from plotly.offline import plot
+    return pd, np, go, px, make_subplots, plot
+
+
 def _linear_predict(x_train, y_train, x_future):
     """Least-squares line without sklearn (keeps the Vercel bundle small)."""
+    _pd, np, _go, _px, _ms, _plot = _stats()
     x = np.asarray(x_train, dtype=float).reshape(-1)
     y = np.asarray(y_train, dtype=float).reshape(-1)
     if x.size < 2:
@@ -316,6 +322,7 @@ def projectionsResults():
 @admin_required
 def profitsResults():
     try:
+        pd, np, go, px, make_subplots, plot = _stats()
         # Establecer una conexión a la base de datos
         cur = mysql.connection.cursor()
 
@@ -406,6 +413,7 @@ fig_ganancias  = None
 @admin_required
 def generateTimeGraphs():
     global fig_ganancias
+    pd, np, go, px, make_subplots, plot = _stats()
     
     try:
         # Establecer una conexión a la base de datos
@@ -506,6 +514,7 @@ fig_projections = None
 @admin_required
 def profitsProjections():
     global fig_projections
+    pd, np, go, px, make_subplots, plot = _stats()
 
     if request.method == 'POST':
         temporalidad = request.form.get('temporalidad')
@@ -594,6 +603,7 @@ def profitsProjections():
 @admin_required
 def compareGraphs():
     global fig_ganancias, fig_projections
+    pd, np, go, px, make_subplots, plot = _stats()
 
     fig_ganancias = None  # Reiniciar las figuras en cada solicitud
     fig_projections = None
@@ -799,6 +809,7 @@ def compareGraphs():
 @admin_required
 def lossResults():
     try:
+        pd, np, go, px, make_subplots, plot = _stats()
         # Establecer una conexión a la base de datos
         cur = mysql.connection.cursor()
 
@@ -906,6 +917,7 @@ def lossResults():
 @admin_required
 def profitabilityResults():
     try:
+        pd, np, go, px, make_subplots, plot = _stats()
         cur = mysql.connection.cursor()
         cur.execute("SELECT DISTINCT DATE_FORMAT(order_date, '%Y-%m') as month FROM orders")
         months = [row[0] for row in cur.fetchall()]
