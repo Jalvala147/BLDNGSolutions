@@ -1,9 +1,15 @@
 #Importaciones
 import os
+import sys
 from pathlib import Path
 
+_SRC_DIR = Path(__file__).resolve().parent
+_ROOT_DIR = _SRC_DIR.parent
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
+
 # Load local .env if present (no-op on Vercel when vars are set in the dashboard)
-_env_path = Path(__file__).resolve().parents[1] / '.env'
+_env_path = _ROOT_DIR / '.env'
 if _env_path.is_file():
     for _line in _env_path.read_text(encoding='utf-8').splitlines():
         _line = _line.strip()
@@ -20,6 +26,7 @@ except ImportError:
     pass
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_mysqldb import MySQL
 from flask_mail import Mail, Message
 from flask import render_template_string
@@ -36,7 +43,13 @@ from admin import admin
 from config import config
 import re
 
-app = Flask(__name__)
+_static_dir = _SRC_DIR / 'static'
+app = Flask(
+    __name__,
+    template_folder=str(_SRC_DIR / 'templates'),
+    static_folder=str(_static_dir) if _static_dir.is_dir() else None,
+    static_url_path='/static',
+)
 _env = os.environ.get('FLASK_ENV', os.environ.get('VERCEL_ENV', 'development'))
 _config_name = 'production' if _env in ('production', 'prod') or os.environ.get('VERCEL') else 'development'
 app.config.from_object(config[_config_name])
@@ -45,13 +58,27 @@ if not app.config.get('SECRET_KEY'):
         raise RuntimeError('SECRET_KEY is required in production')
     app.config['SECRET_KEY'] = 'dev-only-insecure-secret-key'
 
+# Vercel terminates TLS; honor X-Forwarded-* so cookies and url_for(_external=True) use https.
+if os.environ.get('VERCEL') or _config_name == 'production':
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
 # MySQL (env vars override defaults from config)
 app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', app.config.get('MYSQL_HOST', 'localhost'))
 app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', app.config.get('MYSQL_USER', ''))
 app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', app.config.get('MYSQL_PASSWORD', ''))
 app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', app.config.get('MYSQL_DB', 'bdcompleta'))
+app.config['MYSQL_CHARSET'] = os.environ.get('MYSQL_CHARSET', 'utf8mb4')
+app.config['MYSQL_CONNECT_TIMEOUT'] = int(os.environ.get('MYSQL_CONNECT_TIMEOUT', '10'))
 if os.environ.get('MYSQL_PORT'):
     app.config['MYSQL_PORT'] = int(os.environ['MYSQL_PORT'])
+if os.environ.get('MYSQL_SSL', '').lower() in ('1', 'true', 'yes'):
+    ssl_opts = {}
+    if os.environ.get('MYSQL_SSL_CA'):
+        ssl_opts['ca'] = os.environ['MYSQL_SSL_CA']
+    app.config['MYSQL_CUSTOM_OPTIONS'] = {
+        'ssl': ssl_opts,
+        'ssl_verify_cert': os.environ.get('MYSQL_SSL_VERIFY', '').lower() in ('1', 'true', 'yes'),
+    }
 
 #Blueprints de las otras areas
 app.register_blueprint(salesemp)
@@ -124,6 +151,10 @@ def index():
 @app.route('/startpage')
 def startpage():
     return render_template('startpage.jinja')
+
+@app.route('/healthz')
+def healthz():
+    return {'status': 'ok'}, 200
 
 #------------Listado de los productos(maquinas)---------------------
 @app.route('/productsList')   
@@ -516,6 +547,9 @@ def status_404(error):
 csrf.init_app(app)
 app.register_error_handler(401, status_401)
 app.register_error_handler(404, status_404)
+
+# Alias some WSGI hosts look for
+application = app
 
 if __name__ == '__main__':
     app.run()

@@ -13,17 +13,23 @@ import calendar
 import locale
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 import plotly.express as px
-import plotly.subplots as sp
 from plotly.subplots import make_subplots
 from plotly.offline import plot
-from sklearn.linear_model import LinearRegression 
-from sklearn.model_selection import train_test_split
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+
+
+def _linear_predict(x_train, y_train, x_future):
+    """Least-squares line without sklearn (keeps the Vercel bundle small)."""
+    x = np.asarray(x_train, dtype=float).reshape(-1)
+    y = np.asarray(y_train, dtype=float).reshape(-1)
+    if x.size < 2:
+        raise ValueError('Se necesitan al menos 2 muestras para proyectar.')
+    slope, intercept = np.polyfit(x, y, 1)
+    return intercept + slope * np.asarray(x_future, dtype=float).reshape(-1)
 
 
 admin = Flask(__name__)
@@ -547,33 +553,16 @@ def profitsProjections():
                 num_samples = df.shape[0]
 
                 # Separar las características (ID de pedido) y el objetivo (montos totales)
-                X = df[['id']]
                 y = df['ganancias']
 
-                # Crear y entrenar un modelo de regresión lineal
-                model = LinearRegression()
-                model.fit(X, y)
-
-                # Generar ID de pedido para los días futuros
-                future_ids = pd.DataFrame({'id': range(df['id'].max() + 1, df['id'].max() + 50)})
-
-                # Realizar la predicción de ganancias para los ID de pedido futuros
-                projected_ganancias = model.predict(future_ids)
+                future_ids = pd.DataFrame({'id': range(int(df['id'].max()) + 1, int(df['id'].max()) + 50)})
+                projected_ganancias = _linear_predict(df['id'], y, future_ids['id'])
 
                 # Sumar los primeros 'num_samples' valores de ganancias proyectadas
                 sum_of_ganancias = sum(projected_ganancias[:num_samples])
 
                 # Formatear la estimación a dos decimales
                 estimacion = "{:.2f}".format(sum_of_ganancias)
-
-                # Crear una gráfica de dispersión con la línea de regresión
-                plt.figure(figsize=(10, 6))
-                plt.scatter(X, y, label='Ganancias Pasadas')
-                plt.plot(future_ids, projected_ganancias, color='red', label='Línea de Regresión, (proyeccion de ganancias)')
-                plt.xlabel('ID de Pedido')
-                plt.ylabel('Ganancias')
-                plt.title(f'Proyeccion de resultados en {label} con Regresión Lineal')
-                plt.legend()
 
                 # Crear una gráfica de dispersión interactiva con la línea de regresión utilizando Plotly
                 fig_projections  = px.scatter(df, x='id', y='ganancias', title=f'Proyeccion de resultados en {label} con Regresión Lineal')
@@ -735,33 +724,16 @@ def compareGraphs():
                 num_samples = df.shape[0]
 
                 # Separar las características (ID de pedido) y el objetivo (montos totales)
-                X = df[['id']]
                 y = df['ganancias']
 
-                # Crear y entrenar un modelo de regresión lineal
-                model = LinearRegression()
-                model.fit(X, y)
-
-                # Generar ID de pedido para los días futuros
-                future_ids = pd.DataFrame({'id': range(df['id'].max() + 1, df['id'].max() + 50)})
-
-                # Realizar la predicción de ganancias para los ID de pedido futuros
-                projected_ganancias = model.predict(future_ids)
+                future_ids = pd.DataFrame({'id': range(int(df['id'].max()) + 1, int(df['id'].max()) + 50)})
+                projected_ganancias = _linear_predict(df['id'], y, future_ids['id'])
 
                 # Sumar los primeros 'num_samples' valores de ganancias proyectadas
                 sum_of_ganancias = sum(projected_ganancias[:num_samples])
 
                 # Formatear la estimación a dos decimales
                 estimacion = "{:.2f}".format(sum_of_ganancias)
-
-                # Crear una gráfica de dispersión con la línea de regresión
-                plt.figure(figsize=(10, 6))
-                plt.scatter(X, y, label='Ganancias Pasadas')
-                plt.plot(future_ids, projected_ganancias, color='red', label='Línea de Regresión, (proyeccion de ganancias)')
-                plt.xlabel('ID de Pedido')
-                plt.ylabel('Ganancias')
-                plt.title(f'Proyeccion de resultados en {label} con Regresión Lineal')
-                plt.legend()
 
                 # Crear una gráfica de dispersión interactiva utilizando Plotly
                 fig_projections = px.scatter(df, x='id', y='ganancias', title=f'Proyeccion de resultados en {label} con Regresión Lineal')

@@ -1,10 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
+  "installCommand": "bash scripts/vercel_install.sh",
+  "buildCommand": "python scripts/vercel_build.py",
   "functions": {
     "src/app.py": {
       "maxDuration": 60,
-      "excludeFiles": "{env/**,.venv/**,**/*.sql,bdcompleta.sql,migrations/**,**/__pycache__/**,**/*.pyc,agent-transcripts/**}"
+      "excludeFiles": "{env/**,.venv/**,**/*.sql,bdcompleta.sql,migrations/**,**/__pycache__/**,**/*.pyc,public/**,agent-transcripts/**,.git/**,.cursor/**}"
     }
   }
 }
